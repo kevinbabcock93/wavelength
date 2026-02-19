@@ -27,9 +27,6 @@ body {
   font-family: 'IBM Plex Mono', monospace;
 }
 
-.view { display:none; }
-.view.active { display:block; }
-
 .center-screen {
   min-height:100vh;
   display:flex;
@@ -121,7 +118,7 @@ button {
 </div>
 
 <script>
-  // ✅ Correct initialization for Supabase UMD build
+  // Initialize Supabase
   const supabaseUrl = "https://ozkrjvyuptwlzaqhqljc.supabase.co";
   const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im96a3Jqdnl1cHR3bHphcWhxbGpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODI2NDksImV4cCI6MjA4Njk1ODY0OX0.SqNJLTYZwnHV5kywP1PyLdp9-y76ugu-PyfL7BOGLIA";
   const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
@@ -146,20 +143,27 @@ button {
 
       if (loginError) {
         if (loginError.message.includes("Invalid login credentials")) {
-          // If user doesn't exist, sign up
+          // User doesn't exist → sign up
           const { data: signupData, error: signupError } = await supabaseClient.auth.signUp({ email, password });
+
           if (signupError) {
             messageDiv.textContent = signupError.message;
           } else {
-            messageDiv.textContent = "Account created and logged in!";
-            console.log("User data:", signupData);
+            // Check if user is automatically logged in
+            if (signupData.session) {
+              messageDiv.textContent = "Account created and logged in!";
+              console.log("User data:", signupData.user);
+            } else {
+              messageDiv.textContent = "Account created! Please check your email to confirm before logging in.";
+              console.log("User data (needs confirmation):", signupData.user);
+            }
           }
         } else {
           messageDiv.textContent = loginError.message;
         }
       } else {
         messageDiv.textContent = "Logged in successfully!";
-        console.log("User data:", loginData);
+        console.log("User data:", loginData.user);
       }
     } catch (err) {
       messageDiv.textContent = "Unexpected error: " + err.message;
