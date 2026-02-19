@@ -19,7 +19,7 @@
   --border: #222;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin:0; padding:0; }
 
 body {
   background: var(--bg);
@@ -27,169 +27,145 @@ body {
   font-family: 'IBM Plex Mono', monospace;
 }
 
-.view { display: none; }
-.view.active { display: block; }
+.view { display:none; }
+.view.active { display:block; }
 
 .center-screen {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:2rem;
 }
 
 .center-box {
   background: var(--card);
-  padding: 2rem;
-  width: 100%;
-  max-width: 420px;
-  border: 1px solid var(--border);
+  padding:2rem;
+  width:100%;
+  max-width:420px;
+  border:1px solid var(--border);
 }
 
 .auth-logo {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 3rem;
-  letter-spacing: 0.08em;
-  text-align: center;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:3rem;
+  letter-spacing:0.08em;
+  text-align:center;
 }
-.auth-logo span { color: var(--accent); }
+.auth-logo span { color:var(--accent); }
 
 .auth-tagline {
-  text-align: center;
-  margin: 1rem 0 2rem;
-  font-size: 0.75rem;
-  color: var(--text-muted);
+  text-align:center;
+  margin:1rem 0 2rem;
+  font-size:0.75rem;
+  color:var(--text-muted);
 }
 
-.form-group { margin-bottom: 1rem; }
+.form-group { margin-bottom:1rem; }
 
 label {
-  display: block;
-  font-size: 0.7rem;
-  margin-bottom: 0.4rem;
-  color: var(--text-muted);
+  display:block;
+  font-size:0.7rem;
+  margin-bottom:0.4rem;
+  color:var(--text-muted);
 }
 
 input {
-  width: 100%;
-  padding: 0.6rem;
-  background: #111;
-  border: 1px solid var(--border);
-  color: white;
+  width:100%;
+  padding:0.6rem;
+  background:#111;
+  border:1px solid var(--border);
+  color:white;
 }
 
 button {
-  width: 100%;
-  padding: 0.7rem;
-  border: none;
-  cursor: pointer;
-  font-family: 'IBM Plex Mono', monospace;
-  margin-top: 0.5rem;
+  width:100%;
+  padding:0.7rem;
+  border:none;
+  cursor:pointer;
+  font-family:'IBM Plex Mono', monospace;
+  margin-top:0.5rem;
 }
 
 .btn-primary {
-  background: var(--accent);
-  color: white;
+  background:var(--accent);
+  color:white;
 }
 
 .btn-ghost {
-  background: none;
-  border: 1px solid var(--border);
-  color: var(--text);
-}
-
-.status-message {
-  font-size: 0.8rem;
-  text-align: center;
-  margin-top: 1rem;
-  color: var(--text-dim);
+  background:none;
+  border:1px solid var(--border);
+  color:var(--text);
 }
 </style>
 </head>
 <body>
 
-<div class="view active" id="auth-view">
-  <div class="center-screen">
-    <div class="center-box">
-      <div class="auth-logo">Wavelength <span>♪</span></div>
-      <div class="auth-tagline">Sign in or sign up to continue</div>
+<div class="center-screen">
+  <div class="center-box">
+    <div class="auth-logo">Wave<span>length</span></div>
+    <div class="auth-tagline">Sign up or log in</div>
 
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input type="email" id="email" placeholder="you@example.com">
-      </div>
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" placeholder="Your password">
-      </div>
-
-      <button class="btn-primary" id="login-btn">Sign In</button>
-      <button class="btn-ghost" id="signup-btn">Sign Up</button>
-
-      <div class="status-message" id="status-msg"></div>
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="you@example.com">
     </div>
-  </div>
-</div>
-
-<div class="view" id="app-view">
-  <div class="center-screen">
-    <div class="center-box">
-      <div class="auth-logo">Welcome!</div>
-      <button class="btn-primary" id="logout-btn">Log Out</button>
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="Your password">
     </div>
+
+    <button class="btn-primary" id="signup-btn">Sign Up / Log In</button>
+    <div id="message" style="margin-top:1rem; text-align:center;"></div>
   </div>
 </div>
 
 <script>
-const SUPABASE_URL = "https://ozkrjvyuptwlzaqhqljc.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im96a3Jqdnl1cHR3bHphcWhxbGpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODI2NDksImV4cCI6MjA4Njk1ODY0OX0.SqNJLTYZwnHV5kywP1PyLdp9-y76ugu-PyfL7BOGLIA";
+  // Initialize Supabase with your project URL and anon key
+  const supabaseUrl = "https://ozkrjvyuptwlzaqhqljc.supabase.co";
+  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im96a3Jqdnl1cHR3bHphcWhxbGpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODI2NDksImV4cCI6MjA4Njk1ODY0OX0.SqNJLTYZwnHV5kywP1PyLdp9-y76ugu-PyfL7BOGLIA";
+  const supabase = supabaseJs.createClient(supabaseUrl, supabaseKey);
 
-// Create client using global supabase (UMD)
-const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const signupBtn = document.getElementById("signup-btn");
+  const emailInput = document.getElementById("email");
+  const passwordInput = document.getElementById("password");
+  const messageDiv = document.getElementById("message");
 
-const authView = document.getElementById("auth-view");
-const appView = document.getElementById("app-view");
-const statusMsg = document.getElementById("status-msg");
+  signupBtn.addEventListener("click", async () => {
+    const email = emailInput.value;
+    const password = passwordInput.value;
 
-function showView(view) {
-  authView.classList.remove("active");
-  appView.classList.remove("active");
-  if (view === "auth") authView.classList.add("active");
-  if (view === "app") appView.classList.add("active");
-}
+    if (!email || !password) {
+      messageDiv.textContent = "Please enter email and password.";
+      return;
+    }
 
-// Login
-document.getElementById("login-btn").addEventListener("click", async () => {
-  statusMsg.textContent = "Signing in…";
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-  const { error } = await sb.auth.signInWithPassword({ email, password });
-  if (error) statusMsg.textContent = error.message;
-  else showView("app");
-});
+    // Attempt to sign in first
+    let { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
-// Sign Up
-document.getElementById("signup-btn").addEventListener("click", async () => {
-  statusMsg.textContent = "Signing up…";
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-  const { error } = await sb.auth.signUp({ email, password });
-  if (error) statusMsg.textContent = error.message;
-  else statusMsg.textContent = "Check your email for confirmation";
-});
+    if (error) {
+      if (error.message.includes("Invalid login credentials")) {
+        // If user doesn't exist, sign them up immediately
+        const { data: signupData, error: signupError } = await supabase.auth.signUp({
+          email,
+          password
+        });
 
-// Logout
-document.getElementById("logout-btn").addEventListener("click", async () => {
-  await sb.auth.signOut();
-  showView("auth");
-});
+        if (signupError) {
+          messageDiv.textContent = signupError.message;
+        } else {
+          messageDiv.textContent = "Account created and logged in!";
+        }
+      } else {
+        messageDiv.textContent = error.message;
+      }
+    } else {
+      messageDiv.textContent = "Logged in successfully!";
+    }
 
-// Check session on load
-(async () => {
-  const { data: { session } } = await sb.auth.getSession();
-  if (session) showView("app");
-})();
+    // Optionally, you can access user data
+    console.log("User data:", data);
+  });
 </script>
 
 </body>
