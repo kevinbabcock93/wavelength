@@ -1,45 +1,1250 @@
--- Profiles
-create table profiles (
-  id uuid references auth.users primary key,
-  username text unique not null,
-  display_name text not null,
-  color text default '#cc0000',
-  created_at timestamptz default now()
-);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wavelength — Song of the Week</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1c1c27;
+    --border: #2a2a3a;
+    --accent: #e8c547;
+    --accent2: #c47aff;
+    --text: #e8e8f0;
+    --text-muted: #6b6b88;
+    --text-dim: #3a3a55;
+    --red: #ff6b6b;
+    --green: #6bffb8;
+  }
 
--- Picks (one per user per week)
-create table picks (
-  id uuid default gen_random_uuid() primary key,
-  user_id uuid references profiles(id) on delete cascade,
-  week_number integer not null,
-  song text not null,
-  artist text not null,
-  note text,
-  tags text[],
-  year text,
-  band_info text,
-  artwork_url text,
-  created_at timestamptz default now(),
-  unique(user_id, week_number)
-);
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
--- Follows
-create table follows (
-  follower_id uuid references profiles(id) on delete cascade,
-  following_id uuid references profiles(id) on delete cascade,
-  created_at timestamptz default now(),
-  primary key (follower_id, following_id)
-);
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
--- Security
-alter table profiles enable row level security;
-alter table picks enable row level security;
-alter table follows enable row level security;
+  /* Grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
 
-create policy "Profiles public" on profiles for select using (true);
-create policy "Insert own profile" on profiles for insert with check (auth.uid() = id);
-create policy "Update own profile" on profiles for update using (auth.uid() = id);
-create policy "Picks public" on picks for select using (true);
-create policy "Manage own picks" on picks for all using (auth.uid() = user_id);
-create policy "Follows public" on follows for select using (true);
-create policy "Manage own follows" on follows for all using (auth.uid() = follower_id);
+  /* ===== VIEWS ===== */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ===== TOP NAV ===== */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+  }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-style: italic;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+    cursor: pointer;
+  }
+
+  .logo span { color: var(--accent2); }
+
+  nav .nav-actions { display: flex; gap: 0.75rem; align-items: center; }
+
+  .btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.5rem 1.1rem;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  .btn-ghost:hover { border-color: var(--text-muted); color: var(--text); }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #0a0a0f;
+  }
+  .btn-primary:hover { background: #f0d060; transform: translateY(-1px); }
+
+  .btn-accent2 {
+    background: var(--accent2);
+    color: #0a0a0f;
+  }
+  .btn-accent2:hover { background: #d490ff; transform: translateY(-1px); }
+
+  /* ===== FEED VIEW ===== */
+  .feed-header {
+    padding: 3rem 2rem 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .feed-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  .feed-header p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .week-label {
+    display: inline-block;
+    background: var(--accent);
+    color: #0a0a0f;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0.2rem 0.5rem;
+    border-radius: 2px;
+    margin-bottom: 1rem;
+  }
+
+  .friends-grid {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 2rem 4rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  .friend-card {
+    background: var(--surface);
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: background 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .friend-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 70%, rgba(232,197,71,0.03));
+    pointer-events: none;
+  }
+
+  .friend-card:hover { background: var(--surface2); }
+
+  .friend-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    flex-shrink: 0;
+  }
+
+  .friend-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    margin-bottom: 0.3rem;
+  }
+
+  .friend-song-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 0.2rem;
+  }
+
+  .friend-song-artist {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .no-pick {
+    color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    font-style: italic;
+  }
+
+  .view-profile-arrow {
+    position: absolute;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    color: var(--text-dim);
+    font-size: 1rem;
+    transition: all 0.15s;
+  }
+  .friend-card:hover .view-profile-arrow { color: var(--accent); transform: translate(2px, -2px); }
+
+  /* ===== PROFILE VIEW ===== */
+  .profile-back {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem 0;
+  }
+
+  .back-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: color 0.15s;
+  }
+  .back-btn:hover { color: var(--accent); }
+
+  .profile-hero {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 2rem 1rem;
+    display: flex;
+    align-items: flex-end;
+    gap: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .profile-avatar-lg {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .profile-meta h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 900;
+  }
+
+  .profile-meta p {
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    margin-top: 0.2rem;
+  }
+
+  .weeks-list {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem 4rem;
+  }
+
+  .week-row {
+    display: grid;
+    grid-template-columns: 120px 1fr auto;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.1s;
+    border-radius: 4px;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    margin: 0 -0.5rem;
+  }
+
+  .week-row:hover { background: var(--surface); }
+  .week-row.current-week .week-num { color: var(--accent); }
+
+  .week-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+  }
+
+  .week-song-info strong {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    display: block;
+  }
+
+  .week-song-info span {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+  }
+
+  .week-arrow { color: var(--text-dim); font-size: 0.9rem; }
+  .week-row:hover .week-arrow { color: var(--accent); }
+
+  .week-row .no-pick {
+    grid-column: 2 / 4;
+  }
+
+  /* ===== SONG DETAIL VIEW ===== */
+  .song-detail-container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 2rem 4rem;
+  }
+
+  .song-detail-back {
+    padding: 1.5rem 0 0;
+  }
+
+  .song-hero {
+    padding: 2.5rem 0 2rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+
+  .song-week-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .song-title-lg {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 0.4rem;
+  }
+
+  .song-artist-lg {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+  }
+
+  .song-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 1rem;
+  }
+
+  .tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.25rem 0.6rem;
+    border-radius: 2px;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+
+  .tag.accent { border-color: var(--accent); color: var(--accent); }
+  .tag.accent2 { border-color: var(--accent2); color: var(--accent2); }
+
+  .detail-section {
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .detail-section:last-child { border-bottom: none; }
+
+  .detail-section h3 {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+    margin-bottom: 1.2rem;
+  }
+
+  .detail-section p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--text);
+  }
+
+  .similar-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  .similar-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.9rem 1rem;
+    transition: border-color 0.15s;
+  }
+
+  .similar-item:hover { border-color: var(--accent2); }
+
+  .similar-item strong {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem;
+    display: block;
+    margin-bottom: 0.1rem;
+  }
+
+  .similar-item span {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  .band-stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem;
+  }
+
+  .band-stat-row:last-child { border-bottom: none; }
+  .band-stat-row .label { color: var(--text-muted); font-family: 'DM Mono', monospace; font-size: 0.72rem; }
+  .band-stat-row .value { font-weight: 500; }
+
+  /* ===== MY PROFILE / EDIT VIEW ===== */
+  .edit-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .edit-container h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 900;
+    margin-bottom: 0.4rem;
+  }
+
+  .edit-container .subtitle {
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    margin-bottom: 2rem;
+  }
+
+  .form-group { margin-bottom: 1.25rem; }
+
+  .form-group label {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    margin-bottom: 0.4rem;
+  }
+
+  .form-group input, .form-group textarea {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.7rem 0.9rem;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    transition: border-color 0.15s;
+    outline: none;
+  }
+
+  .form-group input:focus, .form-group textarea:focus {
+    border-color: var(--accent);
+  }
+
+  .form-group textarea { resize: vertical; min-height: 80px; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+  .section-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 1.5rem 0;
+  }
+
+  /* ===== ONBOARDING ===== */
+  .onboarding {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .onboarding-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem;
+    font-weight: 900;
+    font-style: italic;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+
+  .onboarding-logo span { color: var(--accent2); }
+
+  .onboarding p {
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    max-width: 380px;
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+  }
+
+  .onboarding-form {
+    width: 100%;
+    max-width: 400px;
+    text-align: left;
+  }
+
+  /* ===== MODAL ===== */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    z-index: 500;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 480px;
+    position: relative;
+  }
+
+  .modal h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+  }
+
+  .modal .modal-subtitle {
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1.2rem;
+    line-height: 1;
+    transition: color 0.15s;
+  }
+  .modal-close:hover { color: var(--text); }
+
+  .color-picker-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .color-swatch {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color 0.15s, transform 0.1s;
+  }
+
+  .color-swatch:hover, .color-swatch.selected { border-color: white; transform: scale(1.1); }
+
+  /* ===== EMPTY STATE ===== */
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-dim);
+  }
+
+  .empty-state .icon { font-size: 2.5rem; margin-bottom: 1rem; }
+
+  .empty-state p {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--accent);
+    color: #0a0a0f;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.7rem 1.4rem;
+    border-radius: 4px;
+    z-index: 9999;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 600px) {
+    .song-title-lg { font-size: 2rem; }
+    .similar-grid { grid-template-columns: 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    .week-row { grid-template-columns: 90px 1fr auto; gap: 1rem; }
+    nav { padding: 0 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="mainNav" style="display:none">
+  <div class="logo" onclick="showView('feed')">Wave<span>length</span></div>
+  <div class="nav-actions">
+    <button class="btn btn-ghost" onclick="showView('myprofile')">My Profile</button>
+    <button class="btn btn-primary" onclick="openPickModal()">+ This Week's Pick</button>
+  </div>
+</nav>
+
+<!-- ===================== ONBOARDING ===================== -->
+<div class="view active" id="view-onboarding">
+  <div class="onboarding">
+    <div class="onboarding-logo">Wave<span>length</span></div>
+    <p>Share one song every week. See what your friends are listening to. Build a living archive of what moved you.</p>
+    <div class="onboarding-form">
+      <div class="form-group">
+        <label>Your Name</label>
+        <input type="text" id="ob-name" placeholder="e.g. Jamie" />
+      </div>
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="ob-username" placeholder="e.g. jamie_listens" />
+      </div>
+      <div class="form-group">
+        <label>Avatar Color</label>
+        <div class="color-picker-row" id="ob-color-picker"></div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;padding:0.8rem;font-size:0.8rem;margin-top:0.5rem" onclick="createProfile()">Create Profile →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== FEED ===================== -->
+<div class="view" id="view-feed">
+  <div class="feed-header">
+    <div class="week-label" id="feed-week-label">Week 1</div>
+    <h1>This Week's <br>Picks</h1>
+    <p id="feed-date-range"></p>
+  </div>
+  <div class="friends-grid" id="friends-grid"></div>
+</div>
+
+<!-- ===================== PROFILE ===================== -->
+<div class="view" id="view-profile">
+  <div class="profile-back">
+    <button class="back-btn" onclick="showView('feed')">← Back to Feed</button>
+  </div>
+  <div class="profile-hero" id="profile-hero"></div>
+  <div class="weeks-list" id="weeks-list"></div>
+</div>
+
+<!-- ===================== SONG DETAIL ===================== -->
+<div class="view" id="view-songdetail">
+  <div class="song-detail-container">
+    <div class="song-detail-back">
+      <button class="back-btn" id="song-back-btn">← Back to Profile</button>
+    </div>
+    <div id="song-detail-content"></div>
+  </div>
+</div>
+
+<!-- ===================== MY PROFILE ===================== -->
+<div class="view" id="view-myprofile">
+  <div class="edit-container">
+    <button class="back-btn" style="margin-bottom:1.5rem" onclick="showView('feed')">← Back to Feed</button>
+    <h2>My Profile</h2>
+    <p class="subtitle">Manage your profile and add friends</p>
+
+    <div class="form-group">
+      <label>Your Name</label>
+      <input type="text" id="edit-name" />
+    </div>
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" id="edit-username" />
+    </div>
+    <div class="form-group">
+      <label>Avatar Color</label>
+      <div class="color-picker-row" id="edit-color-picker"></div>
+    </div>
+    <button class="btn btn-primary" onclick="saveProfile()" style="margin-bottom:2rem">Save Changes</button>
+
+    <hr class="section-divider">
+    <h3 style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;margin-bottom:1rem">Add a Friend</h3>
+    <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:1rem;font-family:'DM Mono',monospace;font-size:0.75rem">Add demo friends to see how profiles work</p>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap" id="add-friend-buttons"></div>
+
+    <hr class="section-divider">
+    <h3 style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;margin-bottom:1rem">My Song History</h3>
+    <div id="my-history"></div>
+  </div>
+</div>
+
+<!-- ===================== PICK MODAL ===================== -->
+<div class="modal-overlay" id="pick-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closePickModal()">✕</button>
+    <h3>This Week's Pick</h3>
+    <p class="modal-subtitle" id="pick-modal-week"></p>
+    <div class="form-group">
+      <label>Song Title</label>
+      <input type="text" id="pick-song" placeholder="e.g. Karma Police" />
+    </div>
+    <div class="form-group">
+      <label>Artist / Band</label>
+      <input type="text" id="pick-artist" placeholder="e.g. Radiohead" />
+    </div>
+    <div class="form-group">
+      <label>Why this song? (optional)</label>
+      <textarea id="pick-note" placeholder="What makes this your pick this week?"></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Genre / Vibe Tags (comma-separated)</label>
+        <input type="text" id="pick-tags" placeholder="e.g. alt-rock, melancholic" />
+      </div>
+      <div class="form-group">
+        <label>Release Year</label>
+        <input type="text" id="pick-year" placeholder="e.g. 1997" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Band / Artist Info (optional)</label>
+      <textarea id="pick-band-info" placeholder="Brief info about the artist, their style, background..."></textarea>
+    </div>
+    <button class="btn btn-primary" style="width:100%;padding:0.8rem;font-size:0.8rem" onclick="savePick()">Save Pick →</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== DATA LAYER =====
+const COLORS = [
+  '#e8c547','#c47aff','#ff6b6b','#6bffb8','#6bb5ff','#ff9f6b','#ff6bce','#a8ff6b'
+];
+
+const DEMO_FRIENDS = [
+  {
+    id: 'demo1',
+    name: 'Maya Chen',
+    username: 'maya_sounds',
+    color: '#c47aff',
+    picks: {
+      1: { song: 'Running Up That Hill', artist: 'Kate Bush', note: 'This song hit different this week. Something about the bargaining with god energy.', tags: ['art-pop','80s','ethereal'], year: '1985', bandInfo: 'Kate Bush is a British singer-songwriter and producer, known for her distinctive voice, elaborate music videos, and theatrical live performances. She rarely tours but her influence is massive.' },
+      2: { song: 'Dissolve Me', artist: 'alt-J', note: 'Rainy morning, perfect soundtrack.', tags: ['indie','alt-j','uk'], year: '2012', bandInfo: 'alt-J (stylised as ∆) are a British indie rock band formed in Leeds. Known for their intricate arrangements and literary references.' },
+      3: { song: 'Myth', artist: 'Beach House', note: '', tags: ['dream-pop','atmospheric'], year: '2012', bandInfo: 'Beach House is an American dream pop duo from Baltimore, Maryland.' },
+    }
+  },
+  {
+    id: 'demo2',
+    name: 'Jordan Miles',
+    username: 'jmiles_listens',
+    color: '#ff6b6b',
+    picks: {
+      1: { song: 'HUMBLE.', artist: 'Kendrick Lamar', note: 'Forever in rotation.', tags: ['hip-hop','west coast'], year: '2017', bandInfo: 'Kendrick Lamar is a Compton-born rapper widely regarded as one of the greatest of his generation. Pulitzer Prize winner in 2018.' },
+      2: { song: 'Pyramids', artist: 'Frank Ocean', note: 'The second half alone is a masterpiece.', tags: ['r&b','neo-soul','epic'], year: '2012', bandInfo: 'Frank Ocean is a critically acclaimed singer, songwriter, and photographer known for his introspective lyricism and genre-blending sound.' },
+      3: { song: 'Money Trees', artist: 'Kendrick Lamar', note: '', tags: ['hip-hop','storytelling'], year: '2012', bandInfo: 'Kendrick Lamar ft. Jay Rock. A standout track from good kid, m.A.A.d city — one of the most acclaimed rap albums of the 2010s.' },
+    }
+  },
+  {
+    id: 'demo3',
+    name: 'Sam Rivera',
+    username: 'samrivera',
+    color: '#6bffb8',
+    picks: {
+      1: { song: 'Motion Picture Soundtrack', artist: 'Radiohead', note: 'I cried at work. No regrets.', tags: ['art-rock','orchestral','emotional'], year: '2000', bandInfo: 'Radiohead are an English rock band from Abingdon. Known for blending alternative rock, electronic and classical influences into deeply textured albums.' },
+      2: null,
+      3: { song: 'The Less I Know the Better', artist: 'Tame Impala', note: 'Can\'t stop dancing to this one.', tags: ['psych-pop','danceable'], year: '2015', bandInfo: 'Tame Impala is the psychedelic music project of Australian musician Kevin Parker.' },
+    }
+  },
+];
+
+const SIMILAR_SONGS_DB = {
+  'Kate Bush': ['Wuthering Heights — Kate Bush', 'Strange Phenomena — Kate Bush', 'Cloudbusting — Kate Bush'],
+  'Radiohead': ['Exit Music (For a Film) — Radiohead', 'How to Disappear Completely — Radiohead', 'Street Spirit — Radiohead'],
+  'Kendrick Lamar': ['Alright — Kendrick Lamar', 'DNA. — Kendrick Lamar', 'm.A.A.d city — Kendrick Lamar'],
+  'Frank Ocean': ['Nights — Frank Ocean', 'Self Control — Frank Ocean', 'Pink + White — Frank Ocean'],
+  'alt-J': ['Something Good — alt-J', 'Tessellate — alt-J', 'Breezeblocks — alt-J'],
+  'Beach House': ['Space Song — Beach House', 'Silver Soul — Beach House', 'Used to Be — Beach House'],
+  'Tame Impala': ['Let It Happen — Tame Impala', 'Feels Like We Only Go Backwards — Tame Impala', 'Eventually — Tame Impala'],
+};
+
+const SIMILAR_ARTISTS_DB = {
+  'Kate Bush': ['Björk', 'Florence + The Machine', 'Tori Amos', 'Bat for Lashes'],
+  'Radiohead': ['Portishead', 'Thom Yorke', 'Sigur Rós', 'The National'],
+  'Kendrick Lamar': ['J. Cole', 'Isaiah Rashad', 'ScHoolboy Q', 'Jay Rock'],
+  'Frank Ocean': ['Syd', 'Steve Lacy', 'Brent Faiyaz', 'Daniel Caesar'],
+  'alt-J': ['Bon Iver', 'The xx', 'Foals', 'Glass Animals'],
+  'Beach House': ['Mazzy Star', 'Cocteau Twins', 'Washed Out', 'Cigarettes After Sex'],
+  'Tame Impala': ['MGMT', 'Unknown Mortal Orchestra', 'Pond', 'Melody's Echo Chamber'],
+};
+
+function getSimilarSongs(artist) {
+  for (let key in SIMILAR_SONGS_DB) {
+    if (artist.toLowerCase().includes(key.toLowerCase()) || key.toLowerCase().includes(artist.toLowerCase())) {
+      return SIMILAR_SONGS_DB[key];
+    }
+  }
+  return ['Similar Track 1 — ' + artist, 'Similar Track 2 — ' + artist, 'Another Fan Favorite — ' + artist];
+}
+
+function getSimilarArtists(artist) {
+  for (let key in SIMILAR_ARTISTS_DB) {
+    if (artist.toLowerCase().includes(key.toLowerCase()) || key.toLowerCase().includes(artist.toLowerCase())) {
+      return SIMILAR_ARTISTS_DB[key];
+    }
+  }
+  return ['Artist A', 'Artist B', 'Artist C', 'Artist D'];
+}
+
+// ===== APP STATE =====
+let state = {
+  currentUser: null,
+  friends: [],
+  currentProfileId: null,
+  currentPickWeek: null,
+};
+
+function loadState() {
+  const saved = localStorage.getItem('wavelength_state');
+  if (saved) {
+    state = JSON.parse(saved);
+    return true;
+  }
+  return false;
+}
+
+function saveState() {
+  localStorage.setItem('wavelength_state', JSON.stringify(state));
+}
+
+// ===== INIT =====
+function init() {
+  initColorPickers();
+  if (loadState() && state.currentUser) {
+    document.getElementById('mainNav').style.display = 'flex';
+    showView('feed');
+  } else {
+    showView('onboarding');
+  }
+}
+
+function initColorPickers() {
+  ['ob-color-picker', 'edit-color-picker'].forEach(id => {
+    const el = document.getElementById(id);
+    el.innerHTML = '';
+    COLORS.forEach((c, i) => {
+      const sw = document.createElement('div');
+      sw.className = 'color-swatch' + (i === 0 ? ' selected' : '');
+      sw.style.background = c;
+      sw.dataset.color = c;
+      sw.onclick = () => {
+        el.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+        sw.classList.add('selected');
+      };
+      el.appendChild(sw);
+    });
+  });
+}
+
+function getSelectedColor(pickerId) {
+  const el = document.getElementById(pickerId);
+  const sel = el.querySelector('.selected');
+  return sel ? sel.dataset.color : COLORS[0];
+}
+
+function setSelectedColor(pickerId, color) {
+  const el = document.getElementById(pickerId);
+  el.querySelectorAll('.color-swatch').forEach(sw => {
+    sw.classList.toggle('selected', sw.dataset.color === color);
+  });
+}
+
+// ===== VIEWS =====
+function showView(name, opts = {}) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  window.scrollTo(0, 0);
+
+  if (name === 'feed') renderFeed();
+  if (name === 'profile') renderProfile(opts.userId);
+  if (name === 'songdetail') renderSongDetail(opts);
+  if (name === 'myprofile') renderMyProfile();
+}
+
+// ===== PROFILE CREATE =====
+function createProfile() {
+  const name = document.getElementById('ob-name').value.trim();
+  const username = document.getElementById('ob-username').value.trim();
+  if (!name || !username) return showToast('Please fill in your name and username');
+  state.currentUser = {
+    id: 'me',
+    name,
+    username,
+    color: getSelectedColor('ob-color-picker'),
+    picks: {}
+  };
+  state.friends = [];
+  saveState();
+  document.getElementById('mainNav').style.display = 'flex';
+  showView('feed');
+  showToast('Welcome to Wavelength!');
+}
+
+function saveProfile() {
+  const name = document.getElementById('edit-name').value.trim();
+  const username = document.getElementById('edit-username').value.trim();
+  if (!name || !username) return showToast('Name and username required');
+  state.currentUser.name = name;
+  state.currentUser.username = username;
+  state.currentUser.color = getSelectedColor('edit-color-picker');
+  saveState();
+  showToast('Profile saved!');
+  renderMyProfile();
+}
+
+// ===== WEEK UTILITIES =====
+function getCurrentWeek() {
+  const start = new Date('2024-01-01');
+  const now = new Date();
+  const diff = now - start;
+  return Math.max(1, Math.floor(diff / (7 * 24 * 60 * 60 * 1000)) + 1);
+}
+
+function getWeekDateRange(weekNum) {
+  const start = new Date('2024-01-01');
+  start.setDate(start.getDate() + (weekNum - 1) * 7);
+  const end = new Date(start);
+  end.setDate(end.getDate() + 6);
+  const fmt = d => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  return `${fmt(start)} – ${fmt(end)}`;
+}
+
+// ===== FEED =====
+function renderFeed() {
+  const week = getCurrentWeek();
+  document.getElementById('feed-week-label').textContent = `Week ${week}`;
+  document.getElementById('feed-date-range').textContent = getWeekDateRange(week);
+
+  const grid = document.getElementById('friends-grid');
+
+  // Build user list: me + friends
+  const allUsers = [
+    state.currentUser,
+    ...state.friends
+  ];
+
+  if (allUsers.length === 0) {
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="icon">🎵</div><p>No friends added yet. Go to My Profile to add some friends!</p></div>';
+    return;
+  }
+
+  grid.innerHTML = allUsers.map(user => {
+    const pick = user.picks[week];
+    const isMe = user.id === 'me';
+    return `
+      <div class="friend-card" onclick="showView('profile', {userId:'${user.id}'})">
+        <div class="friend-avatar" style="background:${user.color}22;color:${user.color}">${user.name[0]}</div>
+        <div class="friend-name">${isMe ? '⭐ You' : user.username}</div>
+        ${pick
+          ? `<div class="friend-song-title">${pick.song}</div>
+             <div class="friend-song-artist">${pick.artist}</div>`
+          : `<div class="no-pick">No pick yet this week</div>`
+        }
+        <div class="view-profile-arrow">↗</div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ===== PROFILE =====
+function renderProfile(userId) {
+  state.currentProfileId = userId;
+  const user = userId === 'me' ? state.currentUser : state.friends.find(f => f.id === userId);
+  if (!user) return;
+
+  const isMe = userId === 'me';
+  const currentWeek = getCurrentWeek();
+
+  document.getElementById('profile-hero').innerHTML = `
+    <div class="profile-avatar-lg" style="background:${user.color}22;color:${user.color}">${user.name[0]}</div>
+    <div class="profile-meta">
+      <h2>${user.name}</h2>
+      <p>@${user.username} · ${Object.keys(user.picks).length} picks total</p>
+    </div>
+  `;
+
+  // Build weeks list — show all weeks from 1 to currentWeek
+  let weeksHtml = '';
+  for (let w = currentWeek; w >= 1; w--) {
+    const pick = user.picks[w];
+    const isCurrent = w === currentWeek;
+    weeksHtml += `
+      <div class="week-row ${isCurrent ? 'current-week' : ''}" onclick="${pick ? `showView('songdetail', {userId:'${userId}', week:${w}})` : isMe ? 'openPickModal()' : ''}">
+        <div class="week-num">${isCurrent ? '★ This week' : `Week ${w}`}<br><span style="font-size:0.6rem;color:var(--text-dim)">${getWeekDateRange(w)}</span></div>
+        ${pick
+          ? `<div class="week-song-info"><strong>${pick.song}</strong><span>${pick.artist}</span></div><div class="week-arrow">→</div>`
+          : isMe
+            ? `<div class="no-pick" style="cursor:pointer;color:var(--text-muted)">+ Add your pick for this week</div><div></div>`
+            : `<div class="no-pick">No pick</div><div></div>`
+        }
+      </div>
+    `;
+  }
+
+  document.getElementById('weeks-list').innerHTML = weeksHtml || '<div class="empty-state"><p>No picks yet</p></div>';
+
+  // Update back button
+  document.querySelector('#view-profile .back-btn').onclick = () => showView('feed');
+}
+
+// ===== SONG DETAIL =====
+function renderSongDetail({ userId, week }) {
+  const user = userId === 'me' ? state.currentUser : state.friends.find(f => f.id === userId);
+  const pick = user?.picks[week];
+  if (!pick) return;
+
+  const similarSongs = getSimilarSongs(pick.artist);
+  const similarArtists = getSimilarArtists(pick.artist);
+  const tags = pick.tags || [];
+
+  document.getElementById('song-back-btn').onclick = () => showView('profile', { userId });
+
+  document.getElementById('song-detail-content').innerHTML = `
+    <div class="song-hero">
+      <div class="song-week-badge">Week ${week} · ${getWeekDateRange(week)} · ${user.name}'s Pick</div>
+      <div class="song-title-lg">${pick.song}</div>
+      <div class="song-artist-lg">${pick.artist}${pick.year ? ` · ${pick.year}` : ''}</div>
+      <div class="song-tags">
+        ${tags.map(t => `<div class="tag accent">${t}</div>`).join('')}
+      </div>
+      ${pick.note ? `<p style="margin-top:1.2rem;font-size:0.9rem;line-height:1.7;color:var(--text-muted);border-left:2px solid var(--accent);padding-left:1rem;font-style:italic">"${pick.note}"</p>` : ''}
+    </div>
+
+    ${pick.bandInfo ? `
+    <div class="detail-section">
+      <h3>About ${pick.artist}</h3>
+      <p>${pick.bandInfo}</p>
+    </div>` : ''}
+
+    <div class="detail-section">
+      <h3>About the Song</h3>
+      <div class="band-stat-row">
+        <span class="label">Title</span>
+        <span class="value">${pick.song}</span>
+      </div>
+      <div class="band-stat-row">
+        <span class="label">Artist</span>
+        <span class="value">${pick.artist}</span>
+      </div>
+      ${pick.year ? `<div class="band-stat-row"><span class="label">Year</span><span class="value">${pick.year}</span></div>` : ''}
+      ${tags.length ? `<div class="band-stat-row"><span class="label">Genre / Vibe</span><span class="value">${tags.join(', ')}</span></div>` : ''}
+    </div>
+
+    <div class="detail-section">
+      <h3>Similar Songs You Might Like</h3>
+      <div class="similar-grid">
+        ${similarSongs.map(s => {
+          const parts = s.split(' — ');
+          return `<div class="similar-item"><strong>${parts[0]}</strong><span>${parts[1] || ''}</span></div>`;
+        }).join('')}
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <h3>Similar Artists</h3>
+      <div class="similar-grid">
+        ${similarArtists.map(a => `<div class="similar-item"><strong>${a}</strong><span>You might enjoy</span></div>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
+// ===== MY PROFILE PAGE =====
+function renderMyProfile() {
+  document.getElementById('edit-name').value = state.currentUser.name;
+  document.getElementById('edit-username').value = state.currentUser.username;
+  setSelectedColor('edit-color-picker', state.currentUser.color);
+
+  // Friend add buttons
+  const friendBtns = document.getElementById('add-friend-buttons');
+  friendBtns.innerHTML = DEMO_FRIENDS.map(df => {
+    const alreadyAdded = state.friends.some(f => f.id === df.id);
+    return `<button class="btn ${alreadyAdded ? 'btn-ghost' : 'btn-ghost'}" 
+      style="${alreadyAdded ? 'opacity:0.4;cursor:default' : ''}" 
+      onclick="${alreadyAdded ? '' : `addFriend('${df.id}')`}">
+      ${alreadyAdded ? '✓ ' : '+ '}${df.name}
+    </button>`;
+  }).join('');
+
+  // My history
+  const currentWeek = getCurrentWeek();
+  const picks = state.currentUser.picks;
+  const myHistory = document.getElementById('my-history');
+  if (Object.keys(picks).length === 0) {
+    myHistory.innerHTML = '<p style="color:var(--text-muted);font-family:\'DM Mono\',monospace;font-size:0.78rem">No picks yet. Add your first song of the week!</p>';
+  } else {
+    myHistory.innerHTML = Object.keys(picks).sort((a,b) => b-a).map(w => {
+      const p = picks[w];
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:0.7rem 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="showView('songdetail',{userId:'me',week:${w}})">
+        <div>
+          <div style="font-family:'Playfair Display',serif;font-weight:700">${p.song}</div>
+          <div style="font-size:0.8rem;color:var(--text-muted)">${p.artist}</div>
+        </div>
+        <div style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--text-dim)">Week ${w}</div>
+      </div>`;
+    }).join('');
+  }
+}
+
+function addFriend(demoId) {
+  const df = DEMO_FRIENDS.find(f => f.id === demoId);
+  if (!df || state.friends.some(f => f.id === demoId)) return;
+  state.friends.push(JSON.parse(JSON.stringify(df)));
+  saveState();
+  showToast(`${df.name} added!`);
+  renderMyProfile();
+}
+
+// ===== PICK MODAL =====
+function openPickModal() {
+  const week = getCurrentWeek();
+  state.currentPickWeek = week;
+  const existing = state.currentUser.picks[week];
+  document.getElementById('pick-modal-week').textContent = `Week ${week} · ${getWeekDateRange(week)}`;
+  document.getElementById('pick-song').value = existing?.song || '';
+  document.getElementById('pick-artist').value = existing?.artist || '';
+  document.getElementById('pick-note').value = existing?.note || '';
+  document.getElementById('pick-tags').value = existing?.tags?.join(', ') || '';
+  document.getElementById('pick-year').value = existing?.year || '';
+  document.getElementById('pick-band-info').value = existing?.bandInfo || '';
+  document.getElementById('pick-modal').classList.add('open');
+}
+
+function closePickModal() {
+  document.getElementById('pick-modal').classList.remove('open');
+}
+
+function savePick() {
+  const song = document.getElementById('pick-song').value.trim();
+  const artist = document.getElementById('pick-artist').value.trim();
+  if (!song || !artist) return showToast('Song title and artist are required');
+
+  const tagsRaw = document.getElementById('pick-tags').value;
+  const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+
+  state.currentUser.picks[state.currentPickWeek] = {
+    song,
+    artist,
+    note: document.getElementById('pick-note').value.trim(),
+    tags,
+    year: document.getElementById('pick-year').value.trim(),
+    bandInfo: document.getElementById('pick-band-info').value.trim(),
+  };
+
+  saveState();
+  closePickModal();
+  showToast('Pick saved! 🎵');
+  if (document.getElementById('view-feed').classList.contains('active')) renderFeed();
+  if (document.getElementById('view-profile').classList.contains('active')) renderProfile('me');
+  if (document.getElementById('view-myprofile').classList.contains('active')) renderMyProfile();
+}
+
+// ===== TOAST =====
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ===== CLOSE MODAL ON OVERLAY CLICK =====
+document.getElementById('pick-modal').addEventListener('click', function(e) {
+  if (e.target === this) closePickModal();
+});
+
+init();
+</script>
+</body>
+</html>
