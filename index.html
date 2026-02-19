@@ -6,6 +6,7 @@
 <title>Wavelength</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.43.4/dist/umd/supabase.min.js"></script>
 
 <style>
@@ -97,6 +98,13 @@ button {
   border:1px solid var(--border);
   color:var(--text);
 }
+
+.status-message {
+  font-size:0.8rem;
+  text-align:center;
+  margin-top:1rem;
+  color:var(--text-dim);
+}
 </style>
 </head>
 <body>
@@ -104,59 +112,96 @@ button {
 <div class="view active" id="auth-view">
   <div class="center-screen">
     <div class="center-box">
-      <div class="auth-logo">Wavelength <span>Music</span></div>
-      <div class="auth-tagline">Your portal to music magic</div>
+      <div class="auth-logo">Wavelength <span>♪</span></div>
+      <div class="auth-tagline">Sign in or sign up to continue</div>
 
       <div class="form-group">
         <label for="email">Email</label>
-        <input type="email" id="email">
+        <input type="email" id="email" placeholder="you@example.com">
       </div>
       <div class="form-group">
         <label for="password">Password</label>
-        <input type="password" id="password">
+        <input type="password" id="password" placeholder="Your password">
       </div>
 
-      <button class="btn-primary" id="signup-btn">Create Account</button>
-      <button class="btn-ghost" id="login-btn">Login</button>
+      <button class="btn-primary" id="login-btn">Sign In</button>
+      <button class="btn-ghost" id="signup-btn">Sign Up</button>
 
-      <p id="message" style="margin-top:1rem; font-size:0.8rem; color:var(--accent);"></p>
+      <div class="status-message" id="status-msg"></div>
+    </div>
+  </div>
+</div>
+
+<div class="view" id="app-view">
+  <div class="center-screen">
+    <div class="center-box">
+      <div class="auth-logo">Welcome!</div>
+      <button class="btn-primary" id="logout-btn">Log Out</button>
     </div>
   </div>
 </div>
 
 <script>
-const SUPABASE_URL = 'https://ozkrjvyuptwlzaqhqljc.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im96a3Jqdnl1cHR3bHphcWhxbGpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODI2NDksImV4cCI6MjA4Njk1ODY0OX0.SqNJLTYZwnHV5kywP1PyLdp9-y76ugu-PyfL7BOGLIA';
+const SUPABASE_URL = "https://ozkrjvyuptwlzaqhqljc.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im96a3Jqdnl1cHR3bHphcWhxbGpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODI2NDksImV4cCI6MjA4Njk1ODY0OX0.SqNJLTYZwnHV5kywP1PyLdp9-y76ugu-PyfL7BOGLIA";
 
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Fix: UMD exposes "Supabase" not "supabase"
+const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const emailInput = document.getElementById('email');
-const passwordInput = document.getElementById('password');
-const signupBtn = document.getElementById('signup-btn');
-const loginBtn = document.getElementById('login-btn');
-const message = document.getElementById('message');
+const authView = document.getElementById("auth-view");
+const appView = document.getElementById("app-view");
+const statusMsg = document.getElementById("status-msg");
 
-signupBtn.addEventListener('click', async () => {
-  const email = emailInput.value;
-  const password = passwordInput.value;
-  const { data, error } = await supabase.auth.signUp({ email, password });
-  if (error) {
-    message.textContent = error.message;
+function showView(view) {
+  if(view === "auth") {
+    authView.classList.add("active");
+    appView.classList.remove("active");
   } else {
-    message.textContent = 'Check your email for the confirmation link!';
+    authView.classList.remove("active");
+    appView.classList.add("active");
   }
-});
+}
 
-loginBtn.addEventListener('click', async () => {
-  const email = emailInput.value;
-  const password = passwordInput.value;
+// Handle login
+document.getElementById("login-btn").addEventListener("click", async () => {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  statusMsg.textContent = "Signing in...";
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) {
-    message.textContent = error.message;
+  if(error) {
+    statusMsg.textContent = error.message;
   } else {
-    message.textContent = 'Login successful!';
+    statusMsg.textContent = "Signed in!";
+    showView("app");
   }
 });
+
+// Handle signup
+document.getElementById("signup-btn").addEventListener("click", async () => {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  statusMsg.textContent = "Signing up...";
+  const { data, error } = await supabase.auth.signUp({ email, password });
+  if(error) {
+    statusMsg.textContent = error.message;
+  } else {
+    statusMsg.textContent = "Check your email to confirm!";
+  }
+});
+
+// Handle logout
+document.getElementById("logout-btn").addEventListener("click", async () => {
+  await supabase.auth.signOut();
+  showView("auth");
+});
+
+// Auto check session
+(async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if(session) {
+    showView("app");
+  }
+})();
 </script>
 
 </body>
