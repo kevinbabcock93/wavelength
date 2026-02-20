@@ -116,9 +116,11 @@ nav .nav-link {margin:0 0.5rem;cursor:pointer;}
 
 <script>
 // --- Supabase Setup ---
-const SUPABASE_URL = "YOUR_SUPABASE_URL";
-const SUPABASE_KEY = "YOUR_SUPABASE_ANON_KEY";
+// <-- Replace with your Supabase project info -->
+const SUPABASE_URL = "https://YOUR_PROJECT_REF.supabase.co";
+const SUPABASE_KEY = "YOUR_ANON_PUBLIC_KEY";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 let currentUser = null;
 let currentProfile = null;
 
