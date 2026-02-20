@@ -55,6 +55,10 @@
   .color-row { display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap; }
   .swatch { width: 32px; height: 32px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: all 0.15s; flex-shrink: 0; }
   .swatch:hover, .swatch.selected { border-color: white; transform: scale(1.12); }
+  .instrument-row { display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap; }
+  .instrument-btn { width: 44px; height: 44px; border-radius: 8px; cursor: pointer; border: 2px solid var(--border); background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; transition: all 0.15s; flex-shrink: 0; }
+  .instrument-btn:hover { border-color: var(--red-dim); transform: scale(1.08); }
+  .instrument-btn.selected { border-color: var(--red); background: var(--red)22; transform: scale(1.08); }
   .feed-header { padding: 3rem 2rem 2rem; max-width: 980px; margin: 0 auto; position: relative; overflow: hidden; }
   .feed-header-deco { position: absolute; top: -10px; right: 20px; font-size: 10rem; opacity: 0.04; pointer-events: none; line-height: 1; }
   .feed-header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 3.5rem; letter-spacing: 0.06em; line-height: 1; margin-bottom: 0.5rem; color: var(--white); }
@@ -153,17 +157,47 @@
   .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(120px); background: var(--red); color: white; font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; font-weight: 500; padding: 0.7rem 1.4rem; border-radius: 3px; z-index: 9999; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1); white-space: nowrap; }
   .toast.show { transform: translateX(-50%) translateY(0); }
   .toast.err { background: #5a0000; }
-  @media (max-width: 650px) {
+  .mobile-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 200; background: rgba(13,0,0,0.97); border-top: 1px solid var(--red-dim); padding: 0.5rem 0 calc(0.5rem + env(safe-area-inset-bottom)); }
+  .mobile-nav-inner { display: flex; justify-content: space-around; align-items: center; }
+  .mobile-nav-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.2rem; padding: 0.3rem 0.8rem; transition: color 0.15s; min-width: 60px; }
+  .mobile-nav-btn.active { color: var(--red); }
+  .mobile-nav-btn .mnb-icon { font-size: 1.3rem; line-height: 1; }
+  .mobile-nav-btn .mnb-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.48rem; text-transform: uppercase; letter-spacing: 0.08em; }
+  .mobile-pick-btn { background: var(--red); border: none; border-radius: 50%; width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; margin-top: -1.5rem; box-shadow: 0 4px 20px rgba(204,17,17,0.5); transition: all 0.15s; }
+  .mobile-pick-btn:hover { background: var(--red-bright); transform: scale(1.08); }
+  @media (max-width: 650px) { .mobile-nav { display: block; } body { padding-bottom: 80px; } nav .btn-primary { display: none; } }
     .song-hero { grid-template-columns: 1fr; }
     .song-hero-art, .song-hero-art-ph { width: 100%; height: 220px; }
     .song-title { font-size: 2rem; }
     .similar-grid, .form-row { grid-template-columns: 1fr; }
     .week-row { grid-template-columns: 44px 1fr auto; gap: 0.7rem; }
     .week-row > div:nth-child(2) { display: none; }
-    nav { padding: 0 1rem; }
+    nav { padding: 0 1rem; height: 56px; }
     .nav-center { display: none; }
-    .friends-grid, .members-grid { padding: 0 1rem 3rem; }
-    .feed-header, .profile-hero, .profile-wrap, .weeks-list, .song-wrap, .settings-wrap, .page-header { padding-left: 1rem; padding-right: 1rem; }
+    .logo { font-size: 1.4rem; }
+    .nav-actions { gap: 0.4rem; }
+    .nav-actions .nav-user { display: none; }
+    .btn { padding: 0.45rem 0.8rem; font-size: 0.62rem; }
+    .friends-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); padding: 0 1rem 3rem; }
+    .members-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); padding: 0 1rem 3rem; }
+    .feed-header { padding: 1.5rem 1rem 1rem; }
+    .feed-header h1 { font-size: 2.2rem; }
+    .profile-hero { padding: 1.2rem 1rem 1rem; flex-wrap: wrap; gap: 1rem; }
+    .profile-wrap { padding: 1rem 1rem 0; }
+    .weeks-list { padding: 0 1rem 4rem; }
+    .song-wrap { padding: 0 1rem 4rem; }
+    .settings-wrap { padding: 1.2rem 1rem; }
+    .page-header { padding: 1.5rem 1rem 1rem; }
+    .page-header h1 { font-size: 2rem; }
+    .p-meta h2 { font-size: 1.6rem; }
+    .modal { padding: 1.4rem; border-radius: 12px 12px 0 0; position: fixed; bottom: 0; left: 0; right: 0; max-width: 100%; max-height: 90vh; margin: 0; }
+    .modal-overlay { align-items: flex-end; padding: 0; }
+    .center-box { max-width: 100%; }
+    .auth-logo { font-size: 2.2rem; }
+    .ob-box h2 { font-size: 1.8rem; }
+    .week-pill { font-size: 0.55rem; }
+    .friend-card-art, .friend-card-art-ph { aspect-ratio: 1; }
+    .f-song { font-size: 1rem; }
   }
 </style>
 </head>
@@ -263,6 +297,10 @@
         <p class="form-hint">Letters, numbers, and underscores only.</p>
       </div>
       <div class="form-group">
+        <label>Your Instrument <span style="color:var(--text-dim)">— pick your vibe</span></label>
+        <div class="instrument-row" id="ob-instruments"></div>
+      </div>
+      <div class="form-group">
         <label>Avatar Color</label>
         <div class="color-row" id="ob-colors"></div>
       </div>
@@ -349,6 +387,10 @@
       <input type="text" id="s-username" />
     </div>
     <div class="form-group">
+      <label>Your Instrument</label>
+      <div class="instrument-row" id="s-instruments"></div>
+    </div>
+    <div class="form-group">
       <label>Avatar Color</label>
       <div class="color-row" id="s-colors"></div>
     </div>
@@ -433,6 +475,29 @@
 
 <div class="toast" id="toast"></div>
 
+<!-- MOBILE BOTTOM NAV -->
+<div class="mobile-nav" id="mobileNav" style="display:none">
+  <div class="mobile-nav-inner">
+    <button class="mobile-nav-btn" id="mnav-feed" onclick="showView('feed')">
+      <span class="mnb-icon">🎵</span>
+      <span class="mnb-label">Feed</span>
+    </button>
+    <button class="mobile-nav-btn" id="mnav-members" onclick="showView('members')">
+      <span class="mnb-icon">🎸</span>
+      <span class="mnb-label">Members</span>
+    </button>
+    <button class="mobile-pick-btn" onclick="openPickModal()">＋</button>
+    <button class="mobile-nav-btn" id="mnav-myprofile" onclick="showView('profile',{userId:currentUser&&currentUser.id})">
+      <span class="mnb-icon">🎧</span>
+      <span class="mnb-label">Profile</span>
+    </button>
+    <button class="mobile-nav-btn" onclick="showView('settings')">
+      <span class="mnb-icon">⚙</span>
+      <span class="mnb-label">Settings</span>
+    </button>
+  </div>
+</div>
+
 <script>
 // ── HARDCODED CREDENTIALS — no setup screen needed ──
 const SUPABASE_URL = "https://ozkrjvyuptwlzaqhqljc.supabase.co";
@@ -445,6 +510,21 @@ let currentUser = null, currentProfile = null;
 const SIMILAR_SONGS = {'kate bush':['Running Up That Hill — Kate Bush','Wuthering Heights — Kate Bush','Cloudbusting — Kate Bush','The Hounds of Love — Kate Bush'],'radiohead':['Exit Music (For a Film) — Radiohead','How to Disappear Completely — Radiohead','Street Spirit — Radiohead','Reckoner — Radiohead'],'kendrick lamar':['Alright — Kendrick Lamar','DNA. — Kendrick Lamar','m.A.A.d city — Kendrick Lamar','Swimming Pools — Kendrick Lamar'],'frank ocean':['Nights — Frank Ocean','Self Control — Frank Ocean','Pink + White — Frank Ocean','Seigfried — Frank Ocean'],'tame impala':['Let It Happen — Tame Impala','Feels Like We Only Go Backwards — Tame Impala','Eventually — Tame Impala','New Person, Same Old Mistakes — Tame Impala'],'the national':['Bloodbuzz Ohio — The National','Sorrow — The National','Afraid of Everyone — The National','Terrible Love — The National'],'bon iver':['Holocene — Bon Iver','Skinny Love — Bon Iver','Towers — Bon Iver','Michicant — Bon Iver'],'phoebe bridgers':['Motion Sickness — Phoebe Bridgers','Savior Complex — Phoebe Bridgers','Funeral — Phoebe Bridgers']};
 const SIMILAR_ARTISTS = {'kate bush':['Björk','Florence + The Machine','Tori Amos','Bat for Lashes'],'radiohead':['Portishead','Thom Yorke','Sigur Rós','The National'],'kendrick lamar':['J. Cole','Isaiah Rashad','ScHoolboy Q','Jay Rock'],'frank ocean':['Syd','Steve Lacy','Brent Faiyaz','Daniel Caesar'],'tame impala':['MGMT','Unknown Mortal Orchestra','Pond','TEMPOREX'],'the national':['Frightened Rabbit','Bon Iver','Iron & Wine','Sufjan Stevens'],'bon iver':['The National','Fleet Foxes','Sufjan Stevens','Elbow'],'phoebe bridgers':['Julien Baker','Lucy Dacus','boygenius','Angel Olsen']};
 function findSimilar(artist,db){const a=(artist||'').toLowerCase();const key=Object.keys(db).find(k=>a.includes(k)||k.includes(a));return key?db[key]:null;}
+
+// ── INSTRUMENTS ──
+const INSTRUMENTS = ['🎸','🎹','🥁','🎺','🎷','🎻','🎤','🎧','🎵','🎶','📻','🎼','🪗','🪘','🎙️','🪈'];
+function buildInstrumentPicker(id, sel){
+  const el=document.getElementById(id); el.innerHTML='';
+  INSTRUMENTS.forEach((inst,i)=>{
+    const btn=document.createElement('div');
+    btn.className='instrument-btn'+((sel?inst===sel:i===0)?' selected':'');
+    btn.textContent=inst; btn.dataset.instrument=inst;
+    btn.onclick=()=>{el.querySelectorAll('.instrument-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');};
+    el.appendChild(btn);
+  });
+}
+function getInstrument(id){const b=document.getElementById(id).querySelector('.selected');return b?b.dataset.instrument:INSTRUMENTS[0];}
+function getAvatar(profile){return profile.instrument||profile.display_name[0];}
 
 // ── COLORS ──
 const COLORS = ['#cc1111','#ff4444','#ff9090','#ffffff','#cccccc','#8b0000','#ff6b6b','#660000'];
@@ -509,6 +589,7 @@ async function signUp(){
 async function signOut(){
   await sb.auth.signOut();currentUser=null;currentProfile=null;
   document.getElementById('mainNav').style.display='none';
+  document.getElementById('mobileNav').style.display='none';
   showView('auth');
 }
 
@@ -518,9 +599,11 @@ async function loadProfileAndContinue(){
     currentProfile=data;
     document.getElementById('nav-user').textContent='@'+data.username;
     document.getElementById('mainNav').style.display='flex';
+    document.getElementById('mobileNav').style.display='block';
     showView('feed');
   } else {
     buildColorPicker('ob-colors',null);
+    buildInstrumentPicker('ob-instruments',null);
     showView('onboarding');
   }
 }
@@ -534,12 +617,13 @@ async function createProfile(){
   if(!name||!username){err.textContent='Both fields are required.';return;}
   if(!/^[a-z0-9_]+$/.test(username)){err.textContent='Username: letters, numbers, underscores only.';return;}
   btn.disabled=true;btn.textContent='Saving...';
-  const {data,error}=await sb.from('profiles').insert({id:currentUser.id,username,display_name:name,color:getColor('ob-colors')}).select().single();
+  const {data,error}=await sb.from('profiles').insert({id:currentUser.id,username,display_name:name,color:getColor('ob-colors'),instrument:getInstrument('ob-instruments')}).select().single();
   btn.disabled=false;btn.textContent='Enter Wavelength';
   if(error){err.textContent=error.message.includes('unique')?'That username is taken. Try another.':error.message;return;}
   currentProfile=data;
   document.getElementById('nav-user').textContent='@'+data.username;
   document.getElementById('mainNav').style.display='flex';
+  document.getElementById('mobileNav').style.display='block';
   showView('feed');
   showToast('Welcome to Wavelength! 🎵');
 }
@@ -550,7 +634,12 @@ function showView(name,opts){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('view-'+name).classList.add('active');
   window.scrollTo(0,0);
-  ['feed','members'].forEach(n=>{const el=document.getElementById('nav-'+n);if(el)el.classList.toggle('active',n===name);});
+  ['feed','members'].forEach(n=>{
+    const el=document.getElementById('nav-'+n);if(el)el.classList.toggle('active',n===name);
+    const mel=document.getElementById('mnav-'+n);if(mel)mel.classList.toggle('active',n===name);
+  });
+  const mnavProfile=document.getElementById('mnav-myprofile');
+  if(mnavProfile)mnavProfile.classList.toggle('active',name==='profile');
   if(name==='feed')renderFeed();
   if(name==='members')renderMembers();
   if(name==='profile')renderProfile(opts.userId||(currentUser&&currentUser.id));
@@ -598,7 +687,7 @@ async function renderFeed(){
     return '<div class="friend-card" onclick="showView(\'profile\',{userId:\''+p.id+'\'})">'
       +artHtml
       +'<div class="friend-card-body">'
-      +'<div class="f-avatar" style="background:'+p.color+'22;color:'+p.color+'">'+p.display_name[0]+'</div>'
+      +'<div class="f-avatar" style="background:'+p.color+'22;color:'+p.color+'">'+getAvatar(p)+'</div>'
       +'<div class="f-name">'+(me?'⭐ You':'@'+esc(p.username))+'</div>'
       +(pick?'<div class="f-song">'+esc(pick.song)+'</div><div class="f-artist">'+esc(pick.artist)+'</div>':'<div class="no-pick">No pick yet this week</div>')
       +'</div><div class="card-arrow">&#8599;</div></div>';
@@ -618,7 +707,7 @@ async function renderMembers(){
   grid.innerHTML=profiles.map(p=>{
     const n=counts[p.id]||0;const me=p.id===currentUser.id;
     return '<div class="member-card" onclick="showView(\'profile\',{userId:\''+p.id+'\'})">'
-      +'<div class="member-avatar" style="background:'+p.color+'22;color:'+p.color+'">'+p.display_name[0]+'</div>'
+      +'<div class="member-avatar" style="background:'+p.color+'22;color:'+p.color+'">'+getAvatar(p)+'</div>'
       +'<div class="member-name">'+esc(p.display_name)+(me?' ⭐':'')+'</div>'
       +'<div class="member-username">@'+esc(p.username)+'</div>'
       +'<div class="member-picks">'+n+' pick'+(n!==1?'s':'')+'</div></div>';
@@ -640,7 +729,7 @@ async function renderProfile(userId){
   const pickMap=Object.fromEntries((picks||[]).map(p=>[p.week_number,p]));
   document.getElementById('profile-hero').innerHTML=
     '<div class="profile-hero-deco">🎸</div>'
-    +'<div class="p-avatar-lg" style="background:'+profile.color+'22;color:'+profile.color+'">'+profile.display_name[0]+'</div>'
+    +'<div class="p-avatar-lg" style="background:'+profile.color+'22;color:'+profile.color+'">'+getAvatar(profile)+'</div>'
     +'<div class="p-meta"><h2>'+esc(profile.display_name)+'</h2><p>@'+esc(profile.username)+' &middot; '+((picks||[]).length)+' picks in '+year+'</p></div>';
   let html='';
   for(let w=week;w>=1;w--){
@@ -728,6 +817,7 @@ function renderSettings(){
   document.getElementById('s-name').value=currentProfile.display_name;
   document.getElementById('s-username').value=currentProfile.username;
   buildColorPicker('s-colors',currentProfile.color);
+  buildInstrumentPicker('s-instruments',currentProfile.instrument||null);
   document.getElementById('search-results').innerHTML='';
   document.getElementById('search-q').value='';
   document.getElementById('cp-password').value='';
@@ -739,7 +829,7 @@ async function saveSettings(){
   const name=document.getElementById('s-name').value.trim();
   const username=document.getElementById('s-username').value.trim().toLowerCase().replace(/\s+/g,'_');
   if(!name||!username){showToast('Fields required',true);return;}
-  const {data,error}=await sb.from('profiles').update({display_name:name,username,color:getColor('s-colors')}).eq('id',currentUser.id).select().single();
+  const {data,error}=await sb.from('profiles').update({display_name:name,username,color:getColor('s-colors'),instrument:getInstrument('s-instruments')}).eq('id',currentUser.id).select().single();
   if(error){showToast(error.message,true);return;}
   currentProfile=data;
   document.getElementById('nav-user').textContent='@'+data.username;
@@ -756,7 +846,7 @@ async function searchUsers(){
   el.innerHTML=data.map(u=>{
     const following=followSet.has(u.id);
     return '<div class="user-result">'
-      +'<div class="ur-avatar" style="background:'+u.color+'22;color:'+u.color+'">'+u.display_name[0]+'</div>'
+      +'<div class="ur-avatar" style="background:'+u.color+'22;color:'+u.color+'">'+getAvatar(u)+'</div>'
       +'<div class="ur-info"><strong>'+esc(u.display_name)+'</strong><span>@'+esc(u.username)+'</span></div>'
       +'<button class="btn '+(following?'btn-ghost':'btn-primary')+'" style="font-size:0.6rem;padding:0.4rem 0.9rem" onclick="toggleFollow(\''+u.id+'\','+following+',this)">'+(following?'Following':'Follow')+'</button>'
       +'</div>';
