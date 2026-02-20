@@ -199,8 +199,8 @@
     .friend-card-art, .friend-card-art-ph { aspect-ratio: 1; }
     .f-song { font-size: 1rem; }
   }
-  .spotify-popup { position: fixed; bottom: 2rem; right: 1.5rem; z-index: 300; background: var(--surface); border: 1px solid #1db954; border-radius: 12px; padding: 1rem 1.1rem; width: 280px; box-shadow: 0 8px 32px rgba(0,0,0,0.6); transform: translateY(120px); opacity: 0; transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1); pointer-events: none; }
-  .spotify-popup.show { transform: translateY(0); opacity: 1; pointer-events: all; }
+  .spotify-popup { position: fixed; bottom: 6rem; right: 1.5rem; z-index: 300; background: var(--surface); border: 1px solid #1db954; border-radius: 12px; padding: 1rem 1.1rem; width: 260px; box-shadow: 0 8px 32px rgba(0,0,0,0.6); transform: translateX(320px); opacity: 0; transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1); pointer-events: none; }
+  .spotify-popup.show { transform: translateX(0); opacity: 1; pointer-events: all; }
   .spotify-popup-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
   .spotify-popup-title { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: #1db954; display: flex; align-items: center; gap: 0.4rem; }
   .spotify-popup-close { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 1rem; line-height: 1; padding: 0; transition: color 0.15s; }
@@ -208,9 +208,10 @@
   .spotify-popup p { font-family: 'Crimson Pro', serif; font-size: 0.92rem; color: var(--text-muted); line-height: 1.55; margin-bottom: 0.9rem; }
   .spotify-connect-btn { width: 100%; background: #1db954; border: none; border-radius: 6px; color: white; font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; padding: 0.65rem; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
   .spotify-connect-btn:hover { background: #1ed760; transform: translateY(-1px); }
-  .play-on-spotify-btn { display: inline-flex; align-items: center; gap: 0.5rem; background: #1db954; color: white; border: none; border-radius: 6px; font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; padding: 0.65rem 1.1rem; cursor: pointer; transition: all 0.15s; margin-top: 1rem; text-decoration: none; }
+  .play-on-spotify-btn { display: inline-flex; align-items: center; gap: 0.5rem; background: #1db954; color: white; border: none; border-radius: 6px; font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; padding: 0.55rem 1rem; cursor: pointer; transition: all 0.15s; text-decoration: none; white-space: nowrap; }
   .play-on-spotify-btn:hover { background: #1ed760; transform: translateY(-1px); }
-  @media (max-width: 650px) { .spotify-popup { bottom: 90px; right: 1rem; left: 1rem; width: auto; } }
+  .play-on-youtube-btn { display: inline-flex; align-items: center; gap: 0.5rem; background: #ff0000; color: white; border: none; border-radius: 6px; font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; padding: 0.55rem 1rem; cursor: pointer; transition: all 0.15s; text-decoration: none; white-space: nowrap; }
+  .play-on-youtube-btn:hover { background: #cc0000; transform: translateY(-1px); }
 </style>
 </head>
 <body>
@@ -483,19 +484,6 @@
     <button class="btn btn-primary btn-wide" id="pick-save-btn" onclick="savePick()">Save Pick</button>
     <div id="pick-error" class="form-error" style="margin-top:0.5rem"></div>
   </div>
-</div>
-
-<!-- SPOTIFY POPUP -->
-<div class="spotify-popup" id="spotify-popup">
-  <div class="spotify-popup-header">
-    <div class="spotify-popup-title">🎧 Spotify</div>
-    <button class="spotify-popup-close" onclick="dismissSpotifyPopup()">✕</button>
-  </div>
-  <p>Connect Spotify to listen to full versions of everyone's picks.</p>
-  <button class="spotify-connect-btn" onclick="connectSpotify()">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
-    Connect Spotify
-  </button>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -790,8 +778,17 @@ async function renderSongDetail(opts){
   const artHtml=pick.art_url
     ?'<img class="song-hero-art" src="'+esc(pick.art_url)+'" alt="Album art" onerror="this.outerHTML=\'<div class=\\\'song-hero-art-ph\\\'>🎵</div>\'">'
     :'<div class="song-hero-art-ph">🎵</div>';
-  // Build player HTML - Spotify takes priority, YouTube as fallback
+  // Build player HTML
   let playerHtml='';
+  let fullSongLinks='';
+  if(pick.spotify_url){
+    fullSongLinks+='<a class="play-on-spotify-btn" href="'+getSpotifyOpenUrl(pick.spotify_url)+'" target="_blank" rel="noopener"><svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>Full Song on Spotify</a>';
+  }
+  if(pick.youtube_url){
+    let ytId='';const m2=pick.youtube_url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);if(m2)ytId=m2[1];
+    if(ytId)fullSongLinks+='<a class="play-on-youtube-btn" href="'+pick.youtube_url+'" target="_blank" rel="noopener">▶ Full Song on YouTube</a>';
+  }
+
   if(pick.spotify_url){
     const spotifyId=pick.spotify_url.split('/track/').pop().split('?')[0];
     if(spotifyId){
@@ -799,19 +796,20 @@ async function renderSongDetail(opts){
         +'<iframe style="border-radius:8px;border:none;width:100%;margin-top:0.5rem" '
         +'src="https://open.spotify.com/embed/track/'+spotifyId+'?utm_source=generator&theme=0" '
         +'height="152" allowfullscreen allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>'
+        +(fullSongLinks?'<div style="margin-top:0.9rem;display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center"><span style="font-family:\'IBM Plex Mono\',monospace;font-size:0.6rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em">Want the full song?</span>'+fullSongLinks+'</div>':'')
         +'</div>';
     }
   } else if(pick.youtube_url){
-    let ytId='';
-    const m=pick.youtube_url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-    if(m)ytId=m[1];
+    let ytId='';const m=pick.youtube_url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);if(m)ytId=m[1];
     if(ytId){
       playerHtml='<div class="detail-sec"><h3>🎵 Listen</h3>'
         +'<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin-top:0.5rem">'
         +'<iframe style="position:absolute;top:0;left:0;width:100%;height:100%;border:none" '
         +'src="https://www.youtube.com/embed/'+ytId+'" '
         +'allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" loading="lazy"></iframe>'
-        +'</div></div>';
+        +'</div>'
+        +(fullSongLinks?'<div style="margin-top:0.9rem;display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center"><span style="font-family:\'IBM Plex Mono\',monospace;font-size:0.6rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em">Want the full song?</span>'+fullSongLinks+'</div>':'')
+        +'</div>';
     }
   }
 
@@ -823,7 +821,6 @@ async function renderSongDetail(opts){
     +(tags.length?'<div class="tags">'+tags.map(t=>'<div class="tag">'+esc(t)+'</div>').join('')+'</div>':'')
     +(pick.note?'<p style="margin-top:1rem;font-size:0.95rem;line-height:1.75;color:var(--text-muted);border-left:2px solid var(--red-dim);padding-left:1rem;font-style:italic">"'+esc(pick.note)+'"</p>':'')
     +(userId===currentUser.id?'<button class="btn btn-ghost" style="margin-top:1.25rem;font-size:0.62rem" onclick="openPickModal()">✏ Edit This Pick</button>':'')
-    +(pick.spotify_url?'<a class="play-on-spotify-btn" href="'+getSpotifyOpenUrl(pick.spotify_url)+'" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>Play on Spotify</a>':'')
     +'</div></div>'
     +playerHtml
     +(pick.band_info?'<div class="detail-sec"><h3>About '+esc(pick.artist)+'</h3><p>'+esc(pick.band_info)+'</p></div>':'')
@@ -1005,66 +1002,12 @@ async function saveNewPassword(){
 }
 
 // ── SPOTIFY ──
-const SPOTIFY_CLIENT_ID = 'a2775113b5b24216b96e1985633a4cc1';
-const SPOTIFY_REDIRECT = 'https://kevinbabcock93.github.io/wavelength/';
-const SPOTIFY_SCOPES = 'user-read-private';
-let spotifyToken = null;
-
-function initSpotify(){
-  // Check if we're returning from Spotify OAuth
-  const hash=window.location.hash;
-  if(hash&&hash.includes('access_token')){
-    const params=new URLSearchParams(hash.substring(1));
-    const token=params.get('access_token');
-    if(token){
-      spotifyToken=token;
-      localStorage.setItem('wl_spotify_token',token);
-      // Clean the URL
-      window.history.replaceState(null,'',window.location.pathname);
-      showToast('Spotify connected! 🎧');
-    }
-  } else {
-    // Check for saved token
-    const saved=localStorage.getItem('wl_spotify_token');
-    if(saved)spotifyToken=saved;
-  }
-}
-
-function connectSpotify(){
-  const params=new URLSearchParams({
-    client_id: SPOTIFY_CLIENT_ID,
-    response_type: 'token',
-    redirect_uri: SPOTIFY_REDIRECT,
-    scope: SPOTIFY_SCOPES,
-    show_dialog: 'false'
-  });
-  window.location.href='https://accounts.spotify.com/authorize?'+params.toString();
-}
-
-function dismissSpotifyPopup(){
-  document.getElementById('spotify-popup').classList.remove('show');
-  localStorage.setItem('wl_spotify_dismissed','1');
-}
-
-function maybeShowSpotifyPopup(){
-  if(spotifyToken)return; // already connected
-  if(localStorage.getItem('wl_spotify_dismissed'))return; // dismissed before
-  setTimeout(function(){
-    document.getElementById('spotify-popup').classList.add('show');
-  },2500);
-}
-
 function getSpotifyOpenUrl(spotifyUrl){
-  // On mobile, try to open in Spotify app via URI; on desktop open web player
   if(!spotifyUrl)return null;
   const trackId=spotifyUrl.split('/track/').pop().split('?')[0];
   if(!trackId)return spotifyUrl;
   const isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  if(isMobile){
-    return 'spotify:track:'+trackId;
-  } else {
-    return 'https://open.spotify.com/track/'+trackId;
-  }
+  return isMobile?'spotify:track:'+trackId:'https://open.spotify.com/track/'+trackId;
 }
 
 // ── HELPERS ──
@@ -1078,9 +1021,8 @@ document.getElementById('pick-modal').addEventListener('click',function(e){if(e.
 
 // ── BOOT — goes straight to auth, no setup screen ──
 (async function init(){
-  initSpotify();
   const {data:{session}}=await sb.auth.getSession();
-  if(session){currentUser=session.user;await loadProfileAndContinue();maybeShowSpotifyPopup();}
+  if(session){currentUser=session.user;await loadProfileAndContinue();}
   else showView('auth');
   sb.auth.onAuthStateChange(async function(event,session){
     if(event==='PASSWORD_RECOVERY'){
@@ -1089,7 +1031,7 @@ document.getElementById('pick-modal').addEventListener('click',function(e){if(e.
       document.getElementById('reset-password').value='';
       document.getElementById('reset-password2').value='';
     } else if(event==='SIGNED_IN'&&session&&!currentUser){
-      currentUser=session.user;await loadProfileAndContinue();maybeShowSpotifyPopup();
+      currentUser=session.user;await loadProfileAndContinue();
     }
   });
 })();
