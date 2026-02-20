@@ -549,10 +549,16 @@ function showView(name,opts){
 }
 
 // ── WEEK UTILS ──
-function getCurrentWeek(){return Math.max(1,Math.floor((new Date()-new Date('2024-01-01'))/(7*24*60*60*1000))+1);}
-function getWeekRange(w){
-  const s=new Date('2024-01-01');s.setDate(s.getDate()+(w-1)*7);
-  const e=new Date(s);e.setDate(e.getDate()+6);
+function getCurrentWeek(){
+  const now=new Date();
+  const startOfYear=new Date(now.getFullYear(),0,1);
+  return Math.min(52,Math.max(1,Math.ceil((now-startOfYear)/(7*24*60*60*1000))));
+}
+function getWeekRange(w,year){
+  year=year||new Date().getFullYear();
+  const startOfYear=new Date(year,0,1);
+  const s=new Date(startOfYear.getTime()+(w-1)*7*24*60*60*1000);
+  const e=new Date(s.getTime()+6*24*60*60*1000);
   const f=d=>d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
   return f(s)+' \u2013 '+f(e);
 }
@@ -560,14 +566,15 @@ function getWeekRange(w){
 // ── FEED ──
 async function renderFeed(){
   const week=getCurrentWeek();
-  document.getElementById('feed-pill').textContent='Week '+week;
-  document.getElementById('feed-range').textContent=getWeekRange(week);
+  const year=new Date().getFullYear();
+  document.getElementById('feed-pill').textContent='Week '+week+' \u00b7 '+year;
+  document.getElementById('feed-range').textContent=getWeekRange(week,year);
   const grid=document.getElementById('friends-grid');
   grid.innerHTML='<div class="loading-center" style="grid-column:1/-1"><div class="spinner"></div></div>';
   const {data:follows}=await sb.from('follows').select('following_id').eq('follower_id',currentUser.id);
   const ids=[currentUser.id,...(follows||[]).map(f=>f.following_id)];
   const {data:profiles}=await sb.from('profiles').select('*').in('id',ids);
-  const {data:picks}=await sb.from('picks').select('*').in('user_id',ids).eq('week_number',week);
+  const {data:picks}=await sb.from('picks').select('*').in('user_id',ids).eq('week_number',week).eq('year',year);
   const pickMap=Object.fromEntries((picks||[]).map(p=>[p.user_id,p]));
   if(!profiles||profiles.length===0){
     grid.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="icon">🎸</div><p>Your feed is empty.<br>Go to Members to find people to follow!</p></div>';return;
@@ -611,28 +618,30 @@ async function renderMembers(){
 // ── PROFILE ──
 async function renderProfile(userId){
   if(!userId)return;
-  const isMe=userId===currentUser.id;const week=getCurrentWeek();
+  const isMe=userId===currentUser.id;
+  const week=getCurrentWeek();
+  const year=new Date().getFullYear();
   document.getElementById('profile-back').onclick=function(){showView('feed');};
   document.getElementById('profile-hero').innerHTML='<div class="loading-center"><div class="spinner"></div></div><div class="profile-hero-deco">🎸</div>';
   document.getElementById('weeks-list').innerHTML='';
   const {data:profile}=await sb.from('profiles').select('*').eq('id',userId).single();
   if(!profile)return;
-  const {data:picks}=await sb.from('picks').select('*').eq('user_id',userId).order('week_number',{ascending:false});
+  const {data:picks}=await sb.from('picks').select('*').eq('user_id',userId).eq('year',year).order('week_number',{ascending:false});
   const pickMap=Object.fromEntries((picks||[]).map(p=>[p.week_number,p]));
   document.getElementById('profile-hero').innerHTML=
     '<div class="profile-hero-deco">🎸</div>'
     +'<div class="p-avatar-lg" style="background:'+profile.color+'22;color:'+profile.color+'">'+profile.display_name[0]+'</div>'
-    +'<div class="p-meta"><h2>'+esc(profile.display_name)+'</h2><p>@'+esc(profile.username)+' &middot; '+((picks||[]).length)+' picks total</p></div>';
+    +'<div class="p-meta"><h2>'+esc(profile.display_name)+'</h2><p>@'+esc(profile.username)+' &middot; '+((picks||[]).length)+' picks in '+year+'</p></div>';
   let html='';
   for(let w=week;w>=1;w--){
     const pick=pickMap[w];const cur=w===week;
     const artHtml=pick&&pick.art_url
       ?'<img class="week-row-art" src="'+esc(pick.art_url)+'" alt="" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="week-row-art-ph" style="display:none">🎵</div>'
       :'<div class="week-row-art-ph">🎵</div>';
-    const click=pick?'showView(\'songdetail\',{userId:\''+userId+'\',week:'+w+'})':isMe?'openPickModal()':'';
+    const click=pick?'showView(\'songdetail\',{userId:\''+userId+'\',week:'+w+',year:'+year+'})':isMe?'openPickModal()':'';
     html+='<div class="week-row '+(cur?'is-current':'')+'" onclick="'+click+'">'
       +artHtml
-      +'<div><div class="wk-label">'+(cur?'&#9733; This week':'Week '+w)+'</div><div class="wk-date">'+getWeekRange(w)+'</div></div>'
+      +'<div><div class="wk-label">'+(cur?'&#9733; This week':'Week '+w)+'</div><div class="wk-date">'+getWeekRange(w,year)+'</div></div>'
       +(pick
         ?'<div class="wk-song"><strong>'+esc(pick.song)+'</strong><span>'+esc(pick.artist)+'</span></div><div class="wk-arrow">&#8594;</div>'
         :isMe
@@ -645,10 +654,10 @@ async function renderProfile(userId){
 
 // ── SONG DETAIL ──
 async function renderSongDetail(opts){
-  const userId=opts.userId;const week=opts.week;
+  const userId=opts.userId;const week=opts.week;const year=opts.year||new Date().getFullYear();
   document.getElementById('song-back').onclick=function(){showView('profile',{userId:userId});};
   document.getElementById('song-content').innerHTML='<div class="loading-center"><div class="spinner"></div></div>';
-  const {data:pick}=await sb.from('picks').select('*').eq('user_id',userId).eq('week_number',week).single();
+  const {data:pick}=await sb.from('picks').select('*').eq('user_id',userId).eq('week_number',week).eq('year',year).single();
   const {data:profile}=await sb.from('profiles').select('*').eq('id',userId).single();
   if(!pick||!profile)return;
   const tags=pick.tags||[];
@@ -659,9 +668,9 @@ async function renderSongDetail(opts){
     :'<div class="song-hero-art-ph">🎵</div>';
   document.getElementById('song-content').innerHTML=
     '<div class="song-hero">'+artHtml
-    +'<div><div class="song-badge">Week '+week+' &middot; '+getWeekRange(week)+' &middot; '+esc(profile.display_name)+'\'s Pick</div>'
+    +'<div><div class="song-badge">Week '+week+' &middot; '+getWeekRange(week,year)+' &middot; '+esc(profile.display_name)+'\'s Pick</div>'
     +'<div class="song-title">'+esc(pick.song)+'</div>'
-    +'<div class="song-artist">'+esc(pick.artist)+(pick.year?' &middot; '+pick.year:'')+'</div>'
+    +'<div class="song-artist">'+esc(pick.artist)+(pick.release_year?' &middot; '+pick.release_year:'')+'</div>'
     +(tags.length?'<div class="tags">'+tags.map(t=>'<div class="tag">'+esc(t)+'</div>').join('')+'</div>':'')
     +(pick.note?'<p style="margin-top:1rem;font-size:0.95rem;line-height:1.75;color:var(--text-muted);border-left:2px solid var(--red-dim);padding-left:1rem;font-style:italic">"'+esc(pick.note)+'"</p>':'')
     +'</div></div>'
@@ -669,7 +678,7 @@ async function renderSongDetail(opts){
     +'<div class="detail-sec"><h3>Song Info</h3>'
     +'<div class="stat-row"><span class="lbl">Title</span><span>'+esc(pick.song)+'</span></div>'
     +'<div class="stat-row"><span class="lbl">Artist</span><span>'+esc(pick.artist)+'</span></div>'
-    +(pick.year?'<div class="stat-row"><span class="lbl">Year</span><span>'+pick.year+'</span></div>':'')
+    +(pick.release_year?'<div class="stat-row"><span class="lbl">Year</span><span>'+pick.release_year+'</span></div>':'')
     +(tags.length?'<div class="stat-row"><span class="lbl">Vibe</span><span>'+tags.join(', ')+'</span></div>':'')
     +'</div>'
     +(simSongs?'<div class="detail-sec"><h3>🎵 Similar Songs</h3><div class="similar-grid">'+simSongs.map(s=>{const p=s.split(' \u2014 ');return'<div class="sim-item"><strong>'+esc(p[0])+'</strong><span>'+esc(p[1]||'')+'</span></div>';}).join('')+'</div></div>':'')
@@ -735,9 +744,10 @@ async function toggleFollow(userId,isFollowing,btn){
 // ── PICK MODAL ──
 async function openPickModal(){
   const week=getCurrentWeek();
-  document.getElementById('pick-week-label').textContent='Week '+week+' \u00b7 '+getWeekRange(week);
+  const year=new Date().getFullYear();
+  document.getElementById('pick-week-label').textContent='Week '+week+' \u00b7 '+getWeekRange(week,year);
   document.getElementById('pick-error').textContent='';
-  const {data}=await sb.from('picks').select('*').eq('user_id',currentUser.id).eq('week_number',week).single();
+  const {data}=await sb.from('picks').select('*').eq('user_id',currentUser.id).eq('week_number',week).eq('year',year).single();
   document.getElementById('p-song').value=(data&&data.song)||'';
   document.getElementById('p-artist').value=(data&&data.artist)||'';
   document.getElementById('p-art').value=(data&&data.art_url)||'';
@@ -759,14 +769,15 @@ async function savePick(){
   if(!song||!artist){err.textContent='Song title and artist are required.';return;}
   const tags=document.getElementById('p-tags').value.split(',').map(t=>t.trim()).filter(Boolean);
   const week=getCurrentWeek();
+  const year=new Date().getFullYear();
   btn.disabled=true;btn.textContent='Saving...';
   const {error}=await sb.from('picks').upsert({
-    user_id:currentUser.id,week_number:week,song,artist,
+    user_id:currentUser.id,week_number:week,year:year,song,artist,
     note:document.getElementById('p-note').value.trim(),
-    tags,year:document.getElementById('p-year').value.trim(),
+    tags,release_year:document.getElementById('p-year').value.trim(),
     band_info:document.getElementById('p-bandinfo').value.trim(),
     art_url:document.getElementById('p-art').value.trim(),
-  },{onConflict:'user_id,week_number'});
+  },{onConflict:'user_id,week_number,year'});
   btn.disabled=false;btn.textContent='Save Pick';
   if(error){err.textContent=error.message;return;}
   closePickModal();showToast('Pick saved! 🎵');
