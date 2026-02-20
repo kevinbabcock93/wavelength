@@ -190,109 +190,6 @@
 </head>
 <body>
 
-<div class="view active" id="view-setup">
-  <div class="center-screen" style="align-items:flex-start;padding-top:3rem">
-    <div class="center-box" style="max-width:520px">
-      <div class="setup-logo">🎵 Wave<span>length</span></div>
-      <p class="setup-tagline">Connect your free Supabase database to get started.<br>Follow the steps below — takes about 5 minutes.</p>
-      <div class="step-card">
-        <div class="step-num">Step 1 of 3</div>
-        <h3>Create a Supabase Account</h3>
-        <ul>
-          <li>Go to <strong>supabase.com</strong> and sign up free</li>
-          <li>Click <strong>"New project"</strong>, name it <em>wavelength</em></li>
-          <li>Pick a region, set a password, click <strong>"Create new project"</strong></li>
-          <li>Wait ~2 minutes for it to finish setting up</li>
-        </ul>
-      </div>
-      <div class="step-card">
-        <div class="step-num">Step 2 of 3</div>
-        <h3>Create the Database Tables</h3>
-        <p>Go to <strong>SQL Editor &rarr; New query</strong>, paste the code below, and click <strong>Run</strong>:</p>
-        <div class="code-block" id="sql-block">-- Profiles (one per user)
-create table profiles (
-  id uuid references auth.users primary key,
-  username text unique not null,
-  display_name text not null,
-  color text default '#cc1111',
-  created_at timestamptz default now()
-);
-
--- Picks (one per user per week)
-create table picks (
-  id uuid default gen_random_uuid() primary key,
-  user_id uuid references profiles(id) on delete cascade,
-  week_number integer not null,
-  song text not null,
-  artist text not null,
-  note text,
-  tags text[],
-  year text,
-  band_info text,
-  art_url text,
-  created_at timestamptz default now(),
-  unique(user_id, week_number)
-);
-
--- Follows
-create table follows (
-  follower_id uuid references profiles(id) on delete cascade,
-  following_id uuid references profiles(id) on delete cascade,
-  created_at timestamptz default now(),
-  primary key (follower_id, following_id)
-);
-
--- Security rules
-alter table profiles enable row level security;
-alter table picks enable row level security;
-alter table follows enable row level security;
-
-create policy "Profiles readable by all"
-  on profiles for select using (true);
-create policy "Users can create own profile"
-  on profiles for insert with check (auth.uid() = id);
-create policy "Users can update own profile"
-  on profiles for update using (auth.uid() = id);
-
-create policy "Picks readable by all"
-  on picks for select using (true);
-create policy "Users manage own picks"
-  on picks for all using (auth.uid() = user_id);
-
-create policy "Follows readable by all"
-  on follows for select using (true);
-create policy "Users manage own follows"
-  on follows for all using (auth.uid() = follower_id);</div>
-        <button class="copy-btn" onclick="copySQL()">&#8984; Copy SQL</button>
-      </div>
-      <div class="step-card">
-        <div class="step-num">Step 3 of 3</div>
-        <h3>Get Your API Credentials</h3>
-        <ul>
-          <li>Click the <strong>gear icon (Project Settings)</strong> at the bottom of the sidebar</li>
-          <li>Click <strong>API</strong></li>
-          <li>Copy your <strong>Project URL</strong> and <strong>anon / public key</strong></li>
-        </ul>
-      </div>
-      <div class="creds-section">
-        <h3>Paste Your Credentials</h3>
-        <p>Saved in your browser only — never sent anywhere else.</p>
-        <div class="cred-group">
-          <label>Project URL</label>
-          <input type="text" id="setup-url" placeholder="https://xxxxxxxxxxx.supabase.co" />
-        </div>
-        <div class="cred-group">
-          <label>Anon / Public Key</label>
-          <input type="text" id="setup-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." />
-        </div>
-        <br>
-        <button class="btn btn-primary btn-wide" onclick="connectSupabase()">Connect &amp; Continue &rarr;</button>
-        <div id="setup-error" class="form-error" style="margin-top:0.6rem"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
 <div class="view" id="view-auth">
   <div class="center-screen">
     <div class="center-box">
@@ -494,9 +391,9 @@ const COLORS=['#cc1111','#ff4444','#ff9090','#ffffff','#cccccc','#8b0000','#ff6b
 function buildColorPicker(id,sel){const el=document.getElementById(id);el.innerHTML='';COLORS.forEach((c,i)=>{const sw=document.createElement('div');sw.className='swatch'+((sel?c===sel:i===0)?' selected':'');sw.style.background=c;if(c==='#ffffff'||c==='#cccccc')sw.style.border='2px solid #555';sw.dataset.color=c;sw.onclick=()=>{el.querySelectorAll('.swatch').forEach(s=>s.classList.remove('selected'));sw.classList.add('selected');};el.appendChild(sw);});}
 function getColor(id){const s=document.getElementById(id).querySelector('.selected');return s?s.dataset.color:COLORS[0];}
 let sb=null,currentUser=null,currentProfile=null;
-function connectSupabase(){const url=document.getElementById('setup-url').value.trim();const key=document.getElementById('setup-key').value.trim();const err=document.getElementById('setup-error');err.textContent='';if(!url||!key){err.textContent='Both fields are required.';return;}if(!url.startsWith('https://')){err.textContent='URL must start with https://';return;}localStorage.setItem('wl_url',url);localStorage.setItem('wl_key',key);bootSupabase(url,key);}
-async function bootSupabase(url,key){try{sb=window.supabase.createClient(url,key);const {data:{session}}=await sb.auth.getSession();if(session){currentUser=session.user;await loadProfileAndContinue();}else showView('auth');sb.auth.onAuthStateChange(async(event,session)=>{if(event==='SIGNED_IN'&&session&&!currentUser){currentUser=session.user;await loadProfileAndContinue();}});}catch(e){document.getElementById('setup-error').textContent='Could not connect. Check your URL and key.';}}
-function resetSetup(){localStorage.removeItem('wl_url');localStorage.removeItem('wl_key');showView('setup');}
+const SUPABASE_URL = "https://ozkrjvyuptwlzaqhqljc.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im96a3Jqdnl1cHR3bHphcWhxbGpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODI2NDksImV4cCI6MjA4Njk1ODY0OX0.SqNJLTYZwnHV5kywP1PyLdp9-y76ugu-PyfL7BOGLIA";
+bootSupabase(SUPABASE_URL, SUPABASE_KEY);
 function switchTab(tab){document.getElementById('auth-signin').style.display=tab==='signin'?'block':'none';document.getElementById('auth-signup').style.display=tab==='signup'?'block':'none';document.getElementById('tab-signin').classList.toggle('active',tab==='signin');document.getElementById('tab-signup').classList.toggle('active',tab==='signup');}
 async function signIn(){const email=document.getElementById('signin-email').value.trim();const pass=document.getElementById('signin-password').value;const err=document.getElementById('signin-error');const btn=document.getElementById('signin-btn');err.textContent='';if(!email||!pass){err.textContent='Please enter your email and password.';return;}btn.disabled=true;btn.textContent='Signing in...';const {data,error}=await sb.auth.signInWithPassword({email,password:pass});btn.disabled=false;btn.textContent='Sign In →';if(error){err.textContent=error.message;return;}currentUser=data.user;await loadProfileAndContinue();}
 async function signUp(){const email=document.getElementById('signup-email').value.trim();const pass=document.getElementById('signup-password').value;const err=document.getElementById('signup-error');const btn=document.getElementById('signup-btn');err.textContent='';if(!email||!pass){err.textContent='Please enter your email and password.';return;}if(pass.length<6){err.textContent='Password must be at least 6 characters.';return;}btn.disabled=true;btn.textContent='Creating account...';const {data,error}=await sb.auth.signUp({email,password:pass});btn.disabled=false;btn.textContent='Create Account →';if(error){err.textContent=error.message;return;}if(data.session){currentUser=data.user;await loadProfileAndContinue();}else{err.style.color='#6bffb8';err.textContent='Account created! Check your email to confirm, then sign in.';}}
