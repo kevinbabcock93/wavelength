@@ -4,8 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wavelength — Song of the Week</title>
+
+<!-- Google Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+<!-- Supabase JS -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- Styles -->
 <style>
 :root {
   --bg: #0d0000; --surface: #160505; --surface2: #1f0808; --border: #3a0a0a;
@@ -116,11 +122,9 @@ nav .nav-link {margin:0 0.5rem;cursor:pointer;}
 
 <script>
 // --- Supabase Setup ---
-// <-- Replace with your Supabase project info -->
-const SUPABASE_URL = "https://YOUR_PROJECT_REF.supabase.co";
-const SUPABASE_KEY = "YOUR_ANON_PUBLIC_KEY";
+const SUPABASE_URL = "YOUR_SUPABASE_URL";
+const SUPABASE_KEY = "YOUR_SUPABASE_ANON_KEY";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
 let currentUser = null;
 let currentProfile = null;
 
@@ -132,7 +136,10 @@ function buildColorPicker(containerId){
   colors.forEach(c=>{
     const div=document.createElement("div");
     div.className="color-swatch"; div.style.background=c;
-    div.onclick=()=>{container.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('selected')); div.classList.add('selected');};
+    div.onclick=()=>{
+      container.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('selected'));
+      div.classList.add('selected');
+    };
     container.appendChild(div);
   });
 }
