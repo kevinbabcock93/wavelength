@@ -362,6 +362,19 @@
     </div>
     <div id="search-results"></div>
     <hr class="divider">
+    <h3 style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:0.06em;margin-bottom:0.5rem">Change Password</h3>
+    <p style="font-family:'IBM Plex Mono',monospace;font-size:0.68rem;color:var(--text-muted);margin-bottom:1rem">Set a new password for your account</p>
+    <div class="form-group">
+      <label>New Password</label>
+      <input type="password" id="cp-password" placeholder="Min. 6 characters" />
+    </div>
+    <div class="form-group">
+      <label>Confirm New Password</label>
+      <input type="password" id="cp-password2" placeholder="Repeat your password" />
+    </div>
+    <button class="btn btn-primary" id="cp-btn" onclick="changePassword()">Update Password</button>
+    <div id="cp-msg" class="form-error" style="margin-top:0.5rem"></div>
+    <hr class="divider">
     <button class="btn btn-danger" onclick="signOut()">Sign Out</button>
   </div>
 </div>
@@ -671,6 +684,9 @@ function renderSettings(){
   buildColorPicker('s-colors',currentProfile.color);
   document.getElementById('search-results').innerHTML='';
   document.getElementById('search-q').value='';
+  document.getElementById('cp-password').value='';
+  document.getElementById('cp-password2').value='';
+  document.getElementById('cp-msg').textContent='';
 }
 
 async function saveSettings(){
@@ -756,6 +772,26 @@ async function savePick(){
   closePickModal();showToast('Pick saved! 🎵');
   if(document.getElementById('view-feed').classList.contains('active'))renderFeed();
   if(document.getElementById('view-profile').classList.contains('active'))renderProfile(currentUser.id);
+}
+
+async function changePassword(){
+  const p1=document.getElementById('cp-password').value;
+  const p2=document.getElementById('cp-password2').value;
+  const msg=document.getElementById('cp-msg');
+  const btn=document.getElementById('cp-btn');
+  msg.textContent='';msg.style.color='#ff7070';
+  if(!p1||!p2){msg.textContent='Please fill in both fields.';return;}
+  if(p1.length<6){msg.textContent='Password must be at least 6 characters.';return;}
+  if(p1!==p2){msg.textContent='Passwords do not match.';return;}
+  btn.disabled=true;btn.textContent='Saving...';
+  const {error}=await sb.auth.updateUser({password:p1});
+  btn.disabled=false;btn.textContent='Update Password';
+  if(error){msg.textContent=error.message;return;}
+  document.getElementById('cp-password').value='';
+  document.getElementById('cp-password2').value='';
+  msg.style.color='#6bffb8';
+  msg.textContent='Password updated successfully!';
+  setTimeout(function(){msg.textContent='';},3000);
 }
 
 // ── FORGOT / RESET PASSWORD ──
