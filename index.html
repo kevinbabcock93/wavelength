@@ -673,6 +673,7 @@ async function renderSongDetail(opts){
     +'<div class="song-artist">'+esc(pick.artist)+(pick.release_year?' &middot; '+pick.release_year:'')+'</div>'
     +(tags.length?'<div class="tags">'+tags.map(t=>'<div class="tag">'+esc(t)+'</div>').join('')+'</div>':'')
     +(pick.note?'<p style="margin-top:1rem;font-size:0.95rem;line-height:1.75;color:var(--text-muted);border-left:2px solid var(--red-dim);padding-left:1rem;font-style:italic">"'+esc(pick.note)+'"</p>':'')
+    +(userId===currentUser.id?'<button class="btn btn-ghost" style="margin-top:1.25rem;font-size:0.62rem" onclick="openPickModal()">✏ Edit This Pick</button>':'')
     +'</div></div>'
     +(pick.band_info?'<div class="detail-sec"><h3>About '+esc(pick.artist)+'</h3><p>'+esc(pick.band_info)+'</p></div>':'')
     +'<div class="detail-sec"><h3>Song Info</h3>'
