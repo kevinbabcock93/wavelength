@@ -190,6 +190,9 @@
         </div>
         <button class="btn btn-primary btn-wide" id="signin-btn" onclick="signIn()">Sign In</button>
         <div id="signin-error" class="form-error" style="margin-top:0.5rem"></div>
+        <p style="margin-top:1rem;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:var(--text-dim)">
+          <span onclick="showForgotPassword()" style="cursor:pointer;color:var(--text-muted);text-decoration:underline">Forgot password?</span>
+        </p>
       </div>
       <div id="auth-signup" style="display:none">
         <div class="form-group">
@@ -203,6 +206,43 @@
         <button class="btn btn-primary btn-wide" id="signup-btn" onclick="signUp()">Create Account</button>
         <div id="signup-error" class="form-error" style="margin-top:0.5rem"></div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- FORGOT PASSWORD -->
+<div class="view" id="view-forgot">
+  <div class="center-screen">
+    <div class="center-box">
+      <div class="auth-logo">🎵 Wave<span>length</span></div>
+      <p class="auth-tagline">Enter your email and we'll send you a reset link.</p>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="forgot-email" placeholder="you@example.com" />
+      </div>
+      <button class="btn btn-primary btn-wide" id="forgot-btn" onclick="sendPasswordReset()">Send Reset Link</button>
+      <div id="forgot-msg" class="form-error" style="margin-top:0.5rem"></div>
+      <p style="margin-top:1.5rem;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:var(--text-dim);cursor:pointer" onclick="showView('auth')">← Back to Sign In</p>
+    </div>
+  </div>
+</div>
+
+<!-- RESET PASSWORD (shown after clicking email link) -->
+<div class="view" id="view-resetpassword">
+  <div class="center-screen">
+    <div class="center-box">
+      <div class="auth-logo">🎵 Wave<span>length</span></div>
+      <p class="auth-tagline">Choose a new password for your account.</p>
+      <div class="form-group">
+        <label>New Password</label>
+        <input type="password" id="reset-password" placeholder="Min. 6 characters" />
+      </div>
+      <div class="form-group">
+        <label>Confirm New Password</label>
+        <input type="password" id="reset-password2" placeholder="Repeat your password" />
+      </div>
+      <button class="btn btn-primary btn-wide" id="reset-btn" onclick="saveNewPassword()">Save New Password</button>
+      <div id="reset-msg" class="form-error" style="margin-top:0.5rem"></div>
     </div>
   </div>
 </div>
@@ -718,6 +758,49 @@ async function savePick(){
   if(document.getElementById('view-profile').classList.contains('active'))renderProfile(currentUser.id);
 }
 
+// ── FORGOT / RESET PASSWORD ──
+function showForgotPassword(){
+  showView('forgot');
+  document.getElementById('forgot-email').value='';
+  document.getElementById('forgot-msg').textContent='';
+}
+
+async function sendPasswordReset(){
+  const email=document.getElementById('forgot-email').value.trim();
+  const msg=document.getElementById('forgot-msg');
+  const btn=document.getElementById('forgot-btn');
+  msg.textContent='';msg.style.color='#ff7070';
+  if(!email){msg.textContent='Please enter your email.';return;}
+  btn.disabled=true;btn.textContent='Sending...';
+  const {error}=await sb.auth.resetPasswordForEmail(email,{
+    redirectTo: window.location.origin+window.location.pathname
+  });
+  btn.disabled=false;btn.textContent='Send Reset Link';
+  if(error){msg.textContent=error.message;return;}
+  msg.style.color='#6bffb8';
+  msg.textContent='Reset link sent! Check your email and click the link.';
+}
+
+async function saveNewPassword(){
+  const p1=document.getElementById('reset-password').value;
+  const p2=document.getElementById('reset-password2').value;
+  const msg=document.getElementById('reset-msg');
+  const btn=document.getElementById('reset-btn');
+  msg.textContent='';msg.style.color='#ff7070';
+  if(!p1||!p2){msg.textContent='Please fill in both fields.';return;}
+  if(p1.length<6){msg.textContent='Password must be at least 6 characters.';return;}
+  if(p1!==p2){msg.textContent='Passwords do not match.';return;}
+  btn.disabled=true;btn.textContent='Saving...';
+  const {error}=await sb.auth.updateUser({password:p1});
+  btn.disabled=false;btn.textContent='Save New Password';
+  if(error){msg.textContent=error.message;return;}
+  msg.style.color='#6bffb8';
+  msg.textContent='Password saved! Taking you in...';
+  setTimeout(async function(){
+    await loadProfileAndContinue();
+  },1500);
+}
+
 // ── HELPERS ──
 function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function showToast(msg,isErr){
@@ -733,7 +816,15 @@ document.getElementById('pick-modal').addEventListener('click',function(e){if(e.
   if(session){currentUser=session.user;await loadProfileAndContinue();}
   else showView('auth');
   sb.auth.onAuthStateChange(async function(event,session){
-    if(event==='SIGNED_IN'&&session&&!currentUser){currentUser=session.user;await loadProfileAndContinue();}
+    if(event==='PASSWORD_RECOVERY'){
+      // User clicked the reset link in their email — show the set new password screen
+      showView('resetpassword');
+      document.getElementById('reset-msg').textContent='';
+      document.getElementById('reset-password').value='';
+      document.getElementById('reset-password2').value='';
+    } else if(event==='SIGNED_IN'&&session&&!currentUser){
+      currentUser=session.user;await loadProfileAndContinue();
+    }
   });
 })();
 </script>
