@@ -399,6 +399,16 @@
       <p class="form-hint">Google the album cover → right-click the image → "Copy image address" → paste here</p>
     </div>
     <div class="form-group">
+      <label>Spotify Link <span style="color:var(--text-dim)">(optional)</span></label>
+      <input type="text" id="p-spotify" placeholder="https://open.spotify.com/track/..." />
+      <p class="form-hint">Open Spotify → find the song → three dots → Share → Copy Song Link</p>
+    </div>
+    <div class="form-group">
+      <label>YouTube Link <span style="color:var(--text-dim)">(optional)</span></label>
+      <input type="text" id="p-youtube" placeholder="https://www.youtube.com/watch?v=..." />
+      <p class="form-hint">Paste a YouTube URL as a backup if the song isn't on Spotify</p>
+    </div>
+    <div class="form-group">
       <label>Why this song? <span style="color:var(--text-dim)">(optional)</span></label>
       <textarea id="p-note" placeholder="What makes this your pick this week?"></textarea>
     </div>
@@ -666,6 +676,31 @@ async function renderSongDetail(opts){
   const artHtml=pick.art_url
     ?'<img class="song-hero-art" src="'+esc(pick.art_url)+'" alt="Album art" onerror="this.outerHTML=\'<div class=\\\'song-hero-art-ph\\\'>🎵</div>\'">'
     :'<div class="song-hero-art-ph">🎵</div>';
+  // Build player HTML - Spotify takes priority, YouTube as fallback
+  let playerHtml='';
+  if(pick.spotify_url){
+    const spotifyId=pick.spotify_url.split('/track/').pop().split('?')[0];
+    if(spotifyId){
+      playerHtml='<div class="detail-sec"><h3>🎵 Listen</h3>'
+        +'<iframe style="border-radius:8px;border:none;width:100%;margin-top:0.5rem" '
+        +'src="https://open.spotify.com/embed/track/'+spotifyId+'?utm_source=generator&theme=0" '
+        +'height="152" allowfullscreen allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>'
+        +'</div>';
+    }
+  } else if(pick.youtube_url){
+    let ytId='';
+    const m=pick.youtube_url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    if(m)ytId=m[1];
+    if(ytId){
+      playerHtml='<div class="detail-sec"><h3>🎵 Listen</h3>'
+        +'<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin-top:0.5rem">'
+        +'<iframe style="position:absolute;top:0;left:0;width:100%;height:100%;border:none" '
+        +'src="https://www.youtube.com/embed/'+ytId+'" '
+        +'allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" loading="lazy"></iframe>'
+        +'</div></div>';
+    }
+  }
+
   document.getElementById('song-content').innerHTML=
     '<div class="song-hero">'+artHtml
     +'<div><div class="song-badge">Week '+week+' &middot; '+getWeekRange(week,year)+' &middot; '+esc(profile.display_name)+'\'s Pick</div>'
@@ -675,6 +710,7 @@ async function renderSongDetail(opts){
     +(pick.note?'<p style="margin-top:1rem;font-size:0.95rem;line-height:1.75;color:var(--text-muted);border-left:2px solid var(--red-dim);padding-left:1rem;font-style:italic">"'+esc(pick.note)+'"</p>':'')
     +(userId===currentUser.id?'<button class="btn btn-ghost" style="margin-top:1.25rem;font-size:0.62rem" onclick="openPickModal()">✏ Edit This Pick</button>':'')
     +'</div></div>'
+    +playerHtml
     +(pick.band_info?'<div class="detail-sec"><h3>About '+esc(pick.artist)+'</h3><p>'+esc(pick.band_info)+'</p></div>':'')
     +'<div class="detail-sec"><h3>Song Info</h3>'
     +'<div class="stat-row"><span class="lbl">Title</span><span>'+esc(pick.song)+'</span></div>'
@@ -751,7 +787,8 @@ async function openPickModal(){
   const {data}=await sb.from('picks').select('*').eq('user_id',currentUser.id).eq('week_number',week).eq('year',year).single();
   document.getElementById('p-song').value=(data&&data.song)||'';
   document.getElementById('p-artist').value=(data&&data.artist)||'';
-  document.getElementById('p-art').value=(data&&data.art_url)||'';
+  document.getElementById('p-spotify').value=(data&&data.spotify_url)||'';
+  document.getElementById('p-youtube').value=(data&&data.youtube_url)||'';
   document.getElementById('p-note').value=(data&&data.note)||'';
   document.getElementById('p-tags').value=(data&&data.tags&&data.tags.join(', '))||'';
   document.getElementById('p-year').value=(data&&data.year)||'';
@@ -778,6 +815,8 @@ async function savePick(){
     tags,release_year:document.getElementById('p-year').value.trim(),
     band_info:document.getElementById('p-bandinfo').value.trim(),
     art_url:document.getElementById('p-art').value.trim(),
+    spotify_url:document.getElementById('p-spotify').value.trim(),
+    youtube_url:document.getElementById('p-youtube').value.trim(),
   },{onConflict:'user_id,week_number,year'});
   btn.disabled=false;btn.textContent='Save Pick';
   if(error){err.textContent=error.message;return;}
