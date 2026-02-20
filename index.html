@@ -7,56 +7,201 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root {
-  --bg: #0d0000; --surface: #160505; --surface2: #1f0808; --border: #3a0a0a;
-  --red: #cc1111; --red-bright: #ff2020; --white: #f0ece8; --text: #f0ece8; --text-muted: #a09890;
-}
-body {margin:0;background:var(--bg);color:var(--text);font-family:'Crimson Pro',serif;}
-input,button {font-family:inherit;}
-.view {display:none;}
-.center-screen {display:flex;justify-content:center;align-items:center;height:100vh;}
-.center-box {background:var(--surface);padding:2rem;border-radius:0.5rem;width:320px;text-align:center;}
-.btn {padding:0.6rem 1rem;border:none;border-radius:3px;cursor:pointer;font-weight:600;transition:0.15s;}
-.btn-primary {background:var(--red);color:var(--white);}
-.btn-primary:hover {background:var(--red-bright);}
-.btn-ghost {background:none;color:var(--red);}
-.btn-danger {background:#600;color:#fff;}
-input {width:100%;padding:0.5rem;margin:0.5rem 0;border:1px solid var(--border);border-radius:3px;background:var(--surface2);color:var(--text);}
-.form-error {color:var(--red);font-size:0.8rem;}
-.color-row {display:flex;gap:0.5rem;margin-top:0.5rem;justify-content:center;}
-.color-swatch {width:30px;height:30px;border-radius:50%;cursor:pointer;border:2px solid transparent;}
-.color-swatch.selected {border:2px solid var(--white);}
-nav {display:flex;align-items:center;justify-content:space-between;padding:0.5rem 1rem;background:var(--surface2);}
-nav .nav-link {margin:0 0.5rem;cursor:pointer;}
-.feed-header, .page-header {padding:1rem;}
-.members-grid, .feed-grid {display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:1rem;padding:1rem;}
-.toast {position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);background:var(--red-bright);color:#fff;padding:0.5rem 1rem;border-radius:4px;display:none;}
-.card {padding:1rem;border-radius:5px;text-align:center;color:#fff;}
+  :root {
+    --bg: #0d0000; --surface: #160505; --surface2: #1f0808; --border: #3a0a0a;
+    --red: #cc1111; --red-bright: #ff2020; --red-dim: #7a0a0a;
+    --white: #f0ece8; --text: #f0ece8; --text-muted: #a09890; --text-dim: #4a3f3a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Crimson Pro', serif; min-height: 100vh; overflow-x: hidden; }
+  body::before { content: ''; position: fixed; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px); pointer-events: none; z-index: 999; opacity: 0.3; }
+  .view { display: none; position: relative; z-index: 1; }
+  .view.active { display: block; }
+  nav { position: sticky; top: 0; z-index: 100; background: rgba(13,0,0,0.96); backdrop-filter: blur(20px); border-bottom: 2px solid var(--red-dim); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 1rem; }
+  .logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.7rem; letter-spacing: 0.08em; color: var(--white); cursor: pointer; display: flex; align-items: center; gap: 0.4rem; flex-shrink: 0; }
+  .logo span { color: var(--red); }
+  .nav-center { display: flex; gap: 0.2rem; align-items: center; }
+  .nav-link { font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); background: none; border: none; cursor: pointer; padding: 0.4rem 0.75rem; border-radius: 3px; transition: all 0.15s; }
+  .nav-link:hover, .nav-link.active { color: var(--white); background: var(--surface2); }
+  .nav-actions { display: flex; gap: 0.6rem; align-items: center; flex-shrink: 0; }
+  .nav-user { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--text-muted); }
+  .btn { font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; padding: 0.5rem 1.1rem; border-radius: 3px; border: none; cursor: pointer; transition: all 0.15s; }
+  .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
+  .btn-ghost:hover { border-color: var(--red-dim); color: var(--white); }
+  .btn-primary { background: var(--red); color: var(--white); }
+  .btn-primary:hover { background: var(--red-bright); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(204,17,17,0.35); }
+  .btn-danger { background: transparent; border: 1px solid var(--red-dim); color: var(--red); }
+  .btn-danger:hover { background: var(--red); color: white; }
+  .btn-wide { width: 100%; padding: 0.85rem; font-size: 0.75rem; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+  .form-group { margin-bottom: 1.2rem; }
+  .form-group label { display: block; font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text-muted); margin-bottom: 0.4rem; }
+  .form-group input, .form-group textarea { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 3px; padding: 0.75rem 0.9rem; color: var(--text); font-family: 'Crimson Pro', serif; font-size: 1rem; transition: border-color 0.15s; outline: none; }
+  .form-group input:focus, .form-group textarea:focus { border-color: var(--red-dim); }
+  .form-group textarea { resize: vertical; min-height: 80px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .form-hint { font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; color: var(--text-muted); margin-top: 0.3rem; line-height: 1.5; }
+  .form-error { color: #ff7070; font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; margin-top: 0.4rem; text-align: center; }
+  .center-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+  .center-box { width: 100%; max-width: 420px; }
+  .auth-logo { font-family: 'Bebas Neue', sans-serif; font-size: 2.8rem; letter-spacing: 0.1em; color: var(--white); margin-bottom: 0.3rem; }
+  .auth-logo span { color: var(--red); }
+  .auth-tagline { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; color: var(--text-muted); margin-bottom: 2rem; line-height: 1.7; }
+  .auth-tabs { display: flex; border: 1px solid var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 1.5rem; }
+  .auth-tab { flex: 1; padding: 0.6rem; text-align: center; font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; background: transparent; border: none; color: var(--text-muted); transition: all 0.15s; }
+  .auth-tab.active { background: var(--red); color: white; }
+  .ob-box h2 { font-family: 'Bebas Neue', sans-serif; font-size: 2.5rem; letter-spacing: 0.08em; margin-bottom: 0.4rem; }
+  .ob-box .sub { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: var(--text-muted); margin-bottom: 2rem; line-height: 1.65; }
+  .color-row { display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap; }
+  .swatch { width: 32px; height: 32px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: all 0.15s; flex-shrink: 0; }
+  .swatch:hover, .swatch.selected { border-color: white; transform: scale(1.12); }
+  .feed-header { padding: 3rem 2rem 2rem; max-width: 980px; margin: 0 auto; position: relative; overflow: hidden; }
+  .feed-header-deco { position: absolute; top: -10px; right: 20px; font-size: 10rem; opacity: 0.04; pointer-events: none; line-height: 1; }
+  .feed-header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 3.5rem; letter-spacing: 0.06em; line-height: 1; margin-bottom: 0.5rem; color: var(--white); }
+  .feed-header h1 span { color: var(--red); }
+  .feed-meta { color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; }
+  .week-pill { display: inline-block; background: var(--red); color: var(--white); font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.12em; padding: 0.22rem 0.6rem; border-radius: 2px; margin-bottom: 1rem; }
+  .friends-grid { max-width: 980px; margin: 0 auto; padding: 0 2rem 4rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+  .friend-card { background: var(--surface); cursor: pointer; transition: background 0.15s; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+  .friend-card:hover { background: var(--surface2); }
+  .friend-card-art { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; background: var(--bg); border-bottom: 1px solid var(--border); }
+  .friend-card-art-ph { width: 100%; aspect-ratio: 1; background: var(--bg); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 3.5rem; opacity: 0.1; }
+  .friend-card-body { padding: 1.2rem; flex: 1; }
+  .f-avatar { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 1rem; margin-bottom: 0.6rem; }
+  .f-name { font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); margin-bottom: 0.3rem; }
+  .f-song { font-family: 'Bebas Neue', sans-serif; font-size: 1.25rem; letter-spacing: 0.04em; line-height: 1.1; margin-bottom: 0.15rem; color: var(--white); }
+  .f-artist { font-size: 0.88rem; color: var(--text-muted); font-style: italic; }
+  .no-pick { color: var(--text-dim); font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; }
+  .card-arrow { position: absolute; bottom: 1.2rem; right: 1.2rem; color: var(--text-dim); font-size: 0.9rem; transition: all 0.15s; }
+  .friend-card:hover .card-arrow { color: var(--red); transform: translate(2px,-2px); }
+  .page-header { padding: 3rem 2rem 2rem; max-width: 980px; margin: 0 auto; position: relative; overflow: hidden; }
+  .page-header-deco { position: absolute; top: 0; right: 20px; font-size: 9rem; opacity: 0.04; pointer-events: none; line-height: 1; }
+  .page-header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 3rem; letter-spacing: 0.06em; margin-bottom: 0.5rem; }
+  .page-header h1 span { color: var(--red); }
+  .page-header p { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: var(--text-muted); }
+  .members-grid { max-width: 980px; margin: 0 auto; padding: 0 2rem 4rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+  .member-card { background: var(--surface); padding: 1.5rem; cursor: pointer; transition: background 0.15s; text-align: center; }
+  .member-card:hover { background: var(--surface2); }
+  .member-avatar { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; margin: 0 auto 0.9rem; border: 2px solid var(--red-dim); }
+  .member-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.15rem; letter-spacing: 0.06em; margin-bottom: 0.15rem; }
+  .member-username { font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; color: var(--text-muted); margin-bottom: 0.6rem; }
+  .member-picks { font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; color: var(--red); }
+  .profile-wrap { max-width: 880px; margin: 0 auto; padding: 1.5rem 2rem 0; }
+  .back-btn { background: none; border: none; color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: color 0.15s; padding: 0; }
+  .back-btn:hover { color: var(--red); }
+  .profile-hero { max-width: 880px; margin: 0 auto; padding: 2rem 2rem 1.5rem; display: flex; align-items: flex-end; gap: 1.5rem; border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
+  .profile-hero-deco { position: absolute; right: 1.5rem; bottom: -15px; font-size: 7rem; opacity: 0.04; pointer-events: none; }
+  .p-avatar-lg { width: 76px; height: 76px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 1.9rem; flex-shrink: 0; border: 2px solid var(--red-dim); }
+  .p-meta h2 { font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; letter-spacing: 0.06em; color: var(--white); }
+  .p-meta p { color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; margin-top: 0.2rem; }
+  .weeks-list { max-width: 880px; margin: 0 auto; padding: 0 2rem 4rem; }
+  .week-row { display: grid; grid-template-columns: 52px 130px 1fr auto; align-items: center; gap: 1.1rem; padding: 0.85rem 0.5rem; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.1s; border-radius: 3px; margin: 0 -0.5rem; }
+  .week-row:hover { background: var(--surface); }
+  .week-row.is-current .wk-label { color: var(--red); }
+  .week-row-art { width: 52px; height: 52px; object-fit: cover; border-radius: 2px; background: var(--surface2); border: 1px solid var(--border); flex-shrink: 0; }
+  .week-row-art-ph { width: 52px; height: 52px; border-radius: 2px; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; opacity: 0.25; flex-shrink: 0; }
+  .wk-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
+  .wk-date { font-size: 0.56rem; color: var(--text-dim); margin-top: 0.2rem; }
+  .wk-song strong { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 0.04em; display: block; color: var(--white); }
+  .wk-song span { font-size: 0.83rem; color: var(--text-muted); font-style: italic; }
+  .wk-arrow { color: var(--text-dim); font-size: 0.85rem; }
+  .week-row:hover .wk-arrow { color: var(--red); }
+  .song-wrap { max-width: 740px; margin: 0 auto; padding: 0 2rem 4rem; }
+  .song-hero { padding: 2.5rem 0 2rem; border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 180px 1fr; gap: 2rem; align-items: start; }
+  .song-hero-art { width: 180px; height: 180px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border); }
+  .song-hero-art-ph { width: 180px; height: 180px; border-radius: 4px; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 4rem; opacity: 0.12; }
+  .song-badge { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text-muted); margin-bottom: 0.75rem; }
+  .song-title { font-family: 'Bebas Neue', sans-serif; font-size: 2.8rem; letter-spacing: 0.04em; line-height: 1; margin-bottom: 0.3rem; color: var(--white); }
+  .song-artist { font-size: 1.1rem; color: var(--text-muted); font-style: italic; }
+  .tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.9rem; }
+  .tag { font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.06em; padding: 0.22rem 0.55rem; border-radius: 2px; border: 1px solid var(--red-dim); color: var(--red); }
+  .detail-sec { padding: 1.75rem 0; border-bottom: 1px solid var(--border); }
+  .detail-sec:last-child { border-bottom: none; }
+  .detail-sec h3 { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.16em; color: var(--red-dim); margin-bottom: 1.1rem; }
+  .detail-sec p { font-size: 1rem; line-height: 1.75; color: var(--text-muted); }
+  .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 0.55rem 0; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-row .lbl { color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; }
+  .similar-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .sim-item { background: var(--surface); border: 1px solid var(--border); border-radius: 3px; padding: 0.85rem 1rem; transition: border-color 0.15s; }
+  .sim-item:hover { border-color: var(--red-dim); }
+  .sim-item strong { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.04em; display: block; margin-bottom: 0.1rem; color: var(--white); }
+  .sim-item span { font-size: 0.8rem; color: var(--text-muted); font-style: italic; }
+  .settings-wrap { max-width: 560px; margin: 0 auto; padding: 2rem; }
+  .settings-wrap h2 { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; letter-spacing: 0.06em; margin-bottom: 0.3rem; }
+  .settings-wrap .sub { color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; margin-bottom: 2rem; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 1.75rem 0; }
+  .user-result { display: flex; align-items: center; gap: 1rem; padding: 0.75rem 0; border-bottom: 1px solid var(--border); }
+  .user-result:last-child { border-bottom: none; }
+  .ur-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 1rem; flex-shrink: 0; }
+  .ur-info { flex: 1; }
+  .ur-info strong { font-size: 0.95rem; }
+  .ur-info span { display: block; font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; color: var(--text-muted); }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 500; display: none; align-items: center; justify-content: center; padding: 1rem; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--red); border-radius: 4px; padding: 2rem; width: 100%; max-width: 520px; position: relative; max-height: 92vh; overflow-y: auto; }
+  .modal h3 { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 0.06em; margin-bottom: 0.3rem; }
+  .modal .modal-sub { color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; margin-bottom: 1.5rem; }
+  .modal-close { position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.2rem; transition: color 0.15s; line-height: 1; }
+  .modal-close:hover { color: var(--red); }
+  .spinner { width: 22px; height: 22px; border: 2px solid var(--border); border-top-color: var(--red); border-radius: 50%; animation: spin 0.6s linear infinite; display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-center { display: flex; align-items: center; justify-content: center; padding: 4rem; }
+  .empty-state { text-align: center; padding: 4rem 2rem; }
+  .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.25; }
+  .empty-state p { font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--text-muted); line-height: 1.65; margin-bottom: 1.5rem; }
+  .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(120px); background: var(--red); color: white; font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; font-weight: 500; padding: 0.7rem 1.4rem; border-radius: 3px; z-index: 9999; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1); white-space: nowrap; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.err { background: #5a0000; }
+  @media (max-width: 650px) {
+    .song-hero { grid-template-columns: 1fr; }
+    .song-hero-art, .song-hero-art-ph { width: 100%; height: 220px; }
+    .song-title { font-size: 2rem; }
+    .similar-grid, .form-row { grid-template-columns: 1fr; }
+    .week-row { grid-template-columns: 44px 1fr auto; gap: 0.7rem; }
+    .week-row > div:nth-child(2) { display: none; }
+    nav { padding: 0 1rem; }
+    .nav-center { display: none; }
+    .friends-grid, .members-grid { padding: 0 1rem 3rem; }
+    .feed-header, .profile-hero, .profile-wrap, .weeks-list, .song-wrap, .settings-wrap, .page-header { padding-left: 1rem; padding-right: 1rem; }
+  }
 </style>
 </head>
 <body>
 
-<!-- AUTH VIEW -->
-<div class="view" id="view-auth">
+<!-- AUTH -->
+<div class="view active" id="view-auth">
   <div class="center-screen">
     <div class="center-box">
-      <h1>🎵 Wavelength</h1>
-      <p>One song. Every week.</p>
-      <div>
-        <button onclick="switchTab('signin')">Sign In</button>
-        <button onclick="switchTab('signup')">Sign Up</button>
+      <div class="auth-logo">🎵 Wave<span>length</span></div>
+      <p class="auth-tagline">One song. Every week. Share what's moving you.</p>
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-signin" onclick="switchTab('signin')">Sign In</button>
+        <button class="auth-tab" id="tab-signup" onclick="switchTab('signup')">Sign Up</button>
       </div>
       <div id="auth-signin">
-        <input type="email" id="signin-email" placeholder="Email"/>
-        <input type="password" id="signin-password" placeholder="Password"/>
-        <button class="btn btn-primary" onclick="signIn()">Sign In →</button>
-        <div class="form-error" id="signin-error"></div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="signin-email" placeholder="you@example.com" />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="signin-password" placeholder="Your password" />
+        </div>
+        <button class="btn btn-primary btn-wide" id="signin-btn" onclick="signIn()">Sign In</button>
+        <div id="signin-error" class="form-error" style="margin-top:0.5rem"></div>
       </div>
       <div id="auth-signup" style="display:none">
-        <input type="email" id="signup-email" placeholder="Email"/>
-        <input type="password" id="signup-password" placeholder="Password"/>
-        <button class="btn btn-primary" onclick="signUp()">Sign Up →</button>
-        <div class="form-error" id="signup-error"></div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="signup-email" placeholder="you@example.com" />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="signup-password" placeholder="Min. 6 characters" />
+        </div>
+        <button class="btn btn-primary btn-wide" id="signup-btn" onclick="signUp()">Create Account</button>
+        <div id="signup-error" class="form-error" style="margin-top:0.5rem"></div>
       </div>
     </div>
   </div>
@@ -65,178 +210,532 @@ nav .nav-link {margin:0 0.5rem;cursor:pointer;}
 <!-- ONBOARDING -->
 <div class="view" id="view-onboarding">
   <div class="center-screen">
-    <div class="center-box">
-      <h2>Setup Profile</h2>
-      <input type="text" id="ob-name" placeholder="Display Name"/>
-      <input type="text" id="ob-username" placeholder="Username"/>
-      <div class="color-row" id="ob-colors"></div>
-      <button class="btn btn-primary" onclick="createProfile()">Enter Wavelength →</button>
-      <div class="form-error" id="ob-error"></div>
+    <div class="center-box ob-box">
+      <h2>🎶 Set Up Your Profile</h2>
+      <p class="sub">You're in! Pick a name and username.</p>
+      <div class="form-group">
+        <label>Display Name</label>
+        <input type="text" id="ob-name" placeholder="e.g. Jamie" />
+      </div>
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="ob-username" placeholder="e.g. jamie_listens" />
+        <p class="form-hint">Letters, numbers, and underscores only.</p>
+      </div>
+      <div class="form-group">
+        <label>Avatar Color</label>
+        <div class="color-row" id="ob-colors"></div>
+      </div>
+      <button class="btn btn-primary btn-wide" id="ob-btn" onclick="createProfile()">Enter Wavelength</button>
+      <div id="ob-error" class="form-error" style="margin-top:0.5rem"></div>
     </div>
   </div>
 </div>
 
 <!-- NAV -->
 <nav id="mainNav" style="display:none">
-  <div>🎵 Wavelength</div>
-  <div>
-    <span class="nav-link" onclick="showView('feed')">Feed</span>
-    <span class="nav-link" onclick="showView('members')">Members</span>
-    <span class="nav-link" onclick="showView('profile')">My Profile</span>
+  <div class="logo" onclick="showView('feed')">🎵 Wave<span>length</span></div>
+  <div class="nav-center">
+    <button class="nav-link" id="nav-feed" onclick="showView('feed')">Feed</button>
+    <button class="nav-link" id="nav-members" onclick="showView('members')">Members</button>
+    <button class="nav-link" id="nav-myprofile" onclick="showView('profile',{userId:currentUser&&currentUser.id})">My Profile</button>
   </div>
-  <div>
-    <button class="btn btn-ghost" onclick="signOut()">Sign Out</button>
+  <div class="nav-actions">
+    <span class="nav-user" id="nav-user"></span>
+    <button class="btn btn-ghost" onclick="showView('settings')">Settings</button>
+    <button class="btn btn-primary" onclick="openPickModal()">+ This Week</button>
   </div>
 </nav>
 
 <!-- FEED -->
 <div class="view" id="view-feed">
-  <div class="feed-header"><h2>This Week's Picks</h2></div>
-  <div class="feed-grid" id="feed-grid"></div>
+  <div class="feed-header">
+    <div class="feed-header-deco">🎸</div>
+    <div class="week-pill" id="feed-pill">Week 1</div>
+    <h1>This Week's <span>Picks</span></h1>
+    <p class="feed-meta" id="feed-range"></p>
+  </div>
+  <div class="friends-grid" id="friends-grid">
+    <div class="loading-center" style="grid-column:1/-1"><div class="spinner"></div></div>
+  </div>
 </div>
 
 <!-- MEMBERS -->
 <div class="view" id="view-members">
-  <div class="page-header"><h2>All Members</h2></div>
-  <div class="members-grid" id="members-grid"></div>
+  <div class="page-header">
+    <div class="page-header-deco">🎷</div>
+    <div class="week-pill">Community</div>
+    <h1>All <span>Members</span></h1>
+    <p>Browse everyone on Wavelength and visit their profiles</p>
+  </div>
+  <div class="members-grid" id="members-grid">
+    <div class="loading-center" style="grid-column:1/-1"><div class="spinner"></div></div>
+  </div>
 </div>
 
 <!-- PROFILE -->
 <div class="view" id="view-profile">
-  <div class="center-screen">
-    <div class="center-box">
-      <h2 id="profile-name"></h2>
-      <p id="profile-username"></p>
-      <div style="width:60px;height:60px;border-radius:50%;" id="profile-avatar"></div>
+  <div class="profile-wrap">
+    <button class="back-btn" id="profile-back">← Back</button>
+  </div>
+  <div class="profile-hero" id="profile-hero">
+    <div class="profile-hero-deco">🎸</div>
+  </div>
+  <div class="weeks-list" id="weeks-list"></div>
+</div>
+
+<!-- SONG DETAIL -->
+<div class="view" id="view-songdetail">
+  <div class="song-wrap">
+    <div style="padding-top:1.5rem;margin-bottom:0.5rem">
+      <button class="back-btn" id="song-back">← Back to Profile</button>
     </div>
+    <div id="song-content"></div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div class="view" id="view-settings">
+  <div class="settings-wrap">
+    <button class="back-btn" style="margin-bottom:1.5rem" onclick="showView('feed')">← Back to Feed</button>
+    <h2>⚙ Settings</h2>
+    <p class="sub">Update your profile or find friends to follow</p>
+    <div class="form-group">
+      <label>Display Name</label>
+      <input type="text" id="s-name" />
+    </div>
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" id="s-username" />
+    </div>
+    <div class="form-group">
+      <label>Avatar Color</label>
+      <div class="color-row" id="s-colors"></div>
+    </div>
+    <button class="btn btn-primary" onclick="saveSettings()">Save Changes</button>
+    <hr class="divider">
+    <h3 style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:0.06em;margin-bottom:0.5rem">Find Friends</h3>
+    <p style="font-family:'IBM Plex Mono',monospace;font-size:0.68rem;color:var(--text-muted);margin-bottom:1rem">Search by username to follow people</p>
+    <div style="display:flex;gap:0.75rem;margin-bottom:1rem">
+      <input type="text" id="search-q" placeholder="Search username..." style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:0.65rem 0.9rem;color:var(--text);font-family:'Crimson Pro',serif;font-size:1rem;outline:none" />
+      <button class="btn btn-ghost" onclick="searchUsers()">Search</button>
+    </div>
+    <div id="search-results"></div>
+    <hr class="divider">
+    <button class="btn btn-danger" onclick="signOut()">Sign Out</button>
+  </div>
+</div>
+
+<!-- PICK MODAL -->
+<div class="modal-overlay" id="pick-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closePickModal()">✕</button>
+    <h3>🎵 This Week's Pick</h3>
+    <p class="modal-sub" id="pick-week-label"></p>
+    <div class="form-group">
+      <label>Song Title</label>
+      <input type="text" id="p-song" placeholder="e.g. Karma Police" />
+    </div>
+    <div class="form-group">
+      <label>Artist / Band</label>
+      <input type="text" id="p-artist" placeholder="e.g. Radiohead" />
+    </div>
+    <div class="form-group">
+      <label>Album Art URL <span style="color:var(--text-dim)">(optional)</span></label>
+      <input type="text" id="p-art" placeholder="https://..." />
+      <p class="form-hint">Google the album cover → right-click the image → "Copy image address" → paste here</p>
+    </div>
+    <div class="form-group">
+      <label>Why this song? <span style="color:var(--text-dim)">(optional)</span></label>
+      <textarea id="p-note" placeholder="What makes this your pick this week?"></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Vibe Tags <span style="color:var(--text-dim)">(comma-separated)</span></label>
+        <input type="text" id="p-tags" placeholder="e.g. alt-rock, melancholic" />
+      </div>
+      <div class="form-group">
+        <label>Release Year <span style="color:var(--text-dim)">(optional)</span></label>
+        <input type="text" id="p-year" placeholder="e.g. 1997" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label>About the Artist <span style="color:var(--text-dim)">(optional)</span></label>
+      <textarea id="p-bandinfo" placeholder="A little background on the artist..."></textarea>
+    </div>
+    <button class="btn btn-primary btn-wide" id="pick-save-btn" onclick="savePick()">Save Pick</button>
+    <div id="pick-error" class="form-error" style="margin-top:0.5rem"></div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// --- Supabase Setup ---
+// ── HARDCODED CREDENTIALS — no setup screen needed ──
 const SUPABASE_URL = "https://ozkrjvyuptwlzaqhqljc.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im96a3Jqdnl1cHR3bHphcWhxbGpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODI2NDksImV4cCI6MjA4Njk1ODY0OX0.SqNJLTYZwnHV5kywP1PyLdp9-y76ugu-PyfL7BOGLIA";
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-let currentUser = null;
-let currentProfile = null;
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// --- Colors ---
-const colors = ["#ff0000","#ff7700","#ffee00","#00ff55","#00aaff","#7700ff","#ff00ee"];
-function buildColorPicker(containerId){
-  const container=document.getElementById(containerId);
-  container.innerHTML="";
-  colors.forEach(c=>{
-    const div=document.createElement("div");
-    div.className="color-swatch"; div.style.background=c;
-    div.onclick=()=>{container.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('selected')); div.classList.add('selected');};
-    container.appendChild(div);
+let currentUser = null, currentProfile = null;
+
+// ── SIMILAR MUSIC ──
+const SIMILAR_SONGS = {'kate bush':['Running Up That Hill — Kate Bush','Wuthering Heights — Kate Bush','Cloudbusting — Kate Bush','The Hounds of Love — Kate Bush'],'radiohead':['Exit Music (For a Film) — Radiohead','How to Disappear Completely — Radiohead','Street Spirit — Radiohead','Reckoner — Radiohead'],'kendrick lamar':['Alright — Kendrick Lamar','DNA. — Kendrick Lamar','m.A.A.d city — Kendrick Lamar','Swimming Pools — Kendrick Lamar'],'frank ocean':['Nights — Frank Ocean','Self Control — Frank Ocean','Pink + White — Frank Ocean','Seigfried — Frank Ocean'],'tame impala':['Let It Happen — Tame Impala','Feels Like We Only Go Backwards — Tame Impala','Eventually — Tame Impala','New Person, Same Old Mistakes — Tame Impala'],'the national':['Bloodbuzz Ohio — The National','Sorrow — The National','Afraid of Everyone — The National','Terrible Love — The National'],'bon iver':['Holocene — Bon Iver','Skinny Love — Bon Iver','Towers — Bon Iver','Michicant — Bon Iver'],'phoebe bridgers':['Motion Sickness — Phoebe Bridgers','Savior Complex — Phoebe Bridgers','Funeral — Phoebe Bridgers']};
+const SIMILAR_ARTISTS = {'kate bush':['Björk','Florence + The Machine','Tori Amos','Bat for Lashes'],'radiohead':['Portishead','Thom Yorke','Sigur Rós','The National'],'kendrick lamar':['J. Cole','Isaiah Rashad','ScHoolboy Q','Jay Rock'],'frank ocean':['Syd','Steve Lacy','Brent Faiyaz','Daniel Caesar'],'tame impala':['MGMT','Unknown Mortal Orchestra','Pond','TEMPOREX'],'the national':['Frightened Rabbit','Bon Iver','Iron & Wine','Sufjan Stevens'],'bon iver':['The National','Fleet Foxes','Sufjan Stevens','Elbow'],'phoebe bridgers':['Julien Baker','Lucy Dacus','boygenius','Angel Olsen']};
+function findSimilar(artist,db){const a=(artist||'').toLowerCase();const key=Object.keys(db).find(k=>a.includes(k)||k.includes(a));return key?db[key]:null;}
+
+// ── COLORS ──
+const COLORS = ['#cc1111','#ff4444','#ff9090','#ffffff','#cccccc','#8b0000','#ff6b6b','#660000'];
+function buildColorPicker(id,sel){
+  const el=document.getElementById(id);el.innerHTML='';
+  COLORS.forEach((c,i)=>{
+    const sw=document.createElement('div');
+    sw.className='swatch'+((sel?c===sel:i===0)?' selected':'');
+    sw.style.background=c;
+    if(c==='#ffffff'||c==='#cccccc')sw.style.border='2px solid #555';
+    sw.dataset.color=c;
+    sw.onclick=()=>{el.querySelectorAll('.swatch').forEach(s=>s.classList.remove('selected'));sw.classList.add('selected');};
+    el.appendChild(sw);
   });
 }
+function getColor(id){const s=document.getElementById(id).querySelector('.selected');return s?s.dataset.color:COLORS[0];}
 
-// --- Toast ---
-function showToast(msg){
-  const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';
-  setTimeout(()=>{t.style.display='none'},2000);
-}
-
-// --- View Handling ---
+// ── AUTH ──
 function switchTab(tab){
-  document.getElementById('auth-signin').style.display=(tab==='signin')?'block':'none';
-  document.getElementById('auth-signup').style.display=(tab==='signup')?'block':'none';
-}
-function showView(view){
-  document.querySelectorAll('.view').forEach(v=>v.style.display='none');
-  document.getElementById('view-'+view).style.display='block';
+  document.getElementById('auth-signin').style.display=tab==='signin'?'block':'none';
+  document.getElementById('auth-signup').style.display=tab==='signup'?'block':'none';
+  document.getElementById('tab-signin').classList.toggle('active',tab==='signin');
+  document.getElementById('tab-signup').classList.toggle('active',tab==='signup');
 }
 
-// --- Auth ---
 async function signIn(){
-  const email=document.getElementById('signin-email').value;
-  const password=document.getElementById('signin-password').value;
-  const {data,error}=await sb.auth.signInWithPassword({email,password});
-  if(error){document.getElementById('signin-error').textContent=error.message;return;}
+  const email=document.getElementById('signin-email').value.trim();
+  const pass=document.getElementById('signin-password').value;
+  const err=document.getElementById('signin-error');
+  const btn=document.getElementById('signin-btn');
+  err.textContent='';
+  if(!email||!pass){err.textContent='Please enter your email and password.';return;}
+  btn.disabled=true;btn.textContent='Signing in...';
+  const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
+  btn.disabled=false;btn.textContent='Sign In';
+  if(error){err.textContent=error.message;return;}
   currentUser=data.user;
-  await loadProfile();
+  await loadProfileAndContinue();
 }
+
 async function signUp(){
-  const email=document.getElementById('signup-email').value;
-  const password=document.getElementById('signup-password').value;
-  const {data,error}=await sb.auth.signUp({email,password});
-  if(error){document.getElementById('signup-error').textContent=error.message;return;}
-  currentUser=data.user;
-  buildColorPicker('ob-colors');
-  showView('onboarding');
+  const email=document.getElementById('signup-email').value.trim();
+  const pass=document.getElementById('signup-password').value;
+  const err=document.getElementById('signup-error');
+  const btn=document.getElementById('signup-btn');
+  err.textContent='';
+  if(!email||!pass){err.textContent='Please enter your email and password.';return;}
+  if(pass.length<6){err.textContent='Password must be at least 6 characters.';return;}
+  btn.disabled=true;btn.textContent='Creating account...';
+  const {data,error}=await sb.auth.signUp({email,password:pass});
+  btn.disabled=false;btn.textContent='Create Account';
+  if(error){err.textContent=error.message;return;}
+  if(data.session){
+    currentUser=data.user;
+    await loadProfileAndContinue();
+  } else {
+    err.style.color='#6bffb8';
+    err.textContent='Check your email to confirm your account, then sign in.';
+  }
 }
+
 async function signOut(){
-  await sb.auth.signOut(); currentUser=null; currentProfile=null;
+  await sb.auth.signOut();currentUser=null;currentProfile=null;
   document.getElementById('mainNav').style.display='none';
   showView('auth');
-  showToast("Signed out!");
 }
 
-// --- Profile ---
+async function loadProfileAndContinue(){
+  const {data}=await sb.from('profiles').select('*').eq('id',currentUser.id).single();
+  if(data){
+    currentProfile=data;
+    document.getElementById('nav-user').textContent='@'+data.username;
+    document.getElementById('mainNav').style.display='flex';
+    showView('feed');
+  } else {
+    buildColorPicker('ob-colors',null);
+    showView('onboarding');
+  }
+}
+
 async function createProfile(){
-  const name=document.getElementById('ob-name').value;
-  const username=document.getElementById('ob-username').value;
-  const color=document.querySelector('#ob-colors .color-swatch.selected')?.style.background;
-  if(!name||!username||!color){document.getElementById('ob-error').textContent="All fields required"; return;}
-  const {data,error}=await sb.from('profiles').insert([{id:currentUser.id,name,username,color}]);
-  if(error){document.getElementById('ob-error').textContent=error.message;return;}
-  currentProfile=data[0];
-  showMainViews();
-}
-async function loadProfile(){
-  const {data,error}=await sb.from('profiles').select('*').eq('id',currentUser.id).single();
-  if(data) currentProfile=data;
-  showMainViews();
-}
-function showMainViews(){
+  const name=document.getElementById('ob-name').value.trim();
+  const username=document.getElementById('ob-username').value.trim().toLowerCase().replace(/\s+/g,'_');
+  const err=document.getElementById('ob-error');
+  const btn=document.getElementById('ob-btn');
+  err.textContent='';
+  if(!name||!username){err.textContent='Both fields are required.';return;}
+  if(!/^[a-z0-9_]+$/.test(username)){err.textContent='Username: letters, numbers, underscores only.';return;}
+  btn.disabled=true;btn.textContent='Saving...';
+  const {data,error}=await sb.from('profiles').insert({id:currentUser.id,username,display_name:name,color:getColor('ob-colors')}).select().single();
+  btn.disabled=false;btn.textContent='Enter Wavelength';
+  if(error){err.textContent=error.message.includes('unique')?'That username is taken. Try another.':error.message;return;}
+  currentProfile=data;
+  document.getElementById('nav-user').textContent='@'+data.username;
   document.getElementById('mainNav').style.display='flex';
   showView('feed');
-  loadFeed();
-  loadMembers();
-  loadProfilePage();
+  showToast('Welcome to Wavelength! 🎵');
 }
 
-// --- Feed ---
-async function loadFeed(){
-  const {data,error}=await sb.from('weekly_picks').select('*,profiles(*)').order('created_at',{ascending:false});
-  const feed=document.getElementById('feed-grid'); feed.innerHTML="";
-  if(data) data.forEach(p=>{
-    const d=document.createElement('div'); d.className="card"; d.style.background=p.profiles.color;
-    d.innerHTML=`<strong>${p.profiles.name}</strong><br>${p.song}`;
-    feed.appendChild(d);
-  });
+// ── VIEWS ──
+function showView(name,opts){
+  opts=opts||{};
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  window.scrollTo(0,0);
+  ['feed','members'].forEach(n=>{const el=document.getElementById('nav-'+n);if(el)el.classList.toggle('active',n===name);});
+  if(name==='feed')renderFeed();
+  if(name==='members')renderMembers();
+  if(name==='profile')renderProfile(opts.userId||(currentUser&&currentUser.id));
+  if(name==='songdetail')renderSongDetail(opts);
+  if(name==='settings')renderSettings();
 }
 
-// --- Members ---
-async function loadMembers(){
-  const {data,error}=await sb.from('profiles').select('*');
-  const grid=document.getElementById('members-grid'); grid.innerHTML="";
-  if(data) data.forEach(u=>{
-    const d=document.createElement('div'); d.className="card"; d.style.background=u.color;
-    d.innerHTML=`<strong>${u.name}</strong><br>@${u.username}`;
-    grid.appendChild(d);
-  });
+// ── WEEK UTILS ──
+function getCurrentWeek(){return Math.max(1,Math.floor((new Date()-new Date('2024-01-01'))/(7*24*60*60*1000))+1);}
+function getWeekRange(w){
+  const s=new Date('2024-01-01');s.setDate(s.getDate()+(w-1)*7);
+  const e=new Date(s);e.setDate(e.getDate()+6);
+  const f=d=>d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  return f(s)+' \u2013 '+f(e);
 }
 
-// --- Profile Page ---
-function loadProfilePage(){
-  if(!currentProfile) return;
-  document.getElementById('profile-name').textContent=currentProfile.name;
-  document.getElementById('profile-username').textContent="@"+currentProfile.username;
-  document.getElementById('profile-avatar').style.background=currentProfile.color;
+// ── FEED ──
+async function renderFeed(){
+  const week=getCurrentWeek();
+  document.getElementById('feed-pill').textContent='Week '+week;
+  document.getElementById('feed-range').textContent=getWeekRange(week);
+  const grid=document.getElementById('friends-grid');
+  grid.innerHTML='<div class="loading-center" style="grid-column:1/-1"><div class="spinner"></div></div>';
+  const {data:follows}=await sb.from('follows').select('following_id').eq('follower_id',currentUser.id);
+  const ids=[currentUser.id,...(follows||[]).map(f=>f.following_id)];
+  const {data:profiles}=await sb.from('profiles').select('*').in('id',ids);
+  const {data:picks}=await sb.from('picks').select('*').in('user_id',ids).eq('week_number',week);
+  const pickMap=Object.fromEntries((picks||[]).map(p=>[p.user_id,p]));
+  if(!profiles||profiles.length===0){
+    grid.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="icon">🎸</div><p>Your feed is empty.<br>Go to Members to find people to follow!</p></div>';return;
+  }
+  const sorted=[profiles.find(p=>p.id===currentUser.id),...profiles.filter(p=>p.id!==currentUser.id)].filter(Boolean);
+  grid.innerHTML=sorted.map(p=>{
+    const pick=pickMap[p.id];const me=p.id===currentUser.id;
+    const artHtml=pick&&pick.art_url
+      ?'<img class="friend-card-art" src="'+esc(pick.art_url)+'" alt="Album art" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="friend-card-art-ph" style="display:none">🎵</div>'
+      :'<div class="friend-card-art-ph">'+(pick?'🎵':'🎸')+'</div>';
+    return '<div class="friend-card" onclick="showView(\'profile\',{userId:\''+p.id+'\'})">'
+      +artHtml
+      +'<div class="friend-card-body">'
+      +'<div class="f-avatar" style="background:'+p.color+'22;color:'+p.color+'">'+p.display_name[0]+'</div>'
+      +'<div class="f-name">'+(me?'⭐ You':'@'+esc(p.username))+'</div>'
+      +(pick?'<div class="f-song">'+esc(pick.song)+'</div><div class="f-artist">'+esc(pick.artist)+'</div>':'<div class="no-pick">No pick yet this week</div>')
+      +'</div><div class="card-arrow">&#8599;</div></div>';
+  }).join('');
 }
 
-// --- Initialize ---
-(async()=>{
-  const {data:user}=await sb.auth.getUser();
-  if(user){currentUser=user; await loadProfile();}
+// ── MEMBERS ──
+async function renderMembers(){
+  const grid=document.getElementById('members-grid');
+  grid.innerHTML='<div class="loading-center" style="grid-column:1/-1"><div class="spinner"></div></div>';
+  const {data:profiles}=await sb.from('profiles').select('*').order('created_at',{ascending:false});
+  const {data:allPicks}=await sb.from('picks').select('user_id');
+  const counts={};(allPicks||[]).forEach(p=>{counts[p.user_id]=(counts[p.user_id]||0)+1;});
+  if(!profiles||profiles.length===0){
+    grid.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="icon">🎷</div><p>No members yet.</p></div>';return;
+  }
+  grid.innerHTML=profiles.map(p=>{
+    const n=counts[p.id]||0;const me=p.id===currentUser.id;
+    return '<div class="member-card" onclick="showView(\'profile\',{userId:\''+p.id+'\'})">'
+      +'<div class="member-avatar" style="background:'+p.color+'22;color:'+p.color+'">'+p.display_name[0]+'</div>'
+      +'<div class="member-name">'+esc(p.display_name)+(me?' ⭐':'')+'</div>'
+      +'<div class="member-username">@'+esc(p.username)+'</div>'
+      +'<div class="member-picks">'+n+' pick'+(n!==1?'s':'')+'</div></div>';
+  }).join('');
+}
+
+// ── PROFILE ──
+async function renderProfile(userId){
+  if(!userId)return;
+  const isMe=userId===currentUser.id;const week=getCurrentWeek();
+  document.getElementById('profile-back').onclick=function(){showView('feed');};
+  document.getElementById('profile-hero').innerHTML='<div class="loading-center"><div class="spinner"></div></div><div class="profile-hero-deco">🎸</div>';
+  document.getElementById('weeks-list').innerHTML='';
+  const {data:profile}=await sb.from('profiles').select('*').eq('id',userId).single();
+  if(!profile)return;
+  const {data:picks}=await sb.from('picks').select('*').eq('user_id',userId).order('week_number',{ascending:false});
+  const pickMap=Object.fromEntries((picks||[]).map(p=>[p.week_number,p]));
+  document.getElementById('profile-hero').innerHTML=
+    '<div class="profile-hero-deco">🎸</div>'
+    +'<div class="p-avatar-lg" style="background:'+profile.color+'22;color:'+profile.color+'">'+profile.display_name[0]+'</div>'
+    +'<div class="p-meta"><h2>'+esc(profile.display_name)+'</h2><p>@'+esc(profile.username)+' &middot; '+((picks||[]).length)+' picks total</p></div>';
+  let html='';
+  for(let w=week;w>=1;w--){
+    const pick=pickMap[w];const cur=w===week;
+    const artHtml=pick&&pick.art_url
+      ?'<img class="week-row-art" src="'+esc(pick.art_url)+'" alt="" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="week-row-art-ph" style="display:none">🎵</div>'
+      :'<div class="week-row-art-ph">🎵</div>';
+    const click=pick?'showView(\'songdetail\',{userId:\''+userId+'\',week:'+w+'})':isMe?'openPickModal()':'';
+    html+='<div class="week-row '+(cur?'is-current':'')+'" onclick="'+click+'">'
+      +artHtml
+      +'<div><div class="wk-label">'+(cur?'&#9733; This week':'Week '+w)+'</div><div class="wk-date">'+getWeekRange(w)+'</div></div>'
+      +(pick
+        ?'<div class="wk-song"><strong>'+esc(pick.song)+'</strong><span>'+esc(pick.artist)+'</span></div><div class="wk-arrow">&#8594;</div>'
+        :isMe
+          ?'<div class="wk-song"><strong style="font-family:\'IBM Plex Mono\',monospace;font-size:0.7rem;font-weight:400;color:var(--text-muted)">+ Add your pick</strong></div><div></div>'
+          :'<div class="wk-song"><strong style="font-family:\'IBM Plex Mono\',monospace;font-size:0.7rem;font-weight:400;color:var(--text-dim)">No pick</strong></div><div></div>')
+      +'</div>';
+  }
+  document.getElementById('weeks-list').innerHTML=html;
+}
+
+// ── SONG DETAIL ──
+async function renderSongDetail(opts){
+  const userId=opts.userId;const week=opts.week;
+  document.getElementById('song-back').onclick=function(){showView('profile',{userId:userId});};
+  document.getElementById('song-content').innerHTML='<div class="loading-center"><div class="spinner"></div></div>';
+  const {data:pick}=await sb.from('picks').select('*').eq('user_id',userId).eq('week_number',week).single();
+  const {data:profile}=await sb.from('profiles').select('*').eq('id',userId).single();
+  if(!pick||!profile)return;
+  const tags=pick.tags||[];
+  const simSongs=findSimilar(pick.artist,SIMILAR_SONGS);
+  const simArtists=findSimilar(pick.artist,SIMILAR_ARTISTS);
+  const artHtml=pick.art_url
+    ?'<img class="song-hero-art" src="'+esc(pick.art_url)+'" alt="Album art" onerror="this.outerHTML=\'<div class=\\\'song-hero-art-ph\\\'>🎵</div>\'">'
+    :'<div class="song-hero-art-ph">🎵</div>';
+  document.getElementById('song-content').innerHTML=
+    '<div class="song-hero">'+artHtml
+    +'<div><div class="song-badge">Week '+week+' &middot; '+getWeekRange(week)+' &middot; '+esc(profile.display_name)+'\'s Pick</div>'
+    +'<div class="song-title">'+esc(pick.song)+'</div>'
+    +'<div class="song-artist">'+esc(pick.artist)+(pick.year?' &middot; '+pick.year:'')+'</div>'
+    +(tags.length?'<div class="tags">'+tags.map(t=>'<div class="tag">'+esc(t)+'</div>').join('')+'</div>':'')
+    +(pick.note?'<p style="margin-top:1rem;font-size:0.95rem;line-height:1.75;color:var(--text-muted);border-left:2px solid var(--red-dim);padding-left:1rem;font-style:italic">"'+esc(pick.note)+'"</p>':'')
+    +'</div></div>'
+    +(pick.band_info?'<div class="detail-sec"><h3>About '+esc(pick.artist)+'</h3><p>'+esc(pick.band_info)+'</p></div>':'')
+    +'<div class="detail-sec"><h3>Song Info</h3>'
+    +'<div class="stat-row"><span class="lbl">Title</span><span>'+esc(pick.song)+'</span></div>'
+    +'<div class="stat-row"><span class="lbl">Artist</span><span>'+esc(pick.artist)+'</span></div>'
+    +(pick.year?'<div class="stat-row"><span class="lbl">Year</span><span>'+pick.year+'</span></div>':'')
+    +(tags.length?'<div class="stat-row"><span class="lbl">Vibe</span><span>'+tags.join(', ')+'</span></div>':'')
+    +'</div>'
+    +(simSongs?'<div class="detail-sec"><h3>🎵 Similar Songs</h3><div class="similar-grid">'+simSongs.map(s=>{const p=s.split(' \u2014 ');return'<div class="sim-item"><strong>'+esc(p[0])+'</strong><span>'+esc(p[1]||'')+'</span></div>';}).join('')+'</div></div>':'')
+    +(simArtists?'<div class="detail-sec"><h3>🎸 Similar Artists</h3><div class="similar-grid">'+simArtists.map(a=>'<div class="sim-item"><strong>'+esc(a)+'</strong><span>You might enjoy</span></div>').join('')+'</div></div>':'');
+}
+
+// ── SETTINGS ──
+function renderSettings(){
+  if(!currentProfile)return;
+  document.getElementById('s-name').value=currentProfile.display_name;
+  document.getElementById('s-username').value=currentProfile.username;
+  buildColorPicker('s-colors',currentProfile.color);
+  document.getElementById('search-results').innerHTML='';
+  document.getElementById('search-q').value='';
+}
+
+async function saveSettings(){
+  const name=document.getElementById('s-name').value.trim();
+  const username=document.getElementById('s-username').value.trim().toLowerCase().replace(/\s+/g,'_');
+  if(!name||!username){showToast('Fields required',true);return;}
+  const {data,error}=await sb.from('profiles').update({display_name:name,username,color:getColor('s-colors')}).eq('id',currentUser.id).select().single();
+  if(error){showToast(error.message,true);return;}
+  currentProfile=data;
+  document.getElementById('nav-user').textContent='@'+data.username;
+  showToast('Saved!');
+}
+
+async function searchUsers(){
+  const q=document.getElementById('search-q').value.trim();if(!q)return;
+  const {data}=await sb.from('profiles').select('*').ilike('username','%'+q+'%').neq('id',currentUser.id).limit(10);
+  const {data:follows}=await sb.from('follows').select('following_id').eq('follower_id',currentUser.id);
+  const followSet=new Set((follows||[]).map(f=>f.following_id));
+  const el=document.getElementById('search-results');
+  if(!data||data.length===0){el.innerHTML='<p style="font-family:\'IBM Plex Mono\',monospace;font-size:0.7rem;color:var(--text-muted);padding:0.5rem 0">No users found.</p>';return;}
+  el.innerHTML=data.map(u=>{
+    const following=followSet.has(u.id);
+    return '<div class="user-result">'
+      +'<div class="ur-avatar" style="background:'+u.color+'22;color:'+u.color+'">'+u.display_name[0]+'</div>'
+      +'<div class="ur-info"><strong>'+esc(u.display_name)+'</strong><span>@'+esc(u.username)+'</span></div>'
+      +'<button class="btn '+(following?'btn-ghost':'btn-primary')+'" style="font-size:0.6rem;padding:0.4rem 0.9rem" onclick="toggleFollow(\''+u.id+'\','+following+',this)">'+(following?'Following':'Follow')+'</button>'
+      +'</div>';
+  }).join('');
+}
+
+async function toggleFollow(userId,isFollowing,btn){
+  btn.disabled=true;
+  if(isFollowing){
+    await sb.from('follows').delete().eq('follower_id',currentUser.id).eq('following_id',userId);
+    btn.textContent='Follow';btn.className='btn btn-primary';btn.style.cssText='font-size:0.6rem;padding:0.4rem 0.9rem';
+    btn.onclick=function(){toggleFollow(userId,false,btn);};
+  } else {
+    await sb.from('follows').insert({follower_id:currentUser.id,following_id:userId});
+    btn.textContent='Following';btn.className='btn btn-ghost';btn.style.cssText='font-size:0.6rem;padding:0.4rem 0.9rem';
+    btn.onclick=function(){toggleFollow(userId,true,btn);};
+    showToast('Following!');
+  }
+  btn.disabled=false;
+}
+
+// ── PICK MODAL ──
+async function openPickModal(){
+  const week=getCurrentWeek();
+  document.getElementById('pick-week-label').textContent='Week '+week+' \u00b7 '+getWeekRange(week);
+  document.getElementById('pick-error').textContent='';
+  const {data}=await sb.from('picks').select('*').eq('user_id',currentUser.id).eq('week_number',week).single();
+  document.getElementById('p-song').value=(data&&data.song)||'';
+  document.getElementById('p-artist').value=(data&&data.artist)||'';
+  document.getElementById('p-art').value=(data&&data.art_url)||'';
+  document.getElementById('p-note').value=(data&&data.note)||'';
+  document.getElementById('p-tags').value=(data&&data.tags&&data.tags.join(', '))||'';
+  document.getElementById('p-year').value=(data&&data.year)||'';
+  document.getElementById('p-bandinfo').value=(data&&data.band_info)||'';
+  document.getElementById('pick-modal').classList.add('open');
+}
+
+function closePickModal(){document.getElementById('pick-modal').classList.remove('open');}
+
+async function savePick(){
+  const song=document.getElementById('p-song').value.trim();
+  const artist=document.getElementById('p-artist').value.trim();
+  const err=document.getElementById('pick-error');
+  const btn=document.getElementById('pick-save-btn');
+  err.textContent='';
+  if(!song||!artist){err.textContent='Song title and artist are required.';return;}
+  const tags=document.getElementById('p-tags').value.split(',').map(t=>t.trim()).filter(Boolean);
+  const week=getCurrentWeek();
+  btn.disabled=true;btn.textContent='Saving...';
+  const {error}=await sb.from('picks').upsert({
+    user_id:currentUser.id,week_number:week,song,artist,
+    note:document.getElementById('p-note').value.trim(),
+    tags,year:document.getElementById('p-year').value.trim(),
+    band_info:document.getElementById('p-bandinfo').value.trim(),
+    art_url:document.getElementById('p-art').value.trim(),
+  },{onConflict:'user_id,week_number'});
+  btn.disabled=false;btn.textContent='Save Pick';
+  if(error){err.textContent=error.message;return;}
+  closePickModal();showToast('Pick saved! 🎵');
+  if(document.getElementById('view-feed').classList.contains('active'))renderFeed();
+  if(document.getElementById('view-profile').classList.contains('active'))renderProfile(currentUser.id);
+}
+
+// ── HELPERS ──
+function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function showToast(msg,isErr){
+  const t=document.getElementById('toast');t.textContent=msg;
+  t.className='toast'+(isErr?' err':'');t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},2800);
+}
+document.getElementById('pick-modal').addEventListener('click',function(e){if(e.target.id==='pick-modal')closePickModal();});
+
+// ── BOOT — goes straight to auth, no setup screen ──
+(async function init(){
+  const {data:{session}}=await sb.auth.getSession();
+  if(session){currentUser=session.user;await loadProfileAndContinue();}
   else showView('auth');
+  sb.auth.onAuthStateChange(async function(event,session){
+    if(event==='SIGNED_IN'&&session&&!currentUser){currentUser=session.user;await loadProfileAndContinue();}
+  });
 })();
 </script>
-
 </body>
 </html>
