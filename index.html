@@ -205,7 +205,15 @@
     .friend-card-art, .friend-card-art-ph { aspect-ratio: 1; }
     .f-song { font-size: 1rem; }
   }
-  /* ── ABOUT PAGE ── */
+  .nav-dropdown { position: relative; }
+  .nav-dropdown-toggle { font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; padding: 0.5rem 1.1rem; border-radius: 3px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); cursor: pointer; transition: all 0.15s; }
+  .nav-dropdown-toggle:hover { border-color: var(--red-dim); color: var(--white); }
+  .nav-dropdown-menu { position: absolute; top: calc(100% + 0.5rem); right: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; min-width: 160px; z-index: 200; box-shadow: 0 8px 24px rgba(0,0,0,0.5); display: none; }
+  .nav-dropdown-menu.open { display: block; }
+  .nav-dropdown-item { display: block; width: 100%; text-align: left; padding: 0.7rem 1rem; font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); background: none; border: none; cursor: pointer; transition: all 0.15s; }
+  .nav-dropdown-item:hover { background: var(--surface2); color: var(--white); }
+  .nav-dropdown-item.danger { color: var(--red); }
+  .nav-dropdown-item.danger:hover { background: var(--red); color: white; }
   .about-wrap { max-width: 740px; margin: 0 auto; padding: 0 2rem 6rem; }
   .about-hero { padding: 4rem 0 3rem; border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
   .about-hero-deco { position: absolute; right: 0; top: 1rem; font-size: 9rem; opacity: 0.04; pointer-events: none; line-height: 1; }
@@ -428,10 +436,15 @@
   </div>
   <div class="nav-actions">
     <span class="nav-user" id="nav-user"></span>
-    <button class="btn btn-ghost" id="nav-settings-btn" onclick="showView('settings')">Settings</button>
-    <button class="btn btn-ghost" id="nav-signout-btn" onclick="signOut()">Sign Out</button>
     <button class="btn btn-primary" id="nav-pick-btn" onclick="openPickModal()">+ This Week</button>
     <button class="btn btn-primary" id="nav-join-btn" style="display:none" onclick="showView('auth')">Join Wavelength</button>
+    <div class="nav-dropdown" id="nav-dropdown">
+      <button class="nav-dropdown-toggle" onclick="toggleNavDropdown()">Menu ▾</button>
+      <div class="nav-dropdown-menu" id="nav-dropdown-menu">
+        <button class="nav-dropdown-item" id="nav-settings-btn" onclick="closeNavDropdown();showView('settings')">⚙ Settings</button>
+        <button class="nav-dropdown-item danger" id="nav-signout-btn" onclick="closeNavDropdown();signOut()">Sign Out</button>
+      </div>
+    </div>
   </div>
 </nav>
 
@@ -664,6 +677,18 @@ function buildColorPicker(id,sel){
 }
 function getColor(id){const s=document.getElementById(id).querySelector('.selected');return s?s.dataset.color:COLORS[0];}
 
+function toggleNavDropdown(){
+  document.getElementById('nav-dropdown-menu').classList.toggle('open');
+}
+function closeNavDropdown(){
+  document.getElementById('nav-dropdown-menu').classList.remove('open');
+}
+// Close dropdown when clicking outside
+document.addEventListener('click',function(e){
+  const dd=document.getElementById('nav-dropdown');
+  if(dd&&!dd.contains(e.target))closeNavDropdown();
+});
+
 // ── GUEST MODE ──
 let isGuest = false;
 
@@ -676,6 +701,7 @@ function browseAsGuest(){
   document.getElementById('nav-settings-btn').style.display='none';
   document.getElementById('nav-signout-btn').style.display='none';
   document.getElementById('nav-pick-btn').style.display='none';
+  document.getElementById('nav-join-btn').style.display='inline-flex';
   document.getElementById('nav-join-btn').style.display='inline-flex';
   document.getElementById('nav-user').textContent='Guest';
   document.getElementById('guest-banner').style.display='block';
