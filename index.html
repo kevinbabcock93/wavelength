@@ -536,7 +536,14 @@
 // ── HARDCODED CREDENTIALS — no setup screen needed ──
 const SUPABASE_URL = "https://ozkrjvyuptwlzaqhqljc.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im96a3Jqdnl1cHR3bHphcWhxbGpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODI2NDksImV4cCI6MjA4Njk1ODY0OX0.SqNJLTYZwnHV5kywP1PyLdp9-y76ugu-PyfL7BOGLIA";
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+    storageKey: 'wavelength-auth'
+  }
+});
 
 let currentUser = null, currentProfile = null;
 
