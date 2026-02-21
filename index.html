@@ -348,6 +348,7 @@
   <div class="nav-actions">
     <span class="nav-user" id="nav-user"></span>
     <button class="btn btn-ghost" id="nav-settings-btn" onclick="showView('settings')">Settings</button>
+    <button class="btn btn-ghost" id="nav-signout-btn" onclick="signOut()">Sign Out</button>
     <button class="btn btn-primary" id="nav-pick-btn" onclick="openPickModal()">+ This Week</button>
     <button class="btn btn-primary" id="nav-join-btn" style="display:none" onclick="showView('auth')">Join Wavelength</button>
   </div>
@@ -450,6 +451,7 @@
     <div id="cp-msg" class="form-error" style="margin-top:0.5rem"></div>
     <hr class="divider">
     <button class="btn btn-danger" onclick="signOut()">Sign Out</button>
+    <div style="height:4rem"></div>
   </div>
 </div>
 
@@ -584,6 +586,7 @@ function browseAsGuest(){
   // Show guest-specific nav elements, hide member-only ones
   document.getElementById('nav-myprofile').style.display='none';
   document.getElementById('nav-settings-btn').style.display='none';
+  document.getElementById('nav-signout-btn').style.display='none';
   document.getElementById('nav-pick-btn').style.display='none';
   document.getElementById('nav-join-btn').style.display='inline-flex';
   document.getElementById('nav-user').textContent='Guest';
@@ -650,6 +653,7 @@ async function loadProfileAndContinue(){
   // Reset any guest-mode UI changes
   document.getElementById('nav-myprofile').style.display='';
   document.getElementById('nav-settings-btn').style.display='';
+  document.getElementById('nav-signout-btn').style.display='';
   document.getElementById('nav-pick-btn').style.display='';
   document.getElementById('nav-join-btn').style.display='none';
   document.getElementById('guest-banner').style.display='none';
