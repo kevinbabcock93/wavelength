@@ -244,9 +244,10 @@
   .auth-image-side { position: relative; overflow: hidden; }
   .auth-split-img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; filter: grayscale(15%) contrast(1.05); }
   .auth-split-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(13,0,0,0.5) 0%, rgba(13,0,0,0.1) 40%, rgba(13,0,0,0.8) 100%); display: flex; flex-direction: column; justify-content: space-between; padding: 2.5rem; }
-  .auth-split-logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 0.1em; color: var(--white); }
+  .auth-split-top-row { display: flex; justify-content: space-between; align-items: flex-start; }
+  .auth-split-logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 0.1em; color: var(--white); flex-shrink: 0; }
   .auth-split-logo span { color: var(--red); }
-  .auth-split-tagline { font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; color: rgba(240,236,232,0.65); letter-spacing: 0.08em; line-height: 1.7; }
+  .auth-split-tagline { font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; color: rgba(240,236,232,0.65); letter-spacing: 0.08em; line-height: 1.7; text-align: right; display: none; }
   .auth-split-question { font-family: 'Bebas Neue', sans-serif; font-size: 3rem; letter-spacing: 0.04em; line-height: 1.1; color: var(--white); text-shadow: 0 2px 20px rgba(0,0,0,0.9), 0 0 40px rgba(0,0,0,0.8); margin-bottom: 0.5rem; }
   .auth-form-side { display: flex; align-items: center; justify-content: center; padding: 2rem; background: var(--bg); }
   .auth-form-side .auth-logo { display: none; }
@@ -255,7 +256,7 @@
     .auth-split { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
     .auth-image-side { height: 280px; }
     .auth-split-logo { font-size: 1.3rem; }
-    .auth-split-tagline { display: none; }
+    .auth-split-tagline { display: block; font-size: 0.62rem; max-width: 38%; }
     .auth-split-question { font-size: 2rem; position: absolute; bottom: 24%; }
     .auth-split-overlay { padding: 1.5rem; }
     .auth-form-side .auth-logo { display: none; }
@@ -287,8 +288,10 @@
     <div class="auth-image-side">
       <img src="https://www.rollingstone.com/wp-content/uploads/2023/09/SMS_005.jpg?w=1600&h=900&crop=1" alt="David Byrne" class="auth-split-img" />
       <div class="auth-split-overlay">
-        <div class="auth-split-logo">🎵 Wave<span>length</span></div>
-        <div class="auth-split-tagline">One song. Every week.<br>Share what's moving you.</div>
+        <div class="auth-split-top-row">
+          <div class="auth-split-logo">🎵 Wave<span>length</span></div>
+          <div class="auth-split-tagline">One song.<br>Every week.<br>Share what's<br>moving you.</div>
+        </div>
         <div class="auth-split-question">What do you have<br>to share?</div>
       </div>
     </div>
@@ -301,6 +304,15 @@
         <div class="auth-tabs">
           <button class="auth-tab active" id="tab-signin" onclick="switchTab('signin')">Sign In</button>
           <button class="auth-tab" id="tab-signup" onclick="switchTab('signup')">Sign Up</button>
+        </div>
+        <!-- Browse button moved above form fields -->
+        <div style="margin-bottom:1.2rem">
+          <button class="btn btn-ghost btn-wide" onclick="browseAsGuest()" style="border-color:var(--red-dim);color:var(--text-muted)">👀 Just browsing — show me around</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.2rem">
+          <div style="flex:1;height:1px;background:var(--border)"></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:0.58rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.1em">or sign in</span>
+          <div style="flex:1;height:1px;background:var(--border)"></div>
         </div>
         <div id="auth-signin">
           <div class="form-group">
@@ -329,17 +341,9 @@
           <button class="btn btn-primary btn-wide" id="signup-btn" onclick="signUp()">Create Account</button>
           <div id="signup-error" class="form-error" style="margin-top:0.5rem"></div>
         </div>
-        <div style="margin-top:1.8rem;text-align:center">
-          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.2rem">
-            <div style="flex:1;height:1px;background:var(--border)"></div>
-            <span style="font-family:'IBM Plex Mono',monospace;font-size:0.58rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.1em">or</span>
-            <div style="flex:1;height:1px;background:var(--border)"></div>
-          </div>
-          <button class="btn btn-ghost btn-wide" onclick="browseAsGuest()" style="border-color:var(--red-dim);color:var(--text-muted)">👀 Just browsing — show me around</button>
-          <p style="margin-top:1rem;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:0.62rem;color:var(--text-dim)">
-            <span onclick="showView('about')" style="cursor:pointer;color:var(--text-muted);text-decoration:underline">What is Wavelength?</span>
-          </p>
-        </div>
+        <p style="margin-top:1.2rem;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:0.62rem;color:var(--text-dim)">
+          <span onclick="showView('about')" style="cursor:pointer;color:var(--text-muted);text-decoration:underline">What is Wavelength?</span>
+        </p>
       </div>
     </div>
 
