@@ -205,7 +205,31 @@
     .friend-card-art, .friend-card-art-ph { aspect-ratio: 1; }
     .f-song { font-size: 1rem; }
   }
-  .spotify-popup { position: fixed; bottom: 6rem; right: 1.5rem; z-index: 300; background: var(--surface); border: 1px solid #1db954; border-radius: 12px; padding: 1rem 1.1rem; width: 260px; box-shadow: 0 8px 32px rgba(0,0,0,0.6); transform: translateX(320px); opacity: 0; transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1); pointer-events: none; }
+  /* ── ABOUT PAGE ── */
+  .about-wrap { max-width: 740px; margin: 0 auto; padding: 0 2rem 6rem; }
+  .about-hero { padding: 4rem 0 3rem; border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
+  .about-hero-deco { position: absolute; right: 0; top: 1rem; font-size: 9rem; opacity: 0.04; pointer-events: none; line-height: 1; }
+  .about-title { font-family: 'Bebas Neue', sans-serif; font-size: 4rem; letter-spacing: 0.04em; line-height: 1.05; margin: 0.75rem 0 1.5rem; color: var(--white); }
+  .about-title span { color: var(--red); }
+  .about-intro { font-size: 1.15rem; line-height: 1.8; color: var(--text-muted); font-style: italic; max-width: 580px; }
+  .about-body { padding: 0.5rem 0; }
+  .about-section { padding: 2.5rem 0; border-bottom: 1px solid var(--border); }
+  .about-section:last-child { border-bottom: none; }
+  .about-section-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--red-dim); margin-bottom: 1.2rem; }
+  .about-section p { font-size: 1.05rem; line-height: 1.85; color: var(--text-muted); margin-bottom: 1rem; }
+  .about-section p:last-child { margin-bottom: 0; }
+  .about-section em { color: var(--text); font-style: italic; }
+  .about-closing { padding: 3rem 0 0; }
+  .about-david-wrap { position: relative; margin-bottom: 3rem; border-radius: 8px; overflow: hidden; }
+  .about-david-img { width: 100%; max-height: 480px; object-fit: cover; object-position: center top; display: block; filter: grayscale(20%) contrast(1.05); }
+  .about-david-question { position: absolute; bottom: 0; left: 0; right: 0; padding: 3rem 2.5rem 2rem; background: linear-gradient(transparent, rgba(13,0,0,0.97)); font-family: 'Bebas Neue', sans-serif; font-size: 3.2rem; letter-spacing: 0.04em; line-height: 1.1; color: var(--white); }
+  .about-cta { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+  @media (max-width: 650px) {
+    .about-title { font-size: 2.6rem; }
+    .about-david-question { font-size: 2.2rem; padding: 2rem 1.5rem 1.5rem; }
+    .about-wrap { padding: 0 1rem 6rem; }
+    .about-hero { padding: 2rem 0 2rem; }
+  } position: fixed; bottom: 6rem; right: 1.5rem; z-index: 300; background: var(--surface); border: 1px solid #1db954; border-radius: 12px; padding: 1rem 1.1rem; width: 260px; box-shadow: 0 8px 32px rgba(0,0,0,0.6); transform: translateX(320px); opacity: 0; transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1); pointer-events: none; }
   .spotify-popup.show { transform: translateX(0); opacity: 1; pointer-events: all; }
   .spotify-popup-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
   .spotify-popup-title { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: #1db954; display: flex; align-items: center; gap: 0.4rem; }
@@ -266,6 +290,9 @@
           <div style="flex:1;height:1px;background:var(--border)"></div>
         </div>
         <button class="btn btn-ghost btn-wide" onclick="browseAsGuest()" style="border-color:var(--red-dim);color:var(--text-muted)">👀 Just browsing — show me around</button>
+        <p style="margin-top:1rem;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:0.62rem;color:var(--text-dim)">
+          <span onclick="showView('about')" style="cursor:pointer;color:var(--text-muted);text-decoration:underline">What is Wavelength?</span>
+        </p>
       </div>
     </div>
   </div>
@@ -337,6 +364,59 @@
   </div>
 </div>
 
+<!-- ABOUT -->
+<div class="view" id="view-about">
+  <div class="about-wrap">
+
+    <div class="about-hero">
+      <div class="about-hero-deco">🎵</div>
+      <div class="week-pill">About</div>
+      <h1 class="about-title">Some songs just<br><span>stay with you.</span></h1>
+      <p class="about-intro">You know the feeling. It's Tuesday evening and a song comes on and suddenly everything makes sense. Or nothing does. Either way, you need someone to know.</p>
+    </div>
+
+    <div class="about-body">
+
+      <div class="about-section">
+        <div class="about-section-label">Why we built this</div>
+        <p>Wavelength started as a simple idea between friends — the kind of people who are always sending each other songs at odd hours with no explanation except <em>"you need to hear this."</em></p>
+        <p>We wanted a place that wasn't about follower counts or algorithms or whatever everyone else is listening to. Just the people we actually care about, and one song a week that says something true about where they are right now.</p>
+        <p>So we built it.</p>
+      </div>
+
+      <div class="about-section">
+        <div class="about-section-label">How it works</div>
+        <p>Every week, you pick one song. That's it. Not a playlist. Not a mood board. One song — the one that's been living in your head, the one that felt right for this particular stretch of days.</p>
+        <p>Your friends do the same. And every week you get a small window into where everyone is, told entirely through music.</p>
+      </div>
+
+      <div class="about-section">
+        <div class="about-section-label">What it becomes</div>
+        <p>Over time, your profile becomes something unexpected — a real archive of your life told in songs. Scroll back through your picks six months from now and you'll remember exactly what you were going through when you chose each one.</p>
+        <p>Music has always been how we mark time. Wavelength just makes that a little more intentional.</p>
+      </div>
+
+      <div class="about-section">
+        <div class="about-section-label">Who it's for</div>
+        <p>People who take music personally. People who want to stay close to the friends who matter, even when life pulls everyone in different directions. People who believe that what someone's listening to on a random Wednesday tells you more about them than anything they'd ever post.</p>
+      </div>
+
+    </div>
+
+    <div class="about-closing">
+      <div class="about-david-wrap">
+        <img src="https://www.rollingstone.com/wp-content/uploads/2023/09/SMS_005.jpg?w=1600&h=900&crop=1" alt="David Byrne" class="about-david-img" />
+        <div class="about-david-question">What do you have<br>to share?</div>
+      </div>
+      <div class="about-cta">
+        <button class="btn btn-primary" style="font-size:0.8rem;padding:0.9rem 2rem" onclick="showView('auth')">Join Wavelength</button>
+        <button class="btn btn-ghost" style="font-size:0.75rem;padding:0.9rem 1.5rem" onclick="browseAsGuest()">Browse first</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <!-- NAV -->
 <nav id="mainNav" style="display:none">
   <div class="logo" onclick="showView('feed')">🎵 Wave<span>length</span></div>
@@ -344,6 +424,7 @@
     <button class="nav-link" id="nav-feed" onclick="showView('feed')">Feed</button>
     <button class="nav-link" id="nav-members" onclick="showView('members')">Members</button>
     <button class="nav-link" id="nav-myprofile" onclick="showView('profile',{userId:currentUser&&currentUser.id})">My Profile</button>
+    <button class="nav-link" id="nav-about" onclick="showView('about')">About</button>
   </div>
   <div class="nav-actions">
     <span class="nav-user" id="nav-user"></span>
@@ -706,7 +787,7 @@ function showView(name,opts){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('view-'+name).classList.add('active');
   window.scrollTo(0,0);
-  ['feed','members'].forEach(n=>{
+  ['feed','members','about'].forEach(n=>{
     const el=document.getElementById('nav-'+n);if(el)el.classList.toggle('active',n===name);
     const mel=document.getElementById('mnav-'+n);if(mel)mel.classList.toggle('active',n===name);
   });
