@@ -253,6 +253,14 @@
         <button class="btn btn-primary btn-wide" id="signup-btn" onclick="signUp()">Create Account</button>
         <div id="signup-error" class="form-error" style="margin-top:0.5rem"></div>
       </div>
+      <div style="margin-top:1.8rem;text-align:center">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.2rem">
+          <div style="flex:1;height:1px;background:var(--border)"></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:0.58rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.1em">or</span>
+          <div style="flex:1;height:1px;background:var(--border)"></div>
+        </div>
+        <button class="btn btn-ghost btn-wide" onclick="browseAsGuest()" style="border-color:var(--red-dim);color:var(--text-muted)">👀 Just browsing — show me around</button>
+      </div>
     </div>
   </div>
 </div>
@@ -333,13 +341,18 @@
   </div>
   <div class="nav-actions">
     <span class="nav-user" id="nav-user"></span>
-    <button class="btn btn-ghost" onclick="showView('settings')">Settings</button>
-    <button class="btn btn-primary" onclick="openPickModal()">+ This Week</button>
+    <button class="btn btn-ghost" id="nav-settings-btn" onclick="showView('settings')">Settings</button>
+    <button class="btn btn-primary" id="nav-pick-btn" onclick="openPickModal()">+ This Week</button>
+    <button class="btn btn-primary" id="nav-join-btn" style="display:none" onclick="showView('auth')">Join Wavelength</button>
   </div>
 </nav>
 
 <!-- FEED -->
 <div class="view" id="view-feed">
+  <div id="guest-banner" style="display:none;background:var(--surface);border-bottom:1px solid var(--red-dim);padding:0.75rem 2rem;text-align:center">
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:0.68rem;color:var(--text-muted)">You're browsing as a guest &mdash; </span>
+    <span onclick="showView('auth')" style="font-family:'IBM Plex Mono',monospace;font-size:0.68rem;color:var(--red);cursor:pointer;text-decoration:underline">Sign up to make your own picks and join the community →</span>
+  </div>
   <div class="feed-header">
     <div class="feed-header-deco">🎸</div>
     <div class="week-pill" id="feed-pill">Week 1</div>
@@ -499,7 +512,7 @@
       <span class="mnb-icon">🎸</span>
       <span class="mnb-label">Members</span>
     </button>
-    <button class="mobile-pick-btn" onclick="openPickModal()">＋</button>
+    <button class="mobile-pick-btn" id="mobile-pick-btn" onclick="openPickModal()">＋</button>
     <button class="mobile-nav-btn" id="mnav-myprofile" onclick="showView('profile',{userId:currentUser&&currentUser.id})">
       <span class="mnb-icon">🎧</span>
       <span class="mnb-label">Profile</span>
@@ -555,6 +568,26 @@ function buildColorPicker(id,sel){
 }
 function getColor(id){const s=document.getElementById(id).querySelector('.selected');return s?s.dataset.color:COLORS[0];}
 
+// ── GUEST MODE ──
+let isGuest = false;
+
+function browseAsGuest(){
+  isGuest=true;
+  document.getElementById('mainNav').style.display='flex';
+  document.getElementById('mobileNav').style.display='block';
+  // Show guest-specific nav elements, hide member-only ones
+  document.getElementById('nav-myprofile').style.display='none';
+  document.getElementById('nav-settings-btn').style.display='none';
+  document.getElementById('nav-pick-btn').style.display='none';
+  document.getElementById('nav-join-btn').style.display='inline-flex';
+  document.getElementById('nav-user').textContent='Guest';
+  document.getElementById('guest-banner').style.display='block';
+  // Update mobile nav — hide pick button, show join instead
+  const mnavProfile=document.getElementById('mnav-myprofile');
+  if(mnavProfile)mnavProfile.style.display='none';
+  showView('feed');
+}
+
 // ── AUTH ──
 function switchTab(tab){
   document.getElementById('auth-signin').style.display=tab==='signin'?'block':'none';
@@ -607,6 +640,15 @@ async function signOut(){
 }
 
 async function loadProfileAndContinue(){
+  isGuest=false;
+  // Reset any guest-mode UI changes
+  document.getElementById('nav-myprofile').style.display='';
+  document.getElementById('nav-settings-btn').style.display='';
+  document.getElementById('nav-pick-btn').style.display='';
+  document.getElementById('nav-join-btn').style.display='none';
+  document.getElementById('guest-banner').style.display='none';
+  const mnavProfile=document.getElementById('mnav-myprofile');
+  if(mnavProfile)mnavProfile.style.display='';
   const {data}=await sb.from('profiles').select('*').eq('id',currentUser.id).single();
   if(data){
     currentProfile=data;
@@ -683,17 +725,25 @@ async function renderFeed(){
   document.getElementById('feed-range').textContent=getWeekRange(week,year);
   const grid=document.getElementById('friends-grid');
   grid.innerHTML='<div class="loading-center" style="grid-column:1/-1"><div class="spinner"></div></div>';
-  const {data:follows}=await sb.from('follows').select('following_id').eq('follower_id',currentUser.id);
-  const ids=[currentUser.id,...(follows||[]).map(f=>f.following_id)];
+
+  let ids=[];
+  if(isGuest){
+    // Guests see everyone
+    const {data:everyone}=await sb.from('profiles').select('id');
+    ids=(everyone||[]).map(p=>p.id);
+  } else {
+    const {data:follows}=await sb.from('follows').select('following_id').eq('follower_id',currentUser.id);
+    ids=[currentUser.id,...(follows||[]).map(f=>f.following_id)];
+  }
   const {data:profiles}=await sb.from('profiles').select('*').in('id',ids);
   const {data:picks}=await sb.from('picks').select('*').in('user_id',ids).eq('week_number',week).eq('year',year);
   const pickMap=Object.fromEntries((picks||[]).map(p=>[p.user_id,p]));
   if(!profiles||profiles.length===0){
-    grid.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="icon">🎸</div><p>Your feed is empty.<br>Go to Members to find people to follow!</p></div>';return;
+    grid.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="icon">🎸</div><p>'+(isGuest?'No members yet. Be the first — sign up!':'Your feed is empty.<br>Go to Members to find people to follow!')+'</p>'+(isGuest?'<button class="btn btn-primary" onclick="showView(\'auth\')">Join Wavelength</button>':'')+'</div>';return;
   }
-  const sorted=[profiles.find(p=>p.id===currentUser.id),...profiles.filter(p=>p.id!==currentUser.id)].filter(Boolean);
+  const sorted=isGuest?profiles:[profiles.find(p=>p.id===currentUser.id),...profiles.filter(p=>p.id!==currentUser.id)].filter(Boolean);
   grid.innerHTML=sorted.map(p=>{
-    const pick=pickMap[p.id];const me=p.id===currentUser.id;
+    const pick=pickMap[p.id];const me=!isGuest&&p.id===currentUser.id;
     const artHtml=pick&&pick.art_url
       ?'<img class="friend-card-art" src="'+esc(pick.art_url)+'" alt="Album art" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="friend-card-art-ph" style="display:none">🎵</div>'
       :'<div class="friend-card-art-ph">'+(pick?'🎵':'🎸')+'</div>';
@@ -730,7 +780,7 @@ async function renderMembers(){
 // ── PROFILE ──
 async function renderProfile(userId){
   if(!userId)return;
-  const isMe=userId===currentUser.id;
+  const isMe=!isGuest&&userId===currentUser.id;
   const week=getCurrentWeek();
   const year=new Date().getFullYear();
   document.getElementById('profile-back').onclick=function(){showView('feed');};
@@ -782,7 +832,10 @@ async function renderSongDetail(opts){
   let playerHtml='';
   let fullSongLinks='';
   if(pick.spotify_url){
-    fullSongLinks+='<a class="play-on-spotify-btn" href="'+getSpotifyOpenUrl(pick.spotify_url)+'" target="_blank" rel="noopener"><svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>Full Song on Spotify</a>';
+    const trackId=pick.spotify_url.split('/track/').pop().split('?')[0];
+    const isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const spotifyHref=isMobile?'spotify:track:'+trackId:'https://open.spotify.com/track/'+trackId;
+    fullSongLinks+='<a class="play-on-spotify-btn" href="'+spotifyHref+'" target="_blank" rel="noopener"><svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>Full Song on Spotify</a>';
   }
   if(pick.youtube_url){
     let ytId='';const m2=pick.youtube_url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);if(m2)ytId=m2[1];
@@ -893,6 +946,11 @@ async function toggleFollow(userId,isFollowing,btn){
 
 // ── PICK MODAL ──
 async function openPickModal(){
+  if(isGuest){
+    showToast('Sign up to make your own picks! 🎵');
+    setTimeout(()=>showView('auth'),1200);
+    return;
+  }
   const week=getCurrentWeek();
   const year=new Date().getFullYear();
   document.getElementById('pick-week-label').textContent='Week '+week+' \u00b7 '+getWeekRange(week,year);
@@ -999,15 +1057,6 @@ async function saveNewPassword(){
   setTimeout(async function(){
     await loadProfileAndContinue();
   },1500);
-}
-
-// ── SPOTIFY ──
-function getSpotifyOpenUrl(spotifyUrl){
-  if(!spotifyUrl)return null;
-  const trackId=spotifyUrl.split('/track/').pop().split('?')[0];
-  if(!trackId)return spotifyUrl;
-  const isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  return isMobile?'spotify:track:'+trackId:'https://open.spotify.com/track/'+trackId;
 }
 
 // ── HELPERS ──
