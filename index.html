@@ -1116,8 +1116,10 @@ async function renderSongDetail(opts){
     const alreadyLogged=sessionStorage.getItem('listen_'+pick.id);
     if(!alreadyLogged){
       sessionStorage.setItem('listen_'+pick.id,'1');
-      await sb.from('listens').insert({pick_id:pick.id,listener_id:currentUser.id,pick_owner_id:userId});
-      await sb.from('notifications').insert({user_id:userId,type:'listen',actor_id:currentUser.id,pick_id:pick.id,read:false});
+      await sb.from('listens').upsert({pick_id:pick.id,listener_id:currentUser.id,pick_owner_id:userId},{onConflict:'pick_id,listener_id',ignoreDuplicates:true});
+      // Only notify if this is genuinely the first listen
+      const {data:existing}=await sb.from('notifications').select('id').eq('user_id',userId).eq('type','listen').eq('actor_id',currentUser.id).eq('pick_id',pick.id).maybeSingle();
+      if(!existing) await sb.from('notifications').insert({user_id:userId,type:'listen',actor_id:currentUser.id,pick_id:pick.id,read:false});
     }
   }
   // Auto-enrich if missing Spotify-structured data (followers/popularity markers indicate real enrichment)
@@ -1126,7 +1128,11 @@ async function renderSongDetail(opts){
     !pick.tags || pick.tags.length === 0 ||
     !pick.band_info || !pick.band_info.includes('followers')
   );
-  if(needsEnrichment){ enrichPickInBackground(pick); }
+  // Only enrich once per pick per session
+  if(needsEnrichment && !sessionStorage.getItem('enriched_'+pick.id)){
+    sessionStorage.setItem('enriched_'+pick.id,'1');
+    enrichPickInBackground(pick);
+  }
   if(!isGuest){
     const {data:reactions}=await sb.from('reactions').select('user_id').eq('pick_id',pick.id);
     reactionCount=(reactions||[]).length;
@@ -1640,6 +1646,7 @@ function closeSpotifyResults(){
 }
 
 async function enrichPickInBackground(pick){
+  await new Promise(r=>setTimeout(r,800)); // small delay to avoid racing page load
   try {
     const token = await getSpotifyToken();
     const trackId = pick.spotify_url.split('/track/').pop().split('?')[0];
