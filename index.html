@@ -1120,10 +1120,13 @@ async function renderSongDetail(opts){
       await sb.from('notifications').insert({user_id:userId,type:'listen',actor_id:currentUser.id,pick_id:pick.id,read:false});
     }
   }
-  // Auto-enrich pick if missing Spotify data
-  if(pick.spotify_url && (!pick.band_info || !pick.related_artists) && !isGuest){
-    enrichPickInBackground(pick);
-  }
+  // Auto-enrich if missing Spotify-structured data (followers/popularity markers indicate real enrichment)
+  const needsEnrichment = pick.spotify_url && !isGuest && (
+    !pick.related_artists ||
+    !pick.tags || pick.tags.length === 0 ||
+    !pick.band_info || !pick.band_info.includes('followers')
+  );
+  if(needsEnrichment){ enrichPickInBackground(pick); }
   if(!isGuest){
     const {data:reactions}=await sb.from('reactions').select('user_id').eq('pick_id',pick.id);
     reactionCount=(reactions||[]).length;
@@ -1666,9 +1669,9 @@ async function enrichPickInBackground(pick){
     if(relatedNames.length) bioLines.push('Fans also like: '+relatedNames.join(', '));
 
     const updates = {};
-    if(!pick.band_info && bioLines.length) updates.band_info = bioLines.join(' · ');
-    if(!pick.related_artists && relatedNames.length) updates.related_artists = relatedNames.join(',');
-    if(!pick.tags || !pick.tags.length) updates.tags = genres;
+    if(bioLines.length) updates.band_info = bioLines.join(' · ');
+    if(relatedNames.length) updates.related_artists = relatedNames.join(',');
+    if(genres.length) updates.tags = genres;
     if(!pick.release_year && trackData.album && trackData.album.release_date)
       updates.release_year = trackData.album.release_date.split('-')[0];
 
@@ -1677,35 +1680,31 @@ async function enrichPickInBackground(pick){
     // Save to DB silently
     await sb.from('picks').update(updates).eq('id',pick.id);
 
-    // Inject new sections into existing DOM without re-rendering anything
-    const content = document.getElementById('song-content');
-    if(!content) return;
+    // Inject or replace vibes section
+    const existingVibes = content.querySelector('.enrich-vibes');
+    const vibesHtml = '<div class="detail-sec enrich-vibes"><h3>🎧 Vibes</h3><div class="tags">'
+      +genres.map(t=>'<div class="tag">'+esc(t)+'</div>').join('')+'</div></div>';
+    if(existingVibes) existingVibes.outerHTML = vibesHtml;
+    else content.insertAdjacentHTML('beforeend', vibesHtml);
 
-    // Inject vibes tags if missing
-    if(updates.tags && genres.length && !content.querySelector('.enrich-vibes')){
-      const vibesHtml = '<div class="detail-sec enrich-vibes"><h3>🎧 Vibes</h3><div class="tags">'
-        +genres.map(t=>'<div class="tag">'+esc(t)+'</div>').join('')+'</div></div>';
-      content.insertAdjacentHTML('beforeend', vibesHtml);
-    }
+    // Inject or replace about artist section
+    const statLines = bioLines.filter(l=>l.includes('followers')||l.includes('Popularity')||l.includes('Fans also like'));
+    const descLines = bioLines.filter(l=>!l.includes('followers')&&!l.includes('Popularity')&&!l.includes('Fans also like'));
+    const pillsHtml = statLines.map(l=>'<span class="artist-stat-pill">'+esc(l)+'</span>').join('');
+    const descHtml = descLines.map(l=>'<p>'+esc(l)+'</p>').join('');
+    const artistHtml = '<div class="detail-sec enrich-artist"><h3>About '+esc(pick.artist)+'</h3>'
+      +(pillsHtml?'<div class="artist-stats">'+pillsHtml+'</div>':'')+descHtml+'</div>';
+    const existingArtist = content.querySelector('.enrich-artist');
+    if(existingArtist) existingArtist.outerHTML = artistHtml;
+    else content.insertAdjacentHTML('beforeend', artistHtml);
 
-    // Inject about artist if missing
-    if(updates.band_info && !content.querySelector('.enrich-artist')){
-      const statLines = bioLines.filter(l=>l.includes('followers')||l.includes('Popularity')||l.includes('Fans also like'));
-      const descLines = bioLines.filter(l=>!l.includes('followers')&&!l.includes('Popularity')&&!l.includes('Fans also like'));
-      const pillsHtml = statLines.map(l=>'<span class="artist-stat-pill">'+esc(l)+'</span>').join('');
-      const descHtml = descLines.map(l=>'<p>'+esc(l)+'</p>').join('');
-      const artistHtml = '<div class="detail-sec enrich-artist"><h3>About '+esc(pick.artist)+'</h3>'
-        +(pillsHtml?'<div class="artist-stats">'+pillsHtml+'</div>':'')+descHtml+'</div>';
-      content.insertAdjacentHTML('beforeend', artistHtml);
-    }
-
-    // Inject related artists if missing
-    if(updates.related_artists && relatedNames.length && !content.querySelector('.enrich-related')){
-      const relatedHtml = '<div class="detail-sec enrich-related"><h3>🎸 Fans Also Like</h3><div class="similar-grid">'
-        +relatedNames.map(a=>'<div class="sim-item"><strong>'+esc(a)+'</strong><span>Similar artist</span></div>').join('')
-        +'</div></div>';
-      content.insertAdjacentHTML('beforeend', relatedHtml);
-    }
+    // Inject or replace related artists section
+    const relatedHtml = '<div class="detail-sec enrich-related"><h3>🎸 Fans Also Like</h3><div class="similar-grid">'
+      +relatedNames.map(a=>'<div class="sim-item"><strong>'+esc(a)+'</strong><span>Similar artist</span></div>').join('')
+      +'</div></div>';
+    const existingRelated = content.querySelector('.enrich-related');
+    if(existingRelated) existingRelated.outerHTML = relatedHtml;
+    else content.insertAdjacentHTML('beforeend', relatedHtml);
 
   } catch(e){ /* silent fail */ }
 }
