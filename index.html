@@ -239,7 +239,17 @@
     .about-wrap { padding: 0 1rem 6rem; }
     .about-hero { padding: 2rem 0 2rem; }
   }
-  /* ── NOTIFICATIONS ── */
+  /* ── SPOTIFY SEARCH ── */
+  .spotify-search-results { position: absolute; top: 100%; left: 0; right: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; z-index: 500; max-height: 280px; overflow-y: auto; box-shadow: 0 8px 24px rgba(0,0,0,0.5); display: none; }
+  .spotify-search-results.open { display: block; }
+  .spotify-result { display: flex; align-items: center; gap: 0.75rem; padding: 0.65rem 0.9rem; cursor: pointer; transition: background 0.1s; border-bottom: 1px solid var(--border); }
+  .spotify-result:last-child { border-bottom: none; }
+  .spotify-result:hover { background: var(--surface2); }
+  .spotify-result-art { width: 40px; height: 40px; border-radius: 3px; object-fit: cover; flex-shrink: 0; background: var(--bg); }
+  .spotify-result-info { min-width: 0; flex: 1; }
+  .spotify-result-song { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.04em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .spotify-result-artist { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .spotify-result-searching { padding: 1rem; text-align: center; font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--text-dim); }
   .notif-bell-wrap { position: relative; }
   .notif-bell-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 0.3rem 0.5rem; position: relative; line-height: 1; border-radius: 4px; transition: background 0.15s; }
   .notif-bell-btn:hover { background: var(--surface2); }
@@ -639,29 +649,43 @@
     <button class="modal-close" onclick="closePickModal()">✕</button>
     <h3>🎵 This Week's Pick</h3>
     <p class="modal-sub" id="pick-week-label"></p>
-    <div class="form-group">
-      <label>Song Title</label>
-      <input type="text" id="p-song" placeholder="e.g. Karma Police" />
+
+    <!-- SPOTIFY SEARCH -->
+    <div class="form-group" style="position:relative">
+      <label>Search for a song</label>
+      <div style="display:flex;gap:0.5rem">
+        <input type="text" id="p-search" placeholder="Type a song or artist..." oninput="debounceSpotifySearch()" autocomplete="off" style="flex:1" />
+        <button class="btn btn-ghost" onclick="clearPickSelection()" id="p-clear-btn" style="display:none;font-size:0.6rem;padding:0.4rem 0.7rem">✕ Clear</button>
+      </div>
+      <div class="spotify-search-results" id="spotify-search-results"></div>
     </div>
-    <div class="form-group">
-      <label>Artist / Band</label>
-      <input type="text" id="p-artist" placeholder="e.g. Radiohead" />
+
+    <!-- SELECTED SONG PREVIEW -->
+    <div id="pick-selected-preview" style="display:none;margin-bottom:1.2rem">
+      <div style="display:flex;align-items:center;gap:0.9rem;background:var(--surface2);border:1px solid var(--red-dim);border-radius:6px;padding:0.75rem">
+        <img id="pick-preview-art" src="" alt="" style="width:52px;height:52px;border-radius:4px;object-fit:cover;flex-shrink:0" />
+        <div style="min-width:0">
+          <div id="pick-preview-song" style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:0.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+          <div id="pick-preview-artist" style="font-family:'IBM Plex Mono',monospace;font-size:0.62rem;color:var(--text-muted);margin-top:0.1rem"></div>
+          <div id="pick-preview-year" style="font-family:'IBM Plex Mono',monospace;font-size:0.58rem;color:var(--text-dim);margin-top:0.1rem"></div>
+        </div>
+        <div style="margin-left:auto;flex-shrink:0;color:#1db954;font-size:0.7rem">✓ Selected</div>
+      </div>
     </div>
-    <div class="form-group">
-      <label>Album Art URL <span style="color:var(--text-dim)">(optional)</span></label>
-      <input type="text" id="p-art" placeholder="https://..." />
-      <p class="form-hint">Google the album cover → right-click the image → "Copy image address" → paste here</p>
-    </div>
-    <div class="form-group">
-      <label>Spotify Link <span style="color:var(--text-dim)">(optional)</span></label>
-      <input type="text" id="p-spotify" placeholder="https://open.spotify.com/track/..." />
-      <p class="form-hint">Open Spotify → find the song → three dots → Share → Copy Song Link</p>
-    </div>
-    <div class="form-group">
-      <label>YouTube Link <span style="color:var(--text-dim)">(optional)</span></label>
+
+    <!-- HIDDEN AUTO-FILLED FIELDS -->
+    <input type="hidden" id="p-song" />
+    <input type="hidden" id="p-artist" />
+    <input type="hidden" id="p-art" />
+    <input type="hidden" id="p-spotify" />
+    <input type="hidden" id="p-year" />
+
+    <!-- YOUTUBE FALLBACK -->
+    <div class="form-group" id="p-youtube-group">
+      <label>YouTube Link <span style="color:var(--text-dim)">(optional — if not on Spotify)</span></label>
       <input type="text" id="p-youtube" placeholder="https://www.youtube.com/watch?v=..." />
-      <p class="form-hint">Paste a YouTube URL as a backup if the song isn't on Spotify</p>
     </div>
+
     <div class="form-group">
       <label>Why this song? <span style="color:var(--text-dim)">(optional)</span></label>
       <textarea id="p-note" placeholder="What makes this your pick this week?"></textarea>
@@ -670,10 +694,6 @@
       <div class="form-group">
         <label>Vibe Tags <span style="color:var(--text-dim)">(comma-separated)</span></label>
         <input type="text" id="p-tags" placeholder="e.g. alt-rock, melancholic" />
-      </div>
-      <div class="form-group">
-        <label>Release Year <span style="color:var(--text-dim)">(optional)</span></label>
-        <input type="text" id="p-year" placeholder="e.g. 1997" />
       </div>
     </div>
     <div class="form-group">
@@ -1240,14 +1260,30 @@ async function openPickModal(){
   document.getElementById('pick-week-label').textContent='Week '+week+' \u00b7 '+getWeekRange(week,year);
   document.getElementById('pick-error').textContent='';
   const {data}=await sb.from('picks').select('*').eq('user_id',currentUser.id).eq('week_number',week).eq('year',year).single();
+  // Reset / pre-fill search UI
+  closeSpotifyResults();
   document.getElementById('p-song').value=(data&&data.song)||'';
   document.getElementById('p-artist').value=(data&&data.artist)||'';
+  document.getElementById('p-art').value=(data&&data.art_url)||'';
   document.getElementById('p-spotify').value=(data&&data.spotify_url)||'';
+  document.getElementById('p-year').value=(data&&data.release_year)||'';
   document.getElementById('p-youtube').value=(data&&data.youtube_url)||'';
   document.getElementById('p-note').value=(data&&data.note)||'';
   document.getElementById('p-tags').value=(data&&data.tags&&data.tags.join(', '))||'';
-  document.getElementById('p-year').value=(data&&data.year)||'';
   document.getElementById('p-bandinfo').value=(data&&data.band_info)||'';
+  if(data&&data.song){
+    document.getElementById('p-search').value=data.song+' — '+data.artist;
+    document.getElementById('p-clear-btn').style.display='inline-flex';
+    document.getElementById('pick-preview-art').src=data.art_url||'';
+    document.getElementById('pick-preview-song').textContent=data.song;
+    document.getElementById('pick-preview-artist').textContent=data.artist;
+    document.getElementById('pick-preview-year').textContent=data.release_year||'';
+    document.getElementById('pick-selected-preview').style.display='block';
+  } else {
+    document.getElementById('p-search').value='';
+    document.getElementById('p-clear-btn').style.display='none';
+    document.getElementById('pick-selected-preview').style.display='none';
+  }
   document.getElementById('pick-modal').classList.add('open');
 }
 
@@ -1259,7 +1295,7 @@ async function savePick(){
   const err=document.getElementById('pick-error');
   const btn=document.getElementById('pick-save-btn');
   err.textContent='';
-  if(!song||!artist){err.textContent='Song title and artist are required.';return;}
+  if(!song||!artist){err.textContent='Please search for and select a song first.';return;}
   const tags=document.getElementById('p-tags').value.split(',').map(t=>t.trim()).filter(Boolean);
   const week=getCurrentWeek();
   const year=new Date().getFullYear();
@@ -1433,6 +1469,106 @@ function timeAgo(ts){
   const diff=Date.now()-new Date(ts).getTime();
   const m=Math.floor(diff/60000);const h=Math.floor(m/60);const d=Math.floor(h/24);
   if(d>0)return d+'d ago';if(h>0)return h+'h ago';if(m>0)return m+'m ago';return'just now';
+}
+
+// ── SPOTIFY SEARCH ──
+const SPOTIFY_CLIENT_ID = 'a2775113b5b24216b96e1985633a4cc1';
+const SPOTIFY_CLIENT_SECRET = 'cc6c43ee3d024b3b8cedcc28dd2ec905; // replace this
+let spotifyAccessToken = null;
+let spotifyTokenExpiry = 0;
+let searchDebounceTimer = null;
+
+async function getSpotifyToken(){
+  if(spotifyAccessToken && Date.now() < spotifyTokenExpiry) return spotifyAccessToken;
+  const resp = await fetch('https://accounts.spotify.com/api/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'grant_type=client_credentials&client_id='+SPOTIFY_CLIENT_ID+'&client_secret='+SPOTIFY_CLIENT_SECRET
+  });
+  const data = await resp.json();
+  spotifyAccessToken = data.access_token;
+  spotifyTokenExpiry = Date.now() + (data.expires_in - 60) * 1000;
+  return spotifyAccessToken;
+}
+
+function debounceSpotifySearch(){
+  clearTimeout(searchDebounceTimer);
+  const q = document.getElementById('p-search').value.trim();
+  if(!q){ closeSpotifyResults(); return; }
+  searchDebounceTimer = setTimeout(()=>doSpotifySearch(q), 350);
+}
+
+async function doSpotifySearch(q){
+  const resultsEl = document.getElementById('spotify-search-results');
+  resultsEl.innerHTML = '<div class="spotify-result-searching">Searching...</div>';
+  resultsEl.classList.add('open');
+  try {
+    const token = await getSpotifyToken();
+    const resp = await fetch('https://api.spotify.com/v1/search?q='+encodeURIComponent(q)+'&type=track&limit=8', {
+      headers: { 'Authorization': 'Bearer '+token }
+    });
+    const data = await resp.json();
+    const tracks = (data.tracks && data.tracks.items) || [];
+    if(!tracks.length){ resultsEl.innerHTML='<div class="spotify-result-searching">No results found</div>'; return; }
+    resultsEl.innerHTML = tracks.map((t,i)=>{
+      const art = t.album.images[2]||t.album.images[0];
+      const artUrl = art ? art.url : '';
+      const year = t.album.release_date ? t.album.release_date.split('-')[0] : '';
+      const artists = t.artists.map(a=>a.name).join(', ');
+      return '<div class="spotify-result" onclick="selectSpotifyTrack('+i+')">'
+        +'<img class="spotify-result-art" src="'+esc(artUrl)+'" alt="" />'
+        +'<div class="spotify-result-info">'
+        +'<div class="spotify-result-song">'+esc(t.name)+'</div>'
+        +'<div class="spotify-result-artist">'+esc(artists)+' · '+year+'</div>'
+        +'</div></div>';
+    }).join('');
+    // Store results for selection
+    resultsEl._tracks = tracks;
+  } catch(e){ resultsEl.innerHTML='<div class="spotify-result-searching">Search failed — check connection</div>'; }
+}
+
+function selectSpotifyTrack(idx){
+  const resultsEl = document.getElementById('spotify-search-results');
+  const track = resultsEl._tracks[idx];
+  if(!track)return;
+  const art = track.album.images[0];
+  const artUrl = art ? art.url : '';
+  const year = track.album.release_date ? track.album.release_date.split('-')[0] : '';
+  const artists = track.artists.map(a=>a.name).join(', ');
+  // Fill hidden fields
+  document.getElementById('p-song').value = track.name;
+  document.getElementById('p-artist').value = artists;
+  document.getElementById('p-art').value = artUrl;
+  document.getElementById('p-spotify').value = track.external_urls.spotify;
+  document.getElementById('p-year').value = year;
+  // Update search box and preview
+  document.getElementById('p-search').value = track.name + ' — ' + artists;
+  document.getElementById('p-clear-btn').style.display = 'inline-flex';
+  document.getElementById('pick-preview-art').src = artUrl;
+  document.getElementById('pick-preview-song').textContent = track.name;
+  document.getElementById('pick-preview-artist').textContent = artists;
+  document.getElementById('pick-preview-year').textContent = year ? year + ' · ' + track.album.name : track.album.name;
+  document.getElementById('pick-selected-preview').style.display = 'block';
+  closeSpotifyResults();
+}
+
+function clearPickSelection(){
+  document.getElementById('p-song').value='';
+  document.getElementById('p-artist').value='';
+  document.getElementById('p-art').value='';
+  document.getElementById('p-spotify').value='';
+  document.getElementById('p-year').value='';
+  document.getElementById('p-search').value='';
+  document.getElementById('p-clear-btn').style.display='none';
+  document.getElementById('pick-selected-preview').style.display='none';
+  closeSpotifyResults();
+  document.getElementById('p-search').focus();
+}
+
+function closeSpotifyResults(){
+  const el=document.getElementById('spotify-search-results');
+  el.classList.remove('open');
+  el.innerHTML='';
 }
 
 // ── HELPERS ──
