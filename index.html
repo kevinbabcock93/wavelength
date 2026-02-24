@@ -123,8 +123,9 @@
   .song-badge { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text-muted); margin-bottom: 0.75rem; }
   .song-title { font-family: 'Bebas Neue', sans-serif; font-size: 2.8rem; letter-spacing: 0.04em; line-height: 1; margin-bottom: 0.3rem; color: var(--white); }
   .song-artist { font-size: 1.1rem; color: var(--text-muted); font-style: italic; }
-  .tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.9rem; }
-  .tag { font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.06em; padding: 0.22rem 0.55rem; border-radius: 2px; border: 1px solid var(--red-dim); color: var(--red); }
+  .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+  .tag { font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.08em; padding: 0.35rem 0.8rem; border-radius: 20px; background: rgba(204,17,17,0.12); border: 1px solid var(--red-dim); color: var(--red); transition: all 0.15s; }
+  .tag:hover { background: rgba(204,17,17,0.22); border-color: var(--red); }
   .detail-sec { padding: 1.75rem 0; border-bottom: 1px solid var(--border); }
   .detail-sec:last-child { border-bottom: none; }
   .detail-sec h3 { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.16em; color: var(--red-dim); margin-bottom: 1.1rem; }
@@ -133,10 +134,13 @@
   .stat-row:last-child { border-bottom: none; }
   .stat-row .lbl { color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; }
   .similar-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-  .sim-item { background: var(--surface); border: 1px solid var(--border); border-radius: 3px; padding: 0.85rem 1rem; transition: border-color 0.15s; }
-  .sim-item:hover { border-color: var(--red-dim); }
-  .sim-item strong { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.04em; display: block; margin-bottom: 0.1rem; color: var(--white); }
-  .sim-item span { font-size: 0.8rem; color: var(--text-muted); font-style: italic; }
+  .sim-item { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1rem 1.1rem; transition: all 0.15s; cursor: default; }
+  .sim-item:hover { border-color: var(--red-dim); background: var(--surface2); transform: translateY(-1px); }
+  .sim-item strong { font-family: 'Bebas Neue', sans-serif; font-size: 1.05rem; letter-spacing: 0.04em; display: block; margin-bottom: 0.15rem; color: var(--white); }
+  .sim-item span { font-size: 0.75rem; color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-style: normal; letter-spacing: 0.04em; }
+  /* Artist stat pills */
+  .artist-stats { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+  .artist-stat-pill { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.06em; padding: 0.3rem 0.75rem; border-radius: 20px; background: var(--surface2); border: 1px solid var(--border); color: var(--text-muted); }
   .settings-wrap { max-width: 560px; margin: 0 auto; padding: 2rem; }
   .settings-wrap h2 { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; letter-spacing: 0.06em; margin-bottom: 0.3rem; }
   .settings-wrap .sub { color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; margin-bottom: 2rem; }
@@ -1172,7 +1176,6 @@ async function renderSongDetail(opts){
     +'<div><div class="song-badge">Week '+week+' &middot; '+getWeekRange(week,year)+' &middot; '+esc(profile.display_name)+'\'s Pick</div>'
     +'<div class="song-title">'+esc(pick.song)+'</div>'
     +'<div class="song-artist">'+esc(pick.artist)+(pick.release_year?' &middot; '+pick.release_year:'')+'</div>'
-    +(tags.length?'<div class="tags">'+tags.map(t=>'<div class="tag">'+esc(t)+'</div>').join('')+'</div>':'')
     +(pick.note?'<p style="margin-top:1rem;font-size:0.95rem;line-height:1.75;color:var(--text-muted);border-left:2px solid var(--red-dim);padding-left:1rem;font-style:italic">"'+esc(pick.note)+'"</p>':'')
     +(userId===currentUser.id?'<button class="btn btn-ghost" style="margin-top:1.25rem;font-size:0.62rem" onclick="openPickModal()">✏ Edit This Pick</button>':'')
     +(!isGuest&&userId!==currentUser.id
@@ -1180,12 +1183,24 @@ async function renderSongDetail(opts){
       :reactionCount?'<div style="margin-top:1rem;font-family:\'IBM Plex Mono\',monospace;font-size:0.65rem;color:var(--text-muted)">'+reactionCount+' 👍</div>':'')
     +'</div></div>'
     +playerHtml
-    +(pick.band_info?'<div class="detail-sec"><h3>About '+esc(pick.artist)+'</h3><p>'+esc(pick.band_info)+'</p></div>':'')
+    +(pick.band_info ? (()=>{
+        // Parse out the structured bio we auto-filled from Spotify
+        const lines = pick.band_info.split(' · ');
+        const statLines = lines.filter(l => l.includes('followers') || l.includes('Popularity') || l.includes('Fans also like'));
+        const descLines = lines.filter(l => !l.includes('followers') && !l.includes('Popularity') && !l.includes('Fans also like'));
+        const pillsHtml = statLines.map(l=>'<span class="artist-stat-pill">'+esc(l)+'</span>').join('');
+        const descHtml = descLines.map(l=>'<p>'+esc(l)+'</p>').join('');
+        return '<div class="detail-sec"><h3>About '+esc(pick.artist)+'</h3>'
+          +(pillsHtml?'<div class="artist-stats">'+pillsHtml+'</div>':'')
+          +descHtml
+          +'</div>';
+      })()
+    : '')
+    +(tags.length?'<div class="detail-sec"><h3>🎧 Vibes</h3><div class="tags">'+tags.map(t=>'<div class="tag">'+esc(t)+'</div>').join('')+'</div></div>':'')
     +'<div class="detail-sec"><h3>Song Info</h3>'
     +'<div class="stat-row"><span class="lbl">Title</span><span>'+esc(pick.song)+'</span></div>'
     +'<div class="stat-row"><span class="lbl">Artist</span><span>'+esc(pick.artist)+'</span></div>'
     +(pick.release_year?'<div class="stat-row"><span class="lbl">Year</span><span>'+pick.release_year+'</span></div>':'')
-    +(tags.length?'<div class="stat-row"><span class="lbl">Vibe</span><span>'+tags.join(', ')+'</span></div>':'')
     +'</div>'
     +(simSongs?'<div class="detail-sec"><h3>🎵 Similar Songs</h3><div class="similar-grid">'+simSongs.map(s=>{const p=s.split(' \u2014 ');return'<div class="sim-item"><strong>'+esc(p[0])+'</strong><span>'+esc(p[1]||'')+'</span></div>';}).join('')+'</div></div>':'')
     +(pick.related_artists
@@ -1477,7 +1492,7 @@ function timeAgo(ts){
 
 // ── SPOTIFY SEARCH ──
 const SPOTIFY_CLIENT_ID = 'a2775113b5b24216b96e1985633a4cc1';
-const SPOTIFY_CLIENT_SECRET = 'cc6c43ee3d024b3b8cedcc28dd2ec905'; // replace this
+const SPOTIFY_CLIENT_SECRET = 'YOUR_CLIENT_SECRET_HERE'; // replace this
 let spotifyAccessToken = null;
 let spotifyTokenExpiry = 0;
 let searchDebounceTimer = null;
