@@ -1188,7 +1188,9 @@ async function renderSongDetail(opts){
     +(tags.length?'<div class="stat-row"><span class="lbl">Vibe</span><span>'+tags.join(', ')+'</span></div>':'')
     +'</div>'
     +(simSongs?'<div class="detail-sec"><h3>🎵 Similar Songs</h3><div class="similar-grid">'+simSongs.map(s=>{const p=s.split(' \u2014 ');return'<div class="sim-item"><strong>'+esc(p[0])+'</strong><span>'+esc(p[1]||'')+'</span></div>';}).join('')+'</div></div>':'')
-    +(simArtists?'<div class="detail-sec"><h3>🎸 Similar Artists</h3><div class="similar-grid">'+simArtists.map(a=>'<div class="sim-item"><strong>'+esc(a)+'</strong><span>You might enjoy</span></div>').join('')+'</div></div>':'');
+    +(pick.related_artists
+      ?'<div class="detail-sec"><h3>🎸 Fans Also Like</h3><div class="similar-grid">'+pick.related_artists.split(',').filter(Boolean).map(a=>'<div class="sim-item"><strong>'+esc(a.trim())+'</strong><span>Similar artist</span></div>').join('')+'</div></div>'
+      :simArtists?'<div class="detail-sec"><h3>🎸 Similar Artists</h3><div class="similar-grid">'+simArtists.map(a=>'<div class="sim-item"><strong>'+esc(a)+'</strong><span>You might enjoy</span></div>').join('')+'</div></div>':'');
 }
 
 // ── SETTINGS ──
@@ -1297,6 +1299,7 @@ async function savePick(){
   err.textContent='';
   if(!song||!artist){err.textContent='Please search for and select a song first.';return;}
   const tags=document.getElementById('p-tags').value.split(',').map(t=>t.trim()).filter(Boolean);
+  const relatedArtists=document.getElementById('p-song').dataset.relatedArtists||'';
   const week=getCurrentWeek();
   const year=new Date().getFullYear();
   btn.disabled=true;btn.textContent='Saving...';
@@ -1308,6 +1311,7 @@ async function savePick(){
     art_url:document.getElementById('p-art').value.trim(),
     spotify_url:document.getElementById('p-spotify').value.trim(),
     youtube_url:document.getElementById('p-youtube').value.trim(),
+    related_artists:relatedArtists,
   },{onConflict:'user_id,week_number,year'});
   btn.disabled=false;btn.textContent='Save Pick';
   if(error){err.textContent=error.message;return;}
@@ -1527,7 +1531,7 @@ async function doSpotifySearch(q){
   } catch(e){ resultsEl.innerHTML='<div class="spotify-result-searching">Search failed — check connection</div>'; }
 }
 
-function selectSpotifyTrack(idx){
+async function selectSpotifyTrack(idx){
   const resultsEl = document.getElementById('spotify-search-results');
   const track = resultsEl._tracks[idx];
   if(!track)return;
@@ -1535,13 +1539,16 @@ function selectSpotifyTrack(idx){
   const artUrl = art ? art.url : '';
   const year = track.album.release_date ? track.album.release_date.split('-')[0] : '';
   const artists = track.artists.map(a=>a.name).join(', ');
-  // Fill hidden fields
+  const primaryArtistId = track.artists[0].id;
+
+  // Fill basic hidden fields immediately
   document.getElementById('p-song').value = track.name;
   document.getElementById('p-artist').value = artists;
   document.getElementById('p-art').value = artUrl;
   document.getElementById('p-spotify').value = track.external_urls.spotify;
   document.getElementById('p-year').value = year;
-  // Update search box and preview
+
+  // Show preview right away
   document.getElementById('p-search').value = track.name + ' — ' + artists;
   document.getElementById('p-clear-btn').style.display = 'inline-flex';
   document.getElementById('pick-preview-art').src = artUrl;
@@ -1550,6 +1557,47 @@ function selectSpotifyTrack(idx){
   document.getElementById('pick-preview-year').textContent = year ? year + ' · ' + track.album.name : track.album.name;
   document.getElementById('pick-selected-preview').style.display = 'block';
   closeSpotifyResults();
+
+  // Show loading state on enriched fields
+  document.getElementById('p-tags').value = 'Loading genres...';
+  document.getElementById('p-bandinfo').value = 'Loading artist info...';
+
+  try {
+    const token = await getSpotifyToken();
+
+    // Fetch artist data + related artists in parallel
+    const [artistResp, relatedResp] = await Promise.all([
+      fetch('https://api.spotify.com/v1/artists/'+primaryArtistId, { headers:{'Authorization':'Bearer '+token} }),
+      fetch('https://api.spotify.com/v1/artists/'+primaryArtistId+'/related-artists', { headers:{'Authorization':'Bearer '+token} })
+    ]);
+    const artistData = await artistResp.json();
+    const relatedData = await relatedResp.json();
+
+    // Auto-fill genre tags from Spotify
+    const genres = (artistData.genres||[]).slice(0,5);
+    document.getElementById('p-tags').value = genres.join(', ');
+
+    // Build artist info paragraph
+    const followers = artistData.followers ? artistData.followers.total.toLocaleString() : null;
+    const popularity = artistData.popularity || null;
+    const relatedNames = (relatedData.artists||[]).slice(0,5).map(a=>a.name);
+
+    let bioLines = [];
+    if(genres.length) bioLines.push(genres.slice(0,3).join(', ')+(genres.length>3?' and more':'')+' artist');
+    if(followers) bioLines.push(followers+' followers on Spotify');
+    if(popularity) bioLines.push('Popularity score: '+popularity+'/100');
+    if(relatedNames.length) bioLines.push('Fans also like: '+relatedNames.join(', '));
+
+    document.getElementById('p-bandinfo').value = bioLines.join(' · ');
+
+    // Store related artists for similar music section
+    document.getElementById('p-song').dataset.relatedArtists = relatedNames.join(',');
+    document.getElementById('p-song').dataset.genres = genres.join(',');
+
+  } catch(e){
+    document.getElementById('p-tags').value = '';
+    document.getElementById('p-bandinfo').value = '';
+  }
 }
 
 function clearPickSelection(){
