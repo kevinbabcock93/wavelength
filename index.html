@@ -165,7 +165,7 @@
   .toast.err { background: #5a0000; }
   .mobile-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 200; background: rgba(13,0,0,0.97); border-top: 1px solid var(--red-dim); padding: 0.5rem 0 calc(0.5rem + env(safe-area-inset-bottom)); }
   .mobile-nav-inner { display: flex; justify-content: space-around; align-items: center; }
-  .mobile-nav-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.2rem; padding: 0.3rem 0.8rem; transition: color 0.15s; min-width: 60px; }
+  .mobile-nav-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.2rem; padding: 0.3rem 0.5rem; transition: color 0.15s; min-width: 48px; }
   .mobile-nav-btn.active { color: var(--red); }
   .mobile-nav-btn .mnb-icon { font-size: 1.3rem; line-height: 1; }
   .mobile-nav-btn .mnb-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.48rem; text-transform: uppercase; letter-spacing: 0.08em; }
@@ -703,9 +703,9 @@
       <span class="mnb-icon">🎧</span>
       <span class="mnb-label">Profile</span>
     </button>
-    <button class="mobile-nav-btn" onclick="showView('settings')">
-      <span class="mnb-icon">⚙</span>
-      <span class="mnb-label">Settings</span>
+    <button class="mobile-nav-btn" id="mnav-about" onclick="showView('about')">
+      <span class="mnb-icon">ℹ️</span>
+      <span class="mnb-label">About</span>
     </button>
   </div>
 </div>
