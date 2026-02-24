@@ -1680,7 +1680,9 @@ async function enrichPickInBackground(pick){
     // Save to DB silently
     await sb.from('picks').update(updates).eq('id',pick.id);
 
-    // Inject or replace vibes section
+    // Get content element — bail if page has changed
+    const content = document.getElementById('song-content');
+    if(!content) return;
     const existingVibes = content.querySelector('.enrich-vibes');
     const vibesHtml = '<div class="detail-sec enrich-vibes"><h3>🎧 Vibes</h3><div class="tags">'
       +genres.map(t=>'<div class="tag">'+esc(t)+'</div>').join('')+'</div></div>';
