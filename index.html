@@ -239,7 +239,33 @@
     .about-wrap { padding: 0 1rem 6rem; }
     .about-hero { padding: 2rem 0 2rem; }
   }
-  /* ── AUTH SPLIT LAYOUT ── */
+  /* ── NOTIFICATIONS ── */
+  .notif-bell-wrap { position: relative; }
+  .notif-bell-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 0.3rem 0.5rem; position: relative; line-height: 1; border-radius: 4px; transition: background 0.15s; }
+  .notif-bell-btn:hover { background: var(--surface2); }
+  .notif-badge { position: absolute; top: 0; right: 0; background: var(--red); color: white; font-family: 'IBM Plex Mono', monospace; font-size: 0.5rem; font-weight: 700; min-width: 16px; height: 16px; border-radius: 8px; display: flex; align-items: center; justify-content: center; padding: 0 3px; pointer-events: none; }
+  .notif-panel { position: absolute; top: calc(100% + 0.6rem); right: 0; width: 320px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.6); z-index: 400; display: none; max-height: 420px; overflow: hidden; flex-direction: column; }
+  .notif-panel.open { display: flex; }
+  .notif-panel-header { display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 1rem 0.7rem; border-bottom: 1px solid var(--border); font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); flex-shrink: 0; }
+  .notif-mark-read { background: none; border: none; font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; color: var(--red); cursor: pointer; text-transform: uppercase; letter-spacing: 0.08em; }
+  .notif-mark-read:hover { color: var(--red-bright); }
+  .notif-list { overflow-y: auto; flex: 1; }
+  .notif-item { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.85rem 1rem; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.1s; }
+  .notif-item:hover { background: var(--surface2); }
+  .notif-item.unread { background: rgba(204,17,17,0.06); }
+  .notif-item.unread:hover { background: rgba(204,17,17,0.1); }
+  .notif-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 0.1rem; }
+  .notif-body { flex: 1; min-width: 0; }
+  .notif-text { font-family: 'Crimson Pro', serif; font-size: 0.92rem; color: var(--text); line-height: 1.45; }
+  .notif-text strong { color: var(--white); }
+  .notif-time { font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; color: var(--text-dim); margin-top: 0.25rem; }
+  .notif-empty { padding: 2rem; text-align: center; font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; color: var(--text-dim); }
+  /* ── REACTIONS ── */
+  .reaction-btn { display: inline-flex; align-items: center; gap: 0.35rem; background: none; border: 1px solid var(--border); border-radius: 20px; padding: 0.3rem 0.75rem; font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--text-muted); cursor: pointer; transition: all 0.15s; }
+  .reaction-btn:hover { border-color: var(--red-dim); color: var(--white); }
+  .reaction-btn.reacted { background: rgba(204,17,17,0.12); border-color: var(--red); color: var(--red); }
+  .reaction-btn .reaction-count { font-size: 0.7rem; }
+  @media (max-width: 650px) { .notif-panel { width: calc(100vw - 2rem); right: -4rem; } }
   .auth-split { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; }
   .auth-image-side { position: relative; overflow: hidden; }
   .auth-split-img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; filter: grayscale(15%) contrast(1.05); }
@@ -482,6 +508,20 @@
     <span class="nav-user" id="nav-user"></span>
     <button class="btn btn-primary" id="nav-pick-btn" onclick="openPickModal()">+ This Week</button>
     <button class="btn btn-primary" id="nav-join-btn" style="display:none" onclick="showView('auth')">Join Wavelength</button>
+    <!-- NOTIFICATION BELL -->
+    <div class="notif-bell-wrap" id="notif-bell-wrap" style="display:none">
+      <button class="notif-bell-btn" id="notif-bell" onclick="toggleNotifPanel()">
+        🔔
+        <span class="notif-badge" id="notif-badge" style="display:none">0</span>
+      </button>
+      <div class="notif-panel" id="notif-panel">
+        <div class="notif-panel-header">
+          <span>Notifications</span>
+          <button onclick="markAllRead()" class="notif-mark-read">Mark all read</button>
+        </div>
+        <div class="notif-list" id="notif-list"><div class="notif-empty">No notifications yet</div></div>
+      </div>
+    </div>
     <div class="nav-dropdown" id="nav-dropdown">
       <button class="nav-dropdown-toggle" onclick="toggleNavDropdown()">Menu ▾</button>
       <div class="nav-dropdown-menu" id="nav-dropdown-menu">
@@ -731,6 +771,8 @@ function closeNavDropdown(){
 document.addEventListener('click',function(e){
   const dd=document.getElementById('nav-dropdown');
   if(dd&&!dd.contains(e.target))closeNavDropdown();
+  const nb=document.getElementById('notif-bell-wrap');
+  if(nb&&!nb.contains(e.target))closeNotifPanel();
 });
 
 // ── GUEST MODE ──
@@ -800,9 +842,10 @@ async function signUp(){
 }
 
 async function signOut(){
-  await sb.auth.signOut();currentUser=null;currentProfile=null;
+  await sb.auth.signOut();currentUser=null;currentProfile=null;isGuest=false;
   document.getElementById('mainNav').style.display='none';
   document.getElementById('mobileNav').style.display='none';
+  document.getElementById('notif-bell-wrap').style.display='none';
   showView('auth');
 }
 
@@ -823,6 +866,8 @@ async function loadProfileAndContinue(){
     document.getElementById('nav-user').textContent='@'+data.username;
     document.getElementById('mainNav').style.display='flex';
     document.getElementById('mobileNav').style.display='block';
+    document.getElementById('notif-bell-wrap').style.display='block';
+    loadNotifications();
     showView('feed');
   } else {
     buildColorPicker('ob-colors',null);
@@ -995,6 +1040,16 @@ async function renderProfile(userId){
   if(!profile)return;
   const {data:picks}=await sb.from('picks').select('*').eq('user_id',userId).eq('year',year).order('week_number',{ascending:false});
   const pickMap=Object.fromEntries((picks||[]).map(p=>[p.week_number,p]));
+  // Fetch reaction counts and current user's reactions for this profile's picks
+  const pickIds=(picks||[]).map(p=>p.id);
+  let reactionCounts={};let myReactions=new Set();
+  if(pickIds.length){
+    const {data:reactions}=await sb.from('reactions').select('pick_id,user_id').in('pick_id',pickIds);
+    (reactions||[]).forEach(r=>{
+      reactionCounts[r.pick_id]=(reactionCounts[r.pick_id]||0)+1;
+      if(!isGuest&&r.user_id===currentUser.id)myReactions.add(r.pick_id);
+    });
+  }
   document.getElementById('profile-hero').innerHTML=
     '<div class="profile-hero-deco">🎸</div>'
     +'<div class="p-avatar-lg" style="background:'+profile.color+'22;color:'+profile.color+'">'+getAvatar(profile)+'</div>'
@@ -1006,14 +1061,19 @@ async function renderProfile(userId){
       ?'<img class="week-row-art" src="'+esc(pick.art_url)+'" alt="" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="week-row-art-ph" style="display:none">🎵</div>'
       :'<div class="week-row-art-ph">🎵</div>';
     const click=pick?'showView(\'songdetail\',{userId:\''+userId+'\',week:'+w+',year:'+year+'})':isMe?'openPickModal()':'';
+    const thumbHtml=pick&&!isGuest&&!isMe
+      ?'<button class="reaction-btn'+(myReactions.has(pick.id)?' reacted':'')+'" onclick="event.stopPropagation();toggleReaction(\''+pick.id+'\',\''+userId+'\',this)">👍 <span class="reaction-count">'+(reactionCounts[pick.id]||0)+'</span></button>'
+      :pick?'<span style="font-family:\'IBM Plex Mono\',monospace;font-size:0.6rem;color:var(--text-dim)">'+(reactionCounts[pick.id]||0)+' 👍</span>':'';
     html+='<div class="week-row '+(cur?'is-current':'')+'" onclick="'+click+'">'
       +artHtml
       +'<div><div class="wk-label">'+(cur?'&#9733; This week':'Week '+w)+'</div><div class="wk-date">'+getWeekRange(w,year)+'</div></div>'
       +(pick
-        ?'<div class="wk-song"><strong>'+esc(pick.song)+'</strong><span>'+esc(pick.artist)+'</span></div><div class="wk-arrow">&#8594;</div>'
+        ?'<div class="wk-song"><strong>'+esc(pick.song)+'</strong><span>'+esc(pick.artist)+'</span></div>'
         :isMe
-          ?'<div class="wk-song"><strong style="font-family:\'IBM Plex Mono\',monospace;font-size:0.7rem;font-weight:400;color:var(--text-muted)">+ Add your pick</strong></div><div></div>'
-          :'<div class="wk-song"><strong style="font-family:\'IBM Plex Mono\',monospace;font-size:0.7rem;font-weight:400;color:var(--text-dim)">No pick</strong></div><div></div>')
+          ?'<div class="wk-song"><strong style="font-family:\'IBM Plex Mono\',monospace;font-size:0.7rem;font-weight:400;color:var(--text-muted)">+ Add your pick</strong></div>'
+          :'<div class="wk-song"><strong style="font-family:\'IBM Plex Mono\',monospace;font-size:0.7rem;font-weight:400;color:var(--text-dim)">No pick</strong></div>')
+      +(pick?'<div>'+thumbHtml+'</div>':'<div></div>')
+      +'<div class="wk-arrow">'+(pick?'&#8594;':'')+'</div>'
       +'</div>';
   }
   document.getElementById('weeks-list').innerHTML=html;
@@ -1027,6 +1087,22 @@ async function renderSongDetail(opts){
   const {data:pick}=await sb.from('picks').select('*').eq('user_id',userId).eq('week_number',week).eq('year',year).single();
   const {data:profile}=await sb.from('profiles').select('*').eq('id',userId).single();
   if(!pick||!profile)return;
+  // Log a listen if viewing someone else's pick
+  if(!isGuest&&currentUser.id!==userId){
+    const alreadyLogged=sessionStorage.getItem('listen_'+pick.id);
+    if(!alreadyLogged){
+      sessionStorage.setItem('listen_'+pick.id,'1');
+      await sb.from('listens').insert({pick_id:pick.id,listener_id:currentUser.id,pick_owner_id:userId});
+      await sb.from('notifications').insert({user_id:userId,type:'listen',actor_id:currentUser.id,pick_id:pick.id,read:false});
+    }
+  }
+  // Fetch reaction state for this pick
+  let myReaction=false;let reactionCount=0;
+  if(!isGuest){
+    const {data:reactions}=await sb.from('reactions').select('user_id').eq('pick_id',pick.id);
+    reactionCount=(reactions||[]).length;
+    myReaction=(reactions||[]).some(r=>r.user_id===currentUser.id);
+  }
   const tags=pick.tags||[];
   const simSongs=findSimilar(pick.artist,SIMILAR_SONGS);
   const simArtists=findSimilar(pick.artist,SIMILAR_ARTISTS);
@@ -1079,6 +1155,9 @@ async function renderSongDetail(opts){
     +(tags.length?'<div class="tags">'+tags.map(t=>'<div class="tag">'+esc(t)+'</div>').join('')+'</div>':'')
     +(pick.note?'<p style="margin-top:1rem;font-size:0.95rem;line-height:1.75;color:var(--text-muted);border-left:2px solid var(--red-dim);padding-left:1rem;font-style:italic">"'+esc(pick.note)+'"</p>':'')
     +(userId===currentUser.id?'<button class="btn btn-ghost" style="margin-top:1.25rem;font-size:0.62rem" onclick="openPickModal()">✏ Edit This Pick</button>':'')
+    +(!isGuest&&userId!==currentUser.id
+      ?'<div style="margin-top:1.25rem"><button class="reaction-btn'+(myReaction?' reacted':'')+'" id="detail-reaction-btn" onclick="toggleReaction(\''+pick.id+'\',\''+userId+'\',this)">👍 <span class="reaction-count">'+reactionCount+'</span> '+(myReaction?'Liked':'Like this pick')+'</button></div>'
+      :reactionCount?'<div style="margin-top:1rem;font-family:\'IBM Plex Mono\',monospace;font-size:0.65rem;color:var(--text-muted)">'+reactionCount+' 👍</div>':'')
     +'</div></div>'
     +playerHtml
     +(pick.band_info?'<div class="detail-sec"><h3>About '+esc(pick.artist)+'</h3><p>'+esc(pick.band_info)+'</p></div>':'')
@@ -1262,6 +1341,98 @@ async function saveNewPassword(){
   setTimeout(async function(){
     await loadProfileAndContinue();
   },1500);
+}
+
+// ── NOTIFICATIONS ──
+async function loadNotifications(){
+  if(isGuest||!currentUser)return;
+  const {data:notifs}=await sb.from('notifications')
+    .select('*')
+    .eq('user_id',currentUser.id)
+    .order('created_at',{ascending:false})
+    .limit(30);
+  const unread=(notifs||[]).filter(n=>!n.read).length;
+  const badge=document.getElementById('notif-badge');
+  if(unread>0){badge.textContent=unread>9?'9+':unread;badge.style.display='flex';}
+  else{badge.style.display='none';}
+  // Fetch actor profiles
+  const actorIds=[...new Set((notifs||[]).map(n=>n.actor_id).filter(Boolean))];
+  let actorMap={};
+  if(actorIds.length){
+    const {data:actors}=await sb.from('profiles').select('id,display_name,username').in('id',actorIds);
+    actorMap=Object.fromEntries((actors||[]).map(a=>[a.id,a]));
+  }
+  const list=document.getElementById('notif-list');
+  if(!notifs||notifs.length===0){list.innerHTML='<div class="notif-empty">No notifications yet</div>';return;}
+  list.innerHTML=notifs.map(n=>{
+    const actor=actorMap[n.actor_id];
+    const name=actor?('<strong>'+esc(actor.display_name)+'</strong>'):'Someone';
+    const icon=n.type==='listen'?'👀':'👍';
+    const text=n.type==='listen'?name+' checked out your pick':name+' liked your pick';
+    const time=timeAgo(n.created_at);
+    const dest=n.pick_id?'onclick="closeNotifPanel();openNotifPick(\''+n.id+'\')"':'';
+    return '<div class="notif-item'+(n.read?'':' unread')+'" '+dest+'>'
+      +'<div class="notif-icon">'+icon+'</div>'
+      +'<div class="notif-body"><div class="notif-text">'+text+'</div><div class="notif-time">'+time+'</div></div>'
+      +'</div>';
+  }).join('');
+}
+
+async function openNotifPick(notifId){
+  // Mark as read then navigate to the pick
+  await sb.from('notifications').update({read:true}).eq('id',notifId);
+  const {data:n}=await sb.from('notifications').select('*').eq('id',notifId).single();
+  if(!n||!n.pick_id)return;
+  const {data:pick}=await sb.from('picks').select('*').eq('id',n.pick_id).single();
+  if(!pick)return;
+  showView('songdetail',{userId:pick.user_id,week:pick.week_number,year:pick.year});
+  loadNotifications();
+}
+
+async function markAllRead(){
+  if(!currentUser)return;
+  await sb.from('notifications').update({read:true}).eq('user_id',currentUser.id).eq('read',false);
+  loadNotifications();
+}
+
+function toggleNotifPanel(){
+  const panel=document.getElementById('notif-panel');
+  panel.classList.toggle('open');
+  if(panel.classList.contains('open'))loadNotifications();
+  closeNavDropdown();
+}
+function closeNotifPanel(){
+  document.getElementById('notif-panel').classList.remove('open');
+}
+
+// ── REACTIONS ──
+async function toggleReaction(pickId,pickOwnerId,btn){
+  if(isGuest){showView('auth');return;}
+  const reacted=btn.classList.contains('reacted');
+  const countEl=btn.querySelector('.reaction-count');
+  const cur=parseInt(countEl?countEl.textContent:0)||0;
+  if(reacted){
+    btn.classList.remove('reacted');
+    if(countEl)countEl.textContent=Math.max(0,cur-1);
+    // Update label if on detail page
+    if(btn.id==='detail-reaction-btn')btn.lastChild.textContent=' Like this pick';
+    await sb.from('reactions').delete().eq('pick_id',pickId).eq('user_id',currentUser.id);
+  } else {
+    btn.classList.add('reacted');
+    if(countEl)countEl.textContent=cur+1;
+    if(btn.id==='detail-reaction-btn')btn.lastChild.textContent=' Liked';
+    await sb.from('reactions').insert({pick_id:pickId,user_id:currentUser.id,pick_owner_id:pickOwnerId});
+    if(pickOwnerId!==currentUser.id){
+      await sb.from('notifications').insert({user_id:pickOwnerId,type:'reaction',actor_id:currentUser.id,pick_id:pickId,read:false});
+    }
+    loadNotifications();
+  }
+}
+
+function timeAgo(ts){
+  const diff=Date.now()-new Date(ts).getTime();
+  const m=Math.floor(diff/60000);const h=Math.floor(m/60);const d=Math.floor(h/24);
+  if(d>0)return d+'d ago';if(h>0)return h+'h ago';if(m>0)return m+'m ago';return'just now';
 }
 
 // ── HELPERS ──
