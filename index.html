@@ -1639,7 +1639,6 @@ function closeSpotifyResults(){
 async function enrichPickInBackground(pick){
   try {
     const token = await getSpotifyToken();
-    // Get the track to find the primary artist ID
     const trackId = pick.spotify_url.split('/track/').pop().split('?')[0];
     const trackResp = await fetch('https://api.spotify.com/v1/tracks/'+trackId, {
       headers: {'Authorization':'Bearer '+token}
@@ -1648,7 +1647,6 @@ async function enrichPickInBackground(pick){
     if(!trackData.artists||!trackData.artists[0]) return;
     const artistId = trackData.artists[0].id;
 
-    // Fetch artist + related in parallel
     const [artistResp, relatedResp] = await Promise.all([
       fetch('https://api.spotify.com/v1/artists/'+artistId, {headers:{'Authorization':'Bearer '+token}}),
       fetch('https://api.spotify.com/v1/artists/'+artistId+'/related-artists', {headers:{'Authorization':'Bearer '+token}})
@@ -1674,15 +1672,42 @@ async function enrichPickInBackground(pick){
     if(!pick.release_year && trackData.album && trackData.album.release_date)
       updates.release_year = trackData.album.release_date.split('-')[0];
 
-    if(Object.keys(updates).length){
-      await sb.from('picks').update(updates).eq('id',pick.id);
-      // Re-render with enriched data so it shows immediately
-      const opts = {userId: pick.user_id, week: pick.week_number, year: pick.year};
-      if(document.getElementById('view-songdetail').classList.contains('active')){
-        renderSongDetail(opts);
-      }
+    if(!Object.keys(updates).length) return;
+
+    // Save to DB silently
+    await sb.from('picks').update(updates).eq('id',pick.id);
+
+    // Inject new sections into existing DOM without re-rendering anything
+    const content = document.getElementById('song-content');
+    if(!content) return;
+
+    // Inject vibes tags if missing
+    if(updates.tags && genres.length && !content.querySelector('.enrich-vibes')){
+      const vibesHtml = '<div class="detail-sec enrich-vibes"><h3>🎧 Vibes</h3><div class="tags">'
+        +genres.map(t=>'<div class="tag">'+esc(t)+'</div>').join('')+'</div></div>';
+      content.insertAdjacentHTML('beforeend', vibesHtml);
     }
-  } catch(e){ /* silent fail — enrichment is best-effort */ }
+
+    // Inject about artist if missing
+    if(updates.band_info && !content.querySelector('.enrich-artist')){
+      const statLines = bioLines.filter(l=>l.includes('followers')||l.includes('Popularity')||l.includes('Fans also like'));
+      const descLines = bioLines.filter(l=>!l.includes('followers')&&!l.includes('Popularity')&&!l.includes('Fans also like'));
+      const pillsHtml = statLines.map(l=>'<span class="artist-stat-pill">'+esc(l)+'</span>').join('');
+      const descHtml = descLines.map(l=>'<p>'+esc(l)+'</p>').join('');
+      const artistHtml = '<div class="detail-sec enrich-artist"><h3>About '+esc(pick.artist)+'</h3>'
+        +(pillsHtml?'<div class="artist-stats">'+pillsHtml+'</div>':'')+descHtml+'</div>';
+      content.insertAdjacentHTML('beforeend', artistHtml);
+    }
+
+    // Inject related artists if missing
+    if(updates.related_artists && relatedNames.length && !content.querySelector('.enrich-related')){
+      const relatedHtml = '<div class="detail-sec enrich-related"><h3>🎸 Fans Also Like</h3><div class="similar-grid">'
+        +relatedNames.map(a=>'<div class="sim-item"><strong>'+esc(a)+'</strong><span>Similar artist</span></div>').join('')
+        +'</div></div>';
+      content.insertAdjacentHTML('beforeend', relatedHtml);
+    }
+
+  } catch(e){ /* silent fail */ }
 }
 
 // ── HELPERS ──
