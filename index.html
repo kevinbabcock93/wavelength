@@ -1111,6 +1111,7 @@ async function renderSongDetail(opts){
   const {data:pick}=await sb.from('picks').select('*').eq('user_id',userId).eq('week_number',week).eq('year',year).single();
   const {data:profile}=await sb.from('profiles').select('*').eq('id',userId).single();
   if(!pick||!profile)return;
+  currentPick = pick;
   // Log a listen if viewing someone else's pick
   if(!isGuest&&currentUser.id!==userId){
     const alreadyLogged=sessionStorage.getItem('listen_'+pick.id);
@@ -1122,17 +1123,12 @@ async function renderSongDetail(opts){
       if(!existing) await sb.from('notifications').insert({user_id:userId,type:'listen',actor_id:currentUser.id,pick_id:pick.id,read:false});
     }
   }
-  // Auto-enrich if missing Spotify-structured data (followers/popularity markers indicate real enrichment)
-  const needsEnrichment = pick.spotify_url && !isGuest && (
+  // Show enrich button if pick owner and data is missing
+  const needsEnrichment = pick.spotify_url && !isGuest && currentUser.id === userId && (
     !pick.related_artists ||
     !pick.tags || pick.tags.length === 0 ||
     !pick.band_info || !pick.band_info.includes('followers')
   );
-  // Only enrich once per pick per session
-  if(needsEnrichment && !sessionStorage.getItem('enriched_'+pick.id)){
-    sessionStorage.setItem('enriched_'+pick.id,'1');
-    enrichPickInBackground(pick);
-  }
   if(!isGuest){
     const {data:reactions}=await sb.from('reactions').select('user_id').eq('pick_id',pick.id);
     reactionCount=(reactions||[]).length;
@@ -1189,6 +1185,7 @@ async function renderSongDetail(opts){
     +'<div class="song-artist">'+esc(pick.artist)+(pick.release_year?' &middot; '+pick.release_year:'')+'</div>'
     +(pick.note?'<p style="margin-top:1rem;font-size:0.95rem;line-height:1.75;color:var(--text-muted);border-left:2px solid var(--red-dim);padding-left:1rem;font-style:italic">"'+esc(pick.note)+'"</p>':'')
     +(userId===currentUser.id?'<button class="btn btn-ghost" style="margin-top:1.25rem;font-size:0.62rem" onclick="openPickModal()">✏ Edit This Pick</button>':'')
+    +(needsEnrichment?'<button class="btn btn-ghost" id="enrich-btn" style="margin-top:0.75rem;font-size:0.62rem;border-color:#1db954;color:#1db954" onclick="runEnrichment()">✦ Pull in Spotify Info</button>':'')
     +(!isGuest&&userId!==currentUser.id
       ?'<div style="margin-top:1.25rem"><button class="reaction-btn'+(myReaction?' reacted':'')+'" id="detail-reaction-btn" onclick="toggleReaction(\''+pick.id+'\',\''+userId+'\',this)">👍 <span class="reaction-count">'+reactionCount+'</span> '+(myReaction?'Liked':'Like this pick')+'</button></div>'
       :reactionCount?'<div style="margin-top:1rem;font-family:\'IBM Plex Mono\',monospace;font-size:0.65rem;color:var(--text-muted)">'+reactionCount+' 👍</div>':'')
@@ -1510,15 +1507,19 @@ let searchDebounceTimer = null;
 
 async function getSpotifyToken(){
   if(spotifyAccessToken && Date.now() < spotifyTokenExpiry) return spotifyAccessToken;
-  const resp = await fetch('https://accounts.spotify.com/api/token', {
+  // Prevent parallel token fetches
+  if(getSpotifyToken._pending) return getSpotifyToken._pending;
+  getSpotifyToken._pending = fetch('https://accounts.spotify.com/api/token', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: 'grant_type=client_credentials&client_id='+SPOTIFY_CLIENT_ID+'&client_secret='+SPOTIFY_CLIENT_SECRET
-  });
-  const data = await resp.json();
-  spotifyAccessToken = data.access_token;
-  spotifyTokenExpiry = Date.now() + (data.expires_in - 60) * 1000;
-  return spotifyAccessToken;
+  }).then(r=>r.json()).then(data=>{
+    spotifyAccessToken = data.access_token;
+    spotifyTokenExpiry = Date.now() + (data.expires_in - 60) * 1000;
+    getSpotifyToken._pending = null;
+    return spotifyAccessToken;
+  }).catch(e=>{ getSpotifyToken._pending=null; throw e; });
+  return getSpotifyToken._pending;
 }
 
 function debounceSpotifySearch(){
@@ -1645,8 +1646,21 @@ function closeSpotifyResults(){
   el.innerHTML='';
 }
 
+let currentPick = null; // holds pick for enrichment
+
+async function runEnrichment(){
+  const btn = document.getElementById('enrich-btn');
+  if(!btn || !currentPick) return;
+  btn.disabled = true;
+  btn.textContent = '⏳ Fetching Spotify data...';
+  btn.style.color = 'var(--text-muted)';
+  btn.style.borderColor = 'var(--border)';
+  await enrichPickInBackground(currentPick);
+  btn.style.display = 'none';
+}
+
 async function enrichPickInBackground(pick){
-  await new Promise(r=>setTimeout(r,800)); // small delay to avoid racing page load
+  await new Promise(r=>setTimeout(r,300));
   try {
     const token = await getSpotifyToken();
     const trackId = pick.spotify_url.split('/track/').pop().split('?')[0];
