@@ -1506,18 +1506,24 @@ let spotifyTokenExpiry = 0;
 let searchDebounceTimer = null;
 
 async function getSpotifyToken(){
-  if(spotifyAccessToken && Date.now() < spotifyTokenExpiry) return spotifyAccessToken;
-  // Prevent parallel token fetches
+  // Check localStorage first — token lasts 1 hour
+  const cached = localStorage.getItem('sp_token');
+  const expiry = parseInt(localStorage.getItem('sp_token_expiry')||'0');
+  if(cached && Date.now() < expiry) return cached;
+  // Prevent parallel fetches
   if(getSpotifyToken._pending) return getSpotifyToken._pending;
   getSpotifyToken._pending = fetch('https://accounts.spotify.com/api/token', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: 'grant_type=client_credentials&client_id='+SPOTIFY_CLIENT_ID+'&client_secret='+SPOTIFY_CLIENT_SECRET
   }).then(r=>r.json()).then(data=>{
+    if(!data.access_token) throw new Error('No token returned');
+    localStorage.setItem('sp_token', data.access_token);
+    localStorage.setItem('sp_token_expiry', Date.now() + (data.expires_in - 120) * 1000);
     spotifyAccessToken = data.access_token;
-    spotifyTokenExpiry = Date.now() + (data.expires_in - 60) * 1000;
+    spotifyTokenExpiry = Date.now() + (data.expires_in - 120) * 1000;
     getSpotifyToken._pending = null;
-    return spotifyAccessToken;
+    return data.access_token;
   }).catch(e=>{ getSpotifyToken._pending=null; throw e; });
   return getSpotifyToken._pending;
 }
@@ -1652,11 +1658,17 @@ async function runEnrichment(){
   const btn = document.getElementById('enrich-btn');
   if(!btn || !currentPick) return;
   btn.disabled = true;
-  btn.textContent = '⏳ Fetching Spotify data...';
-  btn.style.color = 'var(--text-muted)';
-  btn.style.borderColor = 'var(--border)';
-  await enrichPickInBackground(currentPick);
-  btn.style.display = 'none';
+  btn.textContent = '⏳ Fetching...';
+  try {
+    await enrichPickInBackground(currentPick);
+    btn.style.display = 'none';
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = '✦ Pull in Spotify Info';
+    btn.style.color = '#1db954';
+    btn.style.borderColor = '#1db954';
+    showToast('Spotify fetch failed — try again in a moment', true);
+  }
 }
 
 async function enrichPickInBackground(pick){
@@ -1729,7 +1741,7 @@ async function enrichPickInBackground(pick){
     if(existingRelated) existingRelated.outerHTML = relatedHtml;
     else content.insertAdjacentHTML('beforeend', relatedHtml);
 
-  } catch(e){ /* silent fail */ }
+  } catch(e){ console.error('Enrichment failed:', e); throw e; }
 }
 
 // ── HELPERS ──
