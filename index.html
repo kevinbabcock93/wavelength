@@ -1366,6 +1366,7 @@ async function renderSongDetail(opts){
   const {data:profile}=await sb.from('profiles').select('*').eq('id',userId).single();
   if(!pick||!profile)return;
   currentPick = pick;
+  console.log('Pick from DB:', JSON.stringify({band_info: pick.band_info, tags: pick.tags, related_artists: pick.related_artists}));
   // Log a listen if viewing someone else's pick
   if(!isGuest&&currentUser.id!==userId){
     const alreadyLogged=sessionStorage.getItem('listen_'+pick.id);
@@ -1377,11 +1378,9 @@ async function renderSongDetail(opts){
       if(!existing) await sb.from('notifications').insert({user_id:userId,type:'listen',actor_id:currentUser.id,pick_id:pick.id,read:false});
     }
   }
-  // Show enrich button if pick owner and data is missing
+  // Show enrich button only if tags and related_artists are both missing
   const needsEnrichment = pick.spotify_url && !isGuest && currentUser.id === userId && (
-    !pick.related_artists ||
-    !pick.tags || pick.tags.length === 0 ||
-    !pick.band_info || !pick.band_info.includes('followers')
+    !pick.related_artists || !pick.tags || pick.tags.length === 0
   );
   if(!isGuest){
     const {data:reactions}=await sb.from('reactions').select('user_id').eq('pick_id',pick.id);
