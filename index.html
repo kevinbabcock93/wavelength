@@ -1640,10 +1640,10 @@ async function selectSpotifyTrack(idx){
 
   try {
     const token = await getSpotifyToken();
-    const [artistData, relatedData] = await Promise.all([
-      spotifyFetch('https://api.spotify.com/v1/artists/'+primaryArtistId, token),
-      spotifyFetch('https://api.spotify.com/v1/artists/'+primaryArtistId+'/related-artists', token)
+    const [artistData] = await Promise.all([
+      spotifyFetch('https://api.spotify.com/v1/artists/'+primaryArtistId, token)
     ]);
+    const relatedData = {artists:[]};  // requires extended quota
 
     // Auto-fill genre tags from Spotify
     const genres = (artistData.genres||[]).slice(0,5);
@@ -1710,6 +1710,27 @@ async function runEnrichment(){
   }
 }
 
+async function getRelatedArtistsFromClaude(song, artist, genres){
+  try {
+    const prompt = `For the song "${song}" by ${artist}${genres.length?' (genres: '+genres.join(', ')+')':''}, give me exactly 6 artists that fans of this song would likely enjoy. Consider the specific sound, era, and mood of this song — not just the artist's general popularity. Return ONLY a JSON array of artist name strings, nothing else. Example: ["Artist One","Artist Two","Artist Three","Artist Four","Artist Five","Artist Six"]`;
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 200,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await resp.json();
+    const text = data.content && data.content[0] && data.content[0].text;
+    if(!text) return [];
+    const clean = text.replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(clean);
+    return Array.isArray(parsed) ? parsed.slice(0,6) : [];
+  } catch(e){ console.error('Claude related artists failed:', e); return []; }
+}
+
 async function enrichPickInBackground(pick){
   await new Promise(r=>setTimeout(r,300));
   try {
@@ -1719,21 +1740,19 @@ async function enrichPickInBackground(pick){
     if(!trackData.artists||!trackData.artists[0]) return;
     const artistId = trackData.artists[0].id;
 
-    const [artistData, relatedData] = await Promise.all([
-      spotifyFetch('https://api.spotify.com/v1/artists/'+artistId, token),
-      spotifyFetch('https://api.spotify.com/v1/artists/'+artistId+'/related-artists', token)
-    ]);
+    const artistData = await spotifyFetch('https://api.spotify.com/v1/artists/'+artistId, token);
 
     const genres = (artistData.genres||[]).slice(0,5);
     const followers = artistData.followers ? artistData.followers.total.toLocaleString() : null;
     const popularity = artistData.popularity || null;
-    const relatedNames = (relatedData.artists||[]).slice(0,5).map(a=>a.name);
+
+    // Get related artists from Claude
+    const relatedNames = await getRelatedArtistsFromClaude(pick.song, pick.artist, genres);
 
     let bioLines = [];
     if(genres.length) bioLines.push(genres.slice(0,3).join(', ')+(genres.length>3?' and more':'')+' artist');
     if(followers) bioLines.push(followers+' followers on Spotify');
     if(popularity) bioLines.push('Popularity score: '+popularity+'/100');
-    if(relatedNames.length) bioLines.push('Fans also like: '+relatedNames.join(', '));
 
     const updates = {};
     if(bioLines.length) updates.band_info = bioLines.join(' · ');
@@ -1744,21 +1763,25 @@ async function enrichPickInBackground(pick){
 
     if(!Object.keys(updates).length) return;
 
-    // Save to DB silently
+    // Save to DB
     await sb.from('picks').update(updates).eq('id',pick.id);
 
     // Get content element — bail if page has changed
     const content = document.getElementById('song-content');
     if(!content) return;
-    const existingVibes = content.querySelector('.enrich-vibes');
-    const vibesHtml = '<div class="detail-sec enrich-vibes"><h3>🎧 Vibes</h3><div class="tags">'
-      +genres.map(t=>'<div class="tag">'+esc(t)+'</div>').join('')+'</div></div>';
-    if(existingVibes) existingVibes.outerHTML = vibesHtml;
-    else content.insertAdjacentHTML('beforeend', vibesHtml);
 
-    // Inject or replace about artist section
-    const statLines = bioLines.filter(l=>l.includes('followers')||l.includes('Popularity')||l.includes('Fans also like'));
-    const descLines = bioLines.filter(l=>!l.includes('followers')&&!l.includes('Popularity')&&!l.includes('Fans also like'));
+    // Vibes
+    if(genres.length){
+      const vibesHtml = '<div class="detail-sec enrich-vibes"><h3>🎧 Vibes</h3><div class="tags">'
+        +genres.map(t=>'<div class="tag">'+esc(t)+'</div>').join('')+'</div></div>';
+      const existing = content.querySelector('.enrich-vibes');
+      if(existing) existing.outerHTML = vibesHtml;
+      else content.insertAdjacentHTML('beforeend', vibesHtml);
+    }
+
+    // About artist
+    const statLines = bioLines.filter(l=>l.includes('followers')||l.includes('Popularity'));
+    const descLines = bioLines.filter(l=>!l.includes('followers')&&!l.includes('Popularity'));
     const pillsHtml = statLines.map(l=>'<span class="artist-stat-pill">'+esc(l)+'</span>').join('');
     const descHtml = descLines.map(l=>'<p>'+esc(l)+'</p>').join('');
     const artistHtml = '<div class="detail-sec enrich-artist"><h3>About '+esc(pick.artist)+'</h3>'
@@ -1767,13 +1790,15 @@ async function enrichPickInBackground(pick){
     if(existingArtist) existingArtist.outerHTML = artistHtml;
     else content.insertAdjacentHTML('beforeend', artistHtml);
 
-    // Inject or replace related artists section
-    const relatedHtml = '<div class="detail-sec enrich-related"><h3>🎸 Fans Also Like</h3><div class="similar-grid">'
-      +relatedNames.map(a=>'<div class="sim-item"><strong>'+esc(a)+'</strong><span>Similar artist</span></div>').join('')
-      +'</div></div>';
-    const existingRelated = content.querySelector('.enrich-related');
-    if(existingRelated) existingRelated.outerHTML = relatedHtml;
-    else content.insertAdjacentHTML('beforeend', relatedHtml);
+    // Related artists from Claude
+    if(relatedNames.length){
+      const relatedHtml = '<div class="detail-sec enrich-related"><h3>🎸 If You Like This, Try</h3><div class="similar-grid">'
+        +relatedNames.map(a=>'<div class="sim-item"><strong>'+esc(a)+'</strong><span>Similar artist</span></div>').join('')
+        +'</div></div>';
+      const existingRelated = content.querySelector('.enrich-related');
+      if(existingRelated) existingRelated.outerHTML = relatedHtml;
+      else content.insertAdjacentHTML('beforeend', relatedHtml);
+    }
 
   } catch(e){ console.error('Enrichment failed:', e); throw e; }
 }
