@@ -751,8 +751,226 @@ let currentUser = null, currentProfile = null;
 
 // ── SIMILAR MUSIC ──
 const SIMILAR_SONGS = {'kate bush':['Running Up That Hill — Kate Bush','Wuthering Heights — Kate Bush','Cloudbusting — Kate Bush','The Hounds of Love — Kate Bush'],'radiohead':['Exit Music (For a Film) — Radiohead','How to Disappear Completely — Radiohead','Street Spirit — Radiohead','Reckoner — Radiohead'],'kendrick lamar':['Alright — Kendrick Lamar','DNA. — Kendrick Lamar','m.A.A.d city — Kendrick Lamar','Swimming Pools — Kendrick Lamar'],'frank ocean':['Nights — Frank Ocean','Self Control — Frank Ocean','Pink + White — Frank Ocean','Seigfried — Frank Ocean'],'tame impala':['Let It Happen — Tame Impala','Feels Like We Only Go Backwards — Tame Impala','Eventually — Tame Impala','New Person, Same Old Mistakes — Tame Impala'],'the national':['Bloodbuzz Ohio — The National','Sorrow — The National','Afraid of Everyone — The National','Terrible Love — The National'],'bon iver':['Holocene — Bon Iver','Skinny Love — Bon Iver','Towers — Bon Iver','Michicant — Bon Iver'],'phoebe bridgers':['Motion Sickness — Phoebe Bridgers','Savior Complex — Phoebe Bridgers','Funeral — Phoebe Bridgers']};
-const SIMILAR_ARTISTS = {'kate bush':['Björk','Florence + The Machine','Tori Amos','Bat for Lashes'],'radiohead':['Portishead','Thom Yorke','Sigur Rós','The National'],'kendrick lamar':['J. Cole','Isaiah Rashad','ScHoolboy Q','Jay Rock'],'frank ocean':['Syd','Steve Lacy','Brent Faiyaz','Daniel Caesar'],'tame impala':['MGMT','Unknown Mortal Orchestra','Pond','TEMPOREX'],'the national':['Frightened Rabbit','Bon Iver','Iron & Wine','Sufjan Stevens'],'bon iver':['The National','Fleet Foxes','Sufjan Stevens','Elbow'],'phoebe bridgers':['Julien Baker','Lucy Dacus','boygenius','Angel Olsen']};
-function findSimilar(artist,db){const a=(artist||'').toLowerCase();const key=Object.keys(db).find(k=>a.includes(k)||k.includes(a));return key?db[key]:null;}
+const SIMILAR_ARTISTS = {
+  // ── INDIE / ALTERNATIVE ──
+  'radiohead':['Portishead','Thom Yorke','Sigur Rós','The National','Mogwai','Boards of Canada'],
+  'the national':['Frightened Rabbit','Bon Iver','Iron & Wine','Sufjan Stevens','Villagers','The War on Drugs'],
+  'bon iver':['The National','Fleet Foxes','Sufjan Stevens','Elbow','Gregory Alan Isakov','S. Carey'],
+  'tame impala':['MGMT','Unknown Mortal Orchestra','Pond','Flaming Lips','Allah-Las','Mac DeMarco'],
+  'arctic monkeys':['The Last Shadow Puppets','Miles Kane','Interpol','The Strokes','Humbug-era Black Keys','Richard Hawley'],
+  'the strokes':['Arctic Monkeys','Interpol','Yeah Yeah Yeahs','LCD Soundsystem','Clap Your Hands Say Yeah','The Walkmen'],
+  'interpol':['The Strokes','Editors','Doves','The National','White Lies','She Wants Revenge'],
+  'lcd soundsystem':['Hot Chip','Caribou','Four Tet','!!! (Chk Chk Chk)','New Order','Daft Punk'],
+  'mgmt':['Tame Impala','Of Montreal','Animal Collective','Flaming Lips','Ariel Pink','Neon Indian'],
+  'vampire weekend':['Rostam','Paul Simon','Ezra Koenig','Ra Ra Riot','Dirty Projectors','Grizzly Bear'],
+  'grizzly bear':['Fleet Foxes','Dirty Projectors','Animal Collective','Beach House','Department of Eagles','Deerhunter'],
+  'fleet foxes':['Grizzly Bear','Iron & Wine','Bon Iver','My Morning Jacket','Father John Misty','Joanna Newsom'],
+  'beach house':['Mazzy Star','Cocteau Twins','Grouper','Slowdive','Cigarettes After Sex','Still Woozy'],
+  'car seat headrest':['Alex G','Girlpool','Palehound','Snail Mail','illuminati hotties','Julien Baker'],
+  'the war on drugs':['Kurt Vile','Real Estate','Phosphorescent','Sun Kil Moon','Jason Isbell','Wilco'],
+  'kurt vile':['The War on Drugs','Real Estate','Steve Gunn','Woods','Angel Olsen','Courtney Barnett'],
+  'courtney barnett':['Kurt Vile','Palehound','Snail Mail','Waxahatchee','Julien Baker','Lucy Dacus'],
+  'snail mail':['Soccer Mommy','Girlpool','Palehound','Jay Som','Julien Baker','Hovvdy'],
+  'soccer mommy':['Snail Mail','Jay Som','Frankie Cosmos','Hovvdy','Julia Jacklin','Palehound'],
+  'big thief':['Adrianne Lenker','Waxahatchee','Tiny Ruins','Hand Habits','Faye Webster','Indigo De Souza'],
+  'waxahatchee':['Big Thief','Hurray for the Riff Raff','Mountain Goats','Julien Baker','Angel Olsen','Neko Case'],
+  'angel olsen':['Sharon Van Etten','Waxahatchee','Marissa Nadler','Hand Habits','Julia Jacklin','Aldous Harding'],
+  'sharon van etten':['Angel Olsen','Julien Baker','Phoebe Bridgers','Adrianne Lenker','Hand Habits','Weyes Blood'],
+  'weyes blood':['Father John Misty','Judee Sill','Joni Mitchell','Karen Dalton','Aldous Harding','Julia Holter'],
+  'father john misty':['Fleet Foxes','Weyes Blood','Kevin Morby','Jonathan Wilson','Unknown Mortal Orchestra','Perfume Genius'],
+  'perfume genius':['Sufjan Stevens','Weyes Blood','Bon Iver','Julia Holter','How to Dress Well','Aldous Harding'],
+  'sufjan stevens':['Bon Iver','Joanna Newsom','Fleet Foxes','Perfume Genius','Weyes Blood','Owen Pallett'],
+  'phoebe bridgers':['Julien Baker','Lucy Dacus','boygenius','Angel Olsen','Soccer Mommy','Snail Mail'],
+  'julien baker':['Phoebe Bridgers','Lucy Dacus','boygenius','Hop Along','Palehound','Hand Habits'],
+  'boygenius':['Phoebe Bridgers','Julien Baker','Lucy Dacus','Angel Olsen','Sharon Van Etten','Big Thief'],
+  'deerhunter':['Atlas Sound','Real Estate','Grizzly Bear','Beach House','Wild Nothing','Ducktails'],
+  'real estate':['Deerhunter','Wild Nothing','Beach Fossils','Woods','Ducktails','The Clientele'],
+  'mac demarco':['Alex G','Homeshake','Mild High Club','Drugdealer','Men I Trust','Whitney'],
+  'alex g':['Car Seat Headrest','Hand Habits','Hovvdy','Florist','Tomberlin','Snail Mail'],
+  'mitski':['Japanese Breakfast','Hand Habits','Palehound','Soccer Mommy','Advance Base','Florist'],
+  'japanese breakfast':['Mitski','illuminati hotties','Alex G','Snail Mail','Hand Habits','Caroline Rose'],
+  'faye webster':['Big Thief','Hand Habits','Charlotte Day Wilson','Beabadoobee','Men I Trust','Hovvdy'],
+  'men i trust':['Beach House','Wild Nothing','Mac DeMarco','Whitney','Homeshake','Still Woozy'],
+  'whitney':['Shintaro Sakamoto','Men I Trust','Hovvdy','Hand Habits','Mild High Club','Whitney Rose'],
+  'wilco':['Uncle Tupelo','Son Volt','Jay Farrar','Tweedy','The War on Drugs','Silver Jews'],
+  // ── INDIE POP / DREAM POP ──
+  'kate bush':['Björk','Florence + The Machine','Tori Amos','Bat for Lashes','Anna Calvi','St. Vincent'],
+  'björk':['Kate Bush','Sigur Rós','Fever Ray','Múm','Arca','Holly Herndon'],
+  'florence + the machine':['Kate Bush','Bat for Lashes','Lykke Li','Anna Calvi','Daughter','Oh Wonder'],
+  'st. vincent':['Talking Heads','David Byrne','Annie Clark','Cate Le Bon','Rostam','Sufjan Stevens'],
+  'lorde':['Ella Yelich-O\'Connor','Lana Del Rey','Halsey','Banks','Billie Eilish','Sza'],
+  'lana del rey':['Lorde','Weyes Blood','Mazzy Star','Hope Sandoval','Beach House','Cigarettes After Sex'],
+  'cigarettes after sex':['Beach House','Mazzy Star','Lana Del Rey','Her','Wild Nothing','Chelsea Wolfe'],
+  'billie eilish':['Lorde','Olivia Rodrigo','Clairo','Remi Wolf','girl in red','Role Model'],
+  'clairo':['Beabadoobee','Soccer Mommy','Rex Orange County','Still Woozy','Men I Trust','Snail Mail'],
+  'beabadoobee':['Clairo','Soccer Mommy','Snail Mail','Remi Wolf','girl in red','Spacey Jane'],
+  'olivia rodrigo':['Billie Eilish','Lorde','Gracie Abrams','Sabrina Carpenter','Girl in Red','Maisie Peters'],
+  'rex orange county':['Still Woozy','Dominic Fike','Clairo','Men I Trust','Homeshake','boy pablo'],
+  'still woozy':['Rex Orange County','Dominic Fike','Clairo','Remi Wolf','Role Model','Jake Wesley Rogers'],
+  'remi wolf':['Still Woozy','Dominic Fike','Clairo','Brockhampton','Rex Orange County','Steve Lacy'],
+  'dominic fike':['Rex Orange County','Still Woozy','Omar Apollo','Remi Wolf','Steve Lacy','Brockhampton'],
+  // ── R&B / SOUL / NEO-SOUL ──
+  'frank ocean':['Syd','Steve Lacy','Brent Faiyaz','Daniel Caesar','Sampha','James Blake'],
+  'james blake':['Bon Iver','Sampha','Moses Sumney','How to Dress Well','Sohn','Banks'],
+  'sampha':['James Blake','Sohn','Kwabs','Moses Sumney','Frank Ocean','Kojey Radical'],
+  'daniel caesar':['Frank Ocean','H.E.R.','Lucky Daye','Brent Faiyaz','Syd','Charlotte Day Wilson'],
+  'brent faiyaz':['Frank Ocean','Daniel Caesar','Syd','Steve Lacy','Ari Lennox','Lucky Daye'],
+  'syd':['Frank Ocean','Steve Lacy','Brent Faiyaz','Ravyn Lenae','Charlotte Day Wilson','H.E.R.'],
+  'steve lacy':['Frank Ocean','Syd','Brent Faiyaz','Rex Orange County','Remi Wolf','Ravyn Lenae'],
+  'h.e.r.':['Jhené Aiko','Kehlani','Sza','Ari Lennox','Summer Walker','Alicia Keys'],
+  'sza':['H.E.R.','Jhené Aiko','Summer Walker','Kehlani','Ari Lennox','Ravyn Lenae'],
+  'jhené aiko':['Sza','H.E.R.','Kehlani','Summer Walker','Banks','Snoh Aalegra'],
+  'summer walker':['Sza','H.E.R.','Kehlani','Jhené Aiko','Ari Lennox','Lucky Daye'],
+  'kehlani':['Sza','H.E.R.','Jhené Aiko','Summer Walker','Tinashe','Ravyn Lenae'],
+  'moses sumney':['Sampha','James Blake','Perfume Genius','Bon Iver','How to Dress Well','Anohni'],
+  'blood orange':['Frank Ocean','Solange','Kelela','Arca','How to Dress Well','Kindness'],
+  'solange':['Blood Orange','Kelela','Sza','Frank Ocean','Erykah Badu','Janelle Monáe'],
+  'janelle monáe':['Solange','Prince','Erykah Badu','Cindi Mayweather','St. Vincent','Lianne La Havas'],
+  'erykah badu':['D\'Angelo','Lauryn Hill','Bilal','Jill Scott','Common','Mos Def'],
+  'd\'angelo':['Erykah Badu','Maxwell','Lauryn Hill','Bilal','Prince','Anthony Hamilton'],
+  // ── HIP-HOP / RAP ──
+  'kendrick lamar':['J. Cole','Isaiah Rashad','ScHoolboy Q','Jay Rock','Ab-Soul','SZA'],
+  'j. cole':['Kendrick Lamar','Drake','Big K.R.I.T.','Wale','Dreamville','Bas'],
+  'earl sweatshirt':['MF DOOM','Mach-Hommy','MIKE','billy woods','Armand Hammer','Boldly'],
+  'tyler the creator':['Frank Ocean','Odd Future','Vince Staples','BROCKHAMPTON','Kali Uchis','Rex Orange County'],
+  'vince staples':['Tyler the Creator','Earl Sweatshirt','Danny Brown','Saba','Buddy','Freddie Gibbs'],
+  'danny brown':['Vince Staples','JPEGMAFIA','Death Grips','clipping.','Open Mike Eagle','aesop rock'],
+  'jpegmafia':['Danny Brown','Death Grips','clipping.','serpentwithfeet','Injury Reserve','Show Me The Body'],
+  'death grips':['JPEGMAFIA','clipping.','Show Me The Body','Daughters','Merzbow','Ho99o9'],
+  'childish gambino':['Frank Ocean','Tyler the Creator','Chance the Rapper','Donald Glover','Janelle Monáe','Blood Orange'],
+  'chance the rapper':['Childish Gambino','Noname','Saba','Mick Jenkins','Joey Purp','Knox Fortune'],
+  'noname':['Saba','Chance the Rapper','Mick Jenkins','Tierra Whack','Lianne La Havas','Jamila Woods'],
+  'saba':['Noname','Chance the Rapper','Mick Jenkins','Femdot','Ravyn Lenae','Smino'],
+  'freddie gibbs':['Madlib','Pusha T','Boldy James','Benny the Butcher','Ransom','Vince Staples'],
+  'mf doom':['Madlib','Ghostface Killah','Czarface','Danger Doom','Captain Murphy','Billy Woods'],
+  'outkast':['Goodie Mob','Erykah Badu','Janelle Monáe','UGK','Dungeon Family','Cee-Lo Green'],
+  'kanye west':['Kid Cudi','Chance the Rapper','Pusha T','Common','Jay-Z','Childish Gambino'],
+  'kid cudi':['Kanye West','Travis Scott','Pusha T','Chip tha Ripper','Don Broco','The Neighbourhood'],
+  'travis scott':['Kid Cudi','Young Thug','Drake','Future','Nav','Don Toliver'],
+  'drake':['J. Cole','Travis Scott','Future','PartyNextDoor','dvsn','Majid Jordan'],
+  'mac miller':['Chance the Rapper','J. Cole','Tyler the Creator','Joey Bada$$','Logic','Vince Staples'],
+  // ── ELECTRONIC / DANCE ──
+  'four tet':['Caribou','Bonobo','Jon Hopkins','Floating Points','Nicolas Jaar','Burial'],
+  'caribou':['Four Tet','Bonobo','Jon Hopkins','Floating Points','Nils Frahm','Com Truise'],
+  'bonobo':['Caribou','Four Tet','Tycho','Emancipator','Catching Flies','Maribou State'],
+  'burial':['Four Tet','The Caretaker','Actress','Boards of Canada','Andy Stott','Demdike Stare'],
+  'boards of canada':['Burial','Aphex Twin','Autechre','Plaid','Bibio','Tycho'],
+  'aphex twin':['Boards of Canada','Autechre','Squarepusher','Plaid','Luke Vibert','Orbital'],
+  'nicolas jaar':['Actress','Four Tet','Burial','The Field','Ben Frost','Objekt'],
+  'jon hopkins':['Nils Frahm','Olafur Arnalds','Rival Consoles','Max Richter','Peter Broderick','Floating Points'],
+  'floating points':['Four Tet','Caribou','Jon Hopkins','Sohn','Matthew Halsall','Yussef Kamaal'],
+  'james holden':['Nicolas Jaar','Andy Stott','Objekt','Function','Demdike Stare','Actress'],
+  'daft punk':['LCD Soundsystem','Justice','Kavinsky','Moderat','Phoenix','Air'],
+  'justice':['Daft Punk','Boys Noize','Kavinsky','SebastiAn','Gesaffelstein','Chromatics'],
+  'tycho':['Bonobo','Washed Out','Emancipator','Catching Flies','Maribou State','S U R V I V E'],
+  'washed out':['Tycho','Toro y Moi','Neon Indian','Small Black','How to Dress Well','Ducktails'],
+  'toro y moi':['Washed Out','Neon Indian','Tycho','Small Black','How to Dress Well','Com Truise'],
+  'moderat':['Modeselektor','Apparat','Nils Frahm','Jon Hopkins','Rival Consoles','Sohn'],
+  'bicep':['Four Tet','Floating Points','Caribou','Jon Hopkins','Peggy Gou','Mall Grab'],
+  'disclosure':['AlunaGeorge','Tourist','Duke Dumont','George FitzGerald','Julio Bashmore','Shadow Child'],
+  // ── ROCK / POST-PUNK / NOISE ──
+  'david bowie':['Iggy Pop','Lou Reed','Brian Eno','Roxy Music','T. Rex','Nick Cave'],
+  'the cure':['Siouxsie and the Banshees','Bauhaus','The Smiths','Joy Division','Cocteau Twins','Wire'],
+  'the smiths':['Morrissey','Johnny Marr','The Cure','New Order','Aztec Camera','Lloyd Cole'],
+  'joy division':['New Order','The Cure','Bauhaus','Siouxsie and the Banshees','Wire','The Fall'],
+  'new order':['Joy Division','The Cure','The Smiths','Depeche Mode','Electronic','Pet Shop Boys'],
+  'depeche mode':['New Order','Tears for Fears','Pet Shop Boys','Soft Cell','The Cure','Ultravox'],
+  'talking heads':['David Byrne','Brian Eno','Television','Pere Ubu','XTC','Devo'],
+  'pixies':['Dinosaur Jr.','Husker Du','Sebadoh','Guided by Voices','Pavement','Archers of Loaf'],
+  'pavement':['Guided by Voices','Sebadoh','Silver Jews','Built to Spill','Neutral Milk Hotel','Yo La Tengo'],
+  'neutral milk hotel':['The Microphones','Bright Eyes','Mount Eerie','Okkervil River','Sufjan Stevens','Songs: Ohia'],
+  'mount eerie':['The Microphones','Phil Elverum','Sun Kil Moon','Grouper','Marissa Nadler','Bonnie Prince Billy'],
+  'built to spill':['Guided by Voices','Pavement','Dinosaur Jr.','Sebadoh','Modest Mouse','Archers of Loaf'],
+  'modest mouse':['Built to Spill','Pavement','The Shins','Iron & Wine','Death Cab for Cutie','Ugly Casanova'],
+  'the shins':['Modest Mouse','Death Cab for Cutie','Iron & Wine','Bright Eyes','Sufjan Stevens','Rilo Kiley'],
+  'death cab for cutie':['The Shins','Iron & Wire','Bright Eyes','Rilo Kiley','Pedro the Lion','The Postal Service'],
+  'bright eyes':['Conor Oberst','Neutral Milk Hotel','Pedro the Lion','The Mountain Goats','Death Cab for Cutie','Jason Molina'],
+  'the mountain goats':['John Darnielle','Bright Eyes','Okkervil River','Songs: Ohia','Will Oldham','Silver Jews'],
+  'yo la tengo':['Guided by Voices','Pavement','The Velvet Underground','Galaxie 500','Mazzy Star','Low'],
+  'low':['Codeine','Galaxie 500','Microphones','Grouper','Bedhead','Songs: Ohia'],
+  'slowdive':['Cocteau Twins','My Bloody Valentine','Ride','Lush','Pale Saints','Chapterhouse'],
+  'my bloody valentine':['Slowdive','Ride','Lush','Swervedriver','Pale Saints','A Place to Bury Strangers'],
+  'cocteau twins':['This Mortal Coil','Dead Can Dance','Slowdive','Beach House','Mazzy Star','Grouper'],
+  'mazzy star':['Cocteau Twins','Beach House','Hope Sandoval','Cigarettes After Sex','Galaxie 500','Low'],
+  'nick cave':['The Bad Seeds','Mark Lanegan','Tom Waits','Leonard Cohen','Crime & the City Solution','Rowland S. Howard'],
+  'tom waits':['Nick Cave','Captain Beefheart','Leonard Cohen','Scott Walker','Mark Lanegan','Waits'],
+  'leonard cohen':['Nick Cave','Tom Waits','Bob Dylan','John Cale','Scott Walker','Mark Lanegan'],
+  'the velvet underground':['Lou Reed','John Cale','Nico','Television','Patti Smith','Iggy Pop'],
+  'wire':['Gang of Four','The Fall','Mission of Burma','Public Image Ltd.','Swell Maps','Essential Logic'],
+  'gang of four':['Wire','Public Image Ltd.','The Fall','Magazine','The Pop Group','Pere Ubu'],
+  'television':['Talking Heads','Patti Smith','The Velvet Underground','Pere Ubu','Wire','The Feelies'],
+  'sonic youth':['Dinosaur Jr.','Pixies','Sebadoh','Pavement','Guided by Voices','Shellac'],
+  'dinosaur jr.':['Sebadoh','Sonic Youth','Pixies','Guided by Voices','Superchunk','Lemonheads'],
+  'the church':['Echo & the Bunnymen','The Chameleons','Felt','The Sound','The Verlaines','The Go-Betweens'],
+  'echo & the bunnymen':['The Teardrop Explodes','The Church','The Chameleons','The Sound','Felt','Comsat Angels'],
+  'the jesus and mary chain':['My Bloody Valentine','Slowdive','Lush','Ride','The Cure','Swervedriver'],
+  'spiritualized':['Spacemen 3','The Brian Jonestown Massacre','Primal Scream','Bark Psychosis','Mogwai','Godspeed You! Black Emperor'],
+  'mogwai':['Godspeed You! Black Emperor','Explosions in the Sky','Sigur Rós','65daysofstatic','Russian Circles','Tortoise'],
+  'godspeed you! black emperor':['Mogwai','Explosions in the Sky','Sigur Rós','Silver Mt. Zion','This Will Destroy You','Mono'],
+  'explosions in the sky':['Godspeed You! Black Emperor','Mogwai','Sigur Rós','This Will Destroy You','Hammock','Caspian'],
+  'sigur rós':['Explosions in the Sky','Mogwai','Ólafur Arnalds','Nils Frahm','Johann Johannsson','Jóhann Jóhannsson'],
+  'radiohead':['Portishead','Thom Yorke','Sigur Rós','The National','Mogwai','Boards of Canada'],
+  'portishead':['Massive Attack','Tricky','Björk','Radiohead','Archive','Lamb'],
+  'massive attack':['Portishead','Tricky','Björk','Goldie','Lamb','Archive'],
+  'nick drake':['John Martyn','Sandy Denny','Tim Buckley','Fred Neil','Judee Sill','Vashti Bunyan'],
+  'john martyn':['Nick Drake','Sandy Denny','Richard Thompson','Bert Jansch','Tim Buckley','Fairport Convention'],
+  'vashti bunyan':['Nick Drake','Judee Sill','Sandy Denny','Sibylle Baier','Linda Perhacs','Karen Dalton'],
+  // ── FOLK / AMERICANA / COUNTRY ──
+  'iron & wine':['Fleet Foxes','Bon Iver','Sufjan Stevens','Death Cab for Cutie','The Shins','Calexico'],
+  'joanna newsom':['Vashti Bunyan','Devendra Banhart','Sufjan Stevens','Weyes Blood','Julia Holter','CocoRosie'],
+  'devendra banhart':['Joanna Newsom','Sufjan Stevens','Cate Le Bon','Vetiver','Feathers','José González'],
+  'jason isbell':['Drive-By Truckers','Americana','Sturgill Simpson','John Prine','Lucinda Williams','Ryan Adams'],
+  'sturgill simpson':['Jason Isbell','Colter Wall','Whitey Morgan','Chris Stapleton','Tyler Childers','Margo Price'],
+  'tyler childers':['Colter Wall','Jason Isbell','Sturgill Simpson','Whitey Morgan','Sierra Ferrell','Charley Crockett'],
+  'colter wall':['Tyler Childers','Jason Isbell','Sturgill Simpson','Chris Stapleton','Charley Crockett','Ian Noe'],
+  'the mountain goats':['John Darnielle','Bright Eyes','Okkervil River','Songs: Ohia','Will Oldham','Silver Jews'],
+  'bonnie prince billy':['Will Oldham','Silver Jews','Songs: Ohia','Smog','Mount Eerie','Magnolia Electric Co.'],
+  'neko case':['Waxahatchee','Calexico','New Pornographers','Neko Case','Gillian Welch','Iris DeMent'],
+  'gillian welch':['David Rawlings','Iris DeMent','Lucinda Williams','Emmylou Harris','Alison Krauss','Townes Van Zandt'],
+  // ── JAZZ / SOUL CROSSOVER ──
+  'bill evans':['Keith Jarrett','Brad Mehldau','Herbie Hancock','Paul Desmond','Miles Davis','Chick Corea'],
+  'miles davis':['John Coltrane','Herbie Hancock','Bill Evans','Wayne Shorter','Thelonious Monk','Charles Mingus'],
+  'john coltrane':['Miles Davis','Pharoah Sanders','Albert Ayler','Wayne Shorter','McCoy Tyner','Archie Shepp'],
+  'esperanza spalding':['Norah Jones','José James','Gregory Porter','Lianne La Havas','Cécile McLorin Salvant','Malia'],
+  'lianne la havas':['Laura Mvula','Esperanza Spalding','Sault','Celeste','Noname','Jamila Woods'],
+  'sault':['Lianne La Havas','Blood Orange','Solange','Cleo Sol','Celeste','Little Simz'],
+  'little simz':['Sault','Noname','Saba','Kojey Radical','Dave','Loyle Carner'],
+  // ── POP ──
+  'harry styles':['Niall Horan','Louis Tomlinson','Shawn Mendes','Conan Gray','Rex Orange County','Dominic Fike'],
+  'taylor swift':['Gracie Abrams','Olivia Rodrigo','Sabrina Carpenter','Lorde','Haim','Kacey Musgraves'],
+  'kacey musgraves':['Orville Peck','Lana Del Rey','Weyes Blood','Angel Olsen','Brandi Carlile','Maren Morris'],
+  'haim':['Fleetwood Mac','Jenny Lewis','Best Coast','Waxahatchee','Lucius','First Aid Kit'],
+  'first aid kit':['Haim','Fleet Foxes','Emmylou Harris','The Staves','Laura Marling','Lucius'],
+  'laura marling':['First Aid Kit','Aldous Harding','Joanna Newsom','Richard Thompson','Joni Mitchell','Marissa Nadler'],
+  'joni mitchell':['Carole King','Laura Nyro','Judee Sill','Carly Simon','Nick Drake','Laura Marling'],
+  'fleetwood mac':['Haim','Stevie Nicks','Eagles','Tom Petty','Crosby Stills Nash Young','Lindsey Buckingham'],
+  'madison beer':['Olivia Rodrigo','Lana Del Rey','Gracie Abrams','Conan Gray','Lennon Stella','Bea Miller'],
+  'balu brigada':['Omar Apollo','Still Woozy','Rex Orange County','Remi Wolf','beabadoobee','Dominic Fike'],
+  'omar apollo':['Remi Wolf','Still Woozy','Dominic Fike','Steve Lacy','Rex Orange County','Brockhampton'],
+};
+function findSimilar(artist,db){
+  const a=(artist||'').toLowerCase();
+  // Try exact match first, then partial
+  const key=Object.keys(db).find(k=>a===k) || Object.keys(db).find(k=>a.includes(k)||k.includes(a));
+  return key?db[key]:null;
+}
+function getRelatedArtistsFromDB(artist, genres){
+  const fromDB = findSimilar(artist, SIMILAR_ARTISTS);
+  if(fromDB) return fromDB;
+  // Genre-based fallback
+  const g = (genres||[]).join(' ').toLowerCase();
+  if(g.includes('indie rock')||g.includes('indie pop')) return ['Vampire Weekend','The National','Bon Iver','Tame Impala','Fleet Foxes','Phoebe Bridgers'];
+  if(g.includes('dream pop')||g.includes('shoegaze')) return ['Beach House','Slowdive','Cocteau Twins','Mazzy Star','My Bloody Valentine','Cigarettes After Sex'];
+  if(g.includes('hip hop')||g.includes('rap')) return ['Kendrick Lamar','Frank Ocean','Tyler the Creator','J. Cole','Earl Sweatshirt','Noname'];
+  if(g.includes('r&b')||g.includes('soul')) return ['Frank Ocean','SZA','James Blake','Daniel Caesar','Sampha','Solange'];
+  if(g.includes('folk')||g.includes('americana')) return ['Fleet Foxes','Bon Iver','Iron & Wine','Sufjan Stevens','Phoebe Bridgers','Big Thief'];
+  if(g.includes('electronic')||g.includes('ambient')) return ['Four Tet','Caribou','Jon Hopkins','Bonobo','Burial','Boards of Canada'];
+  if(g.includes('post-punk')||g.includes('punk')) return ['Interpol','The Strokes','Wire','Gang of Four','LCD Soundsystem','Talking Heads'];
+  if(g.includes('jazz')) return ['Bill Evans','Miles Davis','John Coltrane','Floating Points','Yussef Kamaal','Nubya Garcia'];
+  if(g.includes('country')) return ['Sturgill Simpson','Tyler Childers','Jason Isbell','Kacey Musgraves','Colter Wall','Sierra Ferrell'];
+  if(g.includes('pop')) return ['Lorde','Lana Del Rey','St. Vincent','Janelle Monáe','Haim','Kacey Musgraves'];
+  return null;
+}
 
 // ── INSTRUMENTS ──
 const INSTRUMENTS = ['🎸','🎹','🥁','🎺','🎷','🎻','🎤','🎧','🎵','🎶','📻','🎼','🪗','🪘','🎙️','🪈'];
@@ -1643,7 +1861,7 @@ async function selectSpotifyTrack(idx){
     const [artistData] = await Promise.all([
       spotifyFetch('https://api.spotify.com/v1/artists/'+primaryArtistId, token)
     ]);
-    const relatedData = {artists:[]};  // requires extended quota
+    const relatedNames = getRelatedArtistsFromDB(track.artists[0].name, artistData.genres||[]) || [];
 
     // Auto-fill genre tags from Spotify
     const genres = (artistData.genres||[]).slice(0,5);
@@ -1652,13 +1870,11 @@ async function selectSpotifyTrack(idx){
     // Build artist info paragraph
     const followers = artistData.followers ? artistData.followers.total.toLocaleString() : null;
     const popularity = artistData.popularity || null;
-    const relatedNames = (relatedData.artists||[]).slice(0,5).map(a=>a.name);
 
     let bioLines = [];
     if(genres.length) bioLines.push(genres.slice(0,3).join(', ')+(genres.length>3?' and more':'')+' artist');
     if(followers) bioLines.push(followers+' followers on Spotify');
     if(popularity) bioLines.push('Popularity score: '+popularity+'/100');
-    if(relatedNames.length) bioLines.push('Fans also like: '+relatedNames.join(', '));
 
     document.getElementById('p-bandinfo').value = bioLines.join(' · ');
 
@@ -1710,27 +1926,6 @@ async function runEnrichment(){
   }
 }
 
-async function getRelatedArtistsFromClaude(song, artist, genres){
-  try {
-    const prompt = `For the song "${song}" by ${artist}${genres.length?' (genres: '+genres.join(', ')+')':''}, give me exactly 6 artists that fans of this song would likely enjoy. Consider the specific sound, era, and mood of this song — not just the artist's general popularity. Return ONLY a JSON array of artist name strings, nothing else. Example: ["Artist One","Artist Two","Artist Three","Artist Four","Artist Five","Artist Six"]`;
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 200,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    const data = await resp.json();
-    const text = data.content && data.content[0] && data.content[0].text;
-    if(!text) return [];
-    const clean = text.replace(/```json|```/g,'').trim();
-    const parsed = JSON.parse(clean);
-    return Array.isArray(parsed) ? parsed.slice(0,6) : [];
-  } catch(e){ console.error('Claude related artists failed:', e); return []; }
-}
-
 async function enrichPickInBackground(pick){
   await new Promise(r=>setTimeout(r,300));
   try {
@@ -1746,8 +1941,8 @@ async function enrichPickInBackground(pick){
     const followers = artistData.followers ? artistData.followers.total.toLocaleString() : null;
     const popularity = artistData.popularity || null;
 
-    // Get related artists from Claude
-    const relatedNames = await getRelatedArtistsFromClaude(pick.song, pick.artist, genres);
+    // Get related artists from local database
+    const relatedNames = getRelatedArtistsFromDB(pick.artist, genres) || [];
 
     let bioLines = [];
     if(genres.length) bioLines.push(genres.slice(0,3).join(', ')+(genres.length>3?' and more':'')+' artist');
