@@ -1574,6 +1574,7 @@ async function spotifyFetch(url, token){
   try { return JSON.parse(text); }
   catch(e){ throw new Error('Spotify rate limited — try again later'); }
 }
+function debounceSpotifySearch(){
   clearTimeout(searchDebounceTimer);
   const q = document.getElementById('p-search').value.trim();
   if(!q){ closeSpotifyResults(); return; }
