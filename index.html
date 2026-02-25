@@ -1388,9 +1388,13 @@ async function renderSongDetail(opts){
     reactionCount=(reactions||[]).length;
     myReaction=(reactions||[]).some(r=>r.user_id===currentUser.id);
   }
-  const tags=pick.tags||[];
-  const simSongs=findSimilar(pick.artist,SIMILAR_SONGS);
-  const simArtists=findSimilar(pick.artist,SIMILAR_ARTISTS);
+  const rawTags = pick.tags||[];
+  const tags = Array.isArray(rawTags) ? rawTags : (typeof rawTags==='string' ? rawTags.split(',').map(t=>t.trim()).filter(Boolean) : []);
+  // Use saved related_artists from DB, fall back to local DB lookup — never show both
+  const relatedArtists = pick.related_artists
+    ? pick.related_artists.split(',').filter(Boolean).map(a=>a.trim())
+    : (getRelatedArtistsFromDB(pick.artist, tags) || null);
+  const simSongs = findSimilar(pick.artist, SIMILAR_SONGS);
   const artHtml=pick.art_url
     ?'<img class="song-hero-art" src="'+esc(pick.art_url)+'" alt="Album art" onerror="this.outerHTML=\'<div class=\\\'song-hero-art-ph\\\'>🎵</div>\'">'
     :'<div class="song-hero-art-ph">🎵</div>';
@@ -1446,28 +1450,23 @@ async function renderSongDetail(opts){
     +'</div></div>'
     +playerHtml
     +(pick.band_info ? (()=>{
-        // Parse out the structured bio we auto-filled from Spotify
         const lines = pick.band_info.split(' · ');
-        const statLines = lines.filter(l => l.includes('followers') || l.includes('Popularity') || l.includes('Fans also like'));
-        const descLines = lines.filter(l => !l.includes('followers') && !l.includes('Popularity') && !l.includes('Fans also like'));
+        const statLines = lines.filter(l => l.includes('followers') || l.includes('Popularity score'));
+        const descLines = lines.filter(l => !l.includes('followers') && !l.includes('Popularity score'));
         const pillsHtml = statLines.map(l=>'<span class="artist-stat-pill">'+esc(l)+'</span>').join('');
-        const descHtml = descLines.map(l=>'<p>'+esc(l)+'</p>').join('');
+        const descHtml = descLines.filter(l=>l.trim()).map(l=>'<p>'+esc(l)+'</p>').join('');
         return '<div class="detail-sec"><h3>About '+esc(pick.artist)+'</h3>'
           +(pillsHtml?'<div class="artist-stats">'+pillsHtml+'</div>':'')
-          +descHtml
-          +'</div>';
-      })()
-    : '')
-    +(tags.length?'<div class="detail-sec"><h3>🎧 Vibes</h3><div class="tags">'+tags.map(t=>'<div class="tag">'+esc(t)+'</div>').join('')+'</div></div>':'')
+          +descHtml+'</div>';
+      })() : '')
+    +(tags.length?'<div class="detail-sec enrich-vibes"><h3>🎧 Vibes</h3><div class="tags">'+tags.map(t=>'<div class="tag">'+esc(t)+'</div>').join('')+'</div></div>':'')
     +'<div class="detail-sec"><h3>Song Info</h3>'
     +'<div class="stat-row"><span class="lbl">Title</span><span>'+esc(pick.song)+'</span></div>'
     +'<div class="stat-row"><span class="lbl">Artist</span><span>'+esc(pick.artist)+'</span></div>'
     +(pick.release_year?'<div class="stat-row"><span class="lbl">Year</span><span>'+pick.release_year+'</span></div>':'')
     +'</div>'
     +(simSongs?'<div class="detail-sec"><h3>🎵 Similar Songs</h3><div class="similar-grid">'+simSongs.map(s=>{const p=s.split(' \u2014 ');return'<div class="sim-item"><strong>'+esc(p[0])+'</strong><span>'+esc(p[1]||'')+'</span></div>';}).join('')+'</div></div>':'')
-    +(pick.related_artists
-      ?'<div class="detail-sec"><h3>🎸 Fans Also Like</h3><div class="similar-grid">'+pick.related_artists.split(',').filter(Boolean).map(a=>'<div class="sim-item"><strong>'+esc(a.trim())+'</strong><span>Similar artist</span></div>').join('')+'</div></div>'
-      :simArtists?'<div class="detail-sec"><h3>🎸 Similar Artists</h3><div class="similar-grid">'+simArtists.map(a=>'<div class="sim-item"><strong>'+esc(a)+'</strong><span>You might enjoy</span></div>').join('')+'</div></div>':'');
+    +(relatedArtists?'<div class="detail-sec enrich-related"><h3>🎸 If You Like This, Try</h3><div class="similar-grid">'+relatedArtists.map(a=>'<div class="sim-item"><strong>'+esc(a)+'</strong><span>Similar artist</span></div>').join('')+'</div></div>':'');
 }
 
 // ── SETTINGS ──
