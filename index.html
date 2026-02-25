@@ -1516,19 +1516,28 @@ async function getSpotifyToken(){
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: 'grant_type=client_credentials&client_id='+SPOTIFY_CLIENT_ID+'&client_secret='+SPOTIFY_CLIENT_SECRET
-  }).then(r=>r.json()).then(data=>{
-    if(!data.access_token) throw new Error('No token returned');
+  }).then(async r=>{
+    const text = await r.text();
+    let data;
+    try { data = JSON.parse(text); } catch(e){ throw new Error('Spotify rate limited — try again later'); }
+    console.log('Spotify token response:', data);
+    if(!data.access_token) throw new Error('Spotify error: '+(data.error_description||data.error||JSON.stringify(data)));
     localStorage.setItem('sp_token', data.access_token);
     localStorage.setItem('sp_token_expiry', Date.now() + (data.expires_in - 120) * 1000);
     spotifyAccessToken = data.access_token;
     spotifyTokenExpiry = Date.now() + (data.expires_in - 120) * 1000;
     getSpotifyToken._pending = null;
     return data.access_token;
-  }).catch(e=>{ getSpotifyToken._pending=null; throw e; });
+  }).catch(e=>{ console.error('Spotify token error:', e); getSpotifyToken._pending=null; throw e; });
   return getSpotifyToken._pending;
 }
 
-function debounceSpotifySearch(){
+async function spotifyFetch(url, token){
+  const r = await fetch(url, {headers:{'Authorization':'Bearer '+token}});
+  const text = await r.text();
+  try { return JSON.parse(text); }
+  catch(e){ throw new Error('Spotify rate limited — try again later'); }
+}
   clearTimeout(searchDebounceTimer);
   const q = document.getElementById('p-search').value.trim();
   if(!q){ closeSpotifyResults(); return; }
@@ -1541,10 +1550,7 @@ async function doSpotifySearch(q){
   resultsEl.classList.add('open');
   try {
     const token = await getSpotifyToken();
-    const resp = await fetch('https://api.spotify.com/v1/search?q='+encodeURIComponent(q)+'&type=track&limit=8', {
-      headers: { 'Authorization': 'Bearer '+token }
-    });
-    const data = await resp.json();
+    const data = await spotifyFetch('https://api.spotify.com/v1/search?q='+encodeURIComponent(q)+'&type=track&limit=8', token);
     const tracks = (data.tracks && data.tracks.items) || [];
     if(!tracks.length){ resultsEl.innerHTML='<div class="spotify-result-searching">No results found</div>'; return; }
     resultsEl.innerHTML = tracks.map((t,i)=>{
@@ -1597,14 +1603,10 @@ async function selectSpotifyTrack(idx){
 
   try {
     const token = await getSpotifyToken();
-
-    // Fetch artist data + related artists in parallel
-    const [artistResp, relatedResp] = await Promise.all([
-      fetch('https://api.spotify.com/v1/artists/'+primaryArtistId, { headers:{'Authorization':'Bearer '+token} }),
-      fetch('https://api.spotify.com/v1/artists/'+primaryArtistId+'/related-artists', { headers:{'Authorization':'Bearer '+token} })
+    const [artistData, relatedData] = await Promise.all([
+      spotifyFetch('https://api.spotify.com/v1/artists/'+primaryArtistId, token),
+      spotifyFetch('https://api.spotify.com/v1/artists/'+primaryArtistId+'/related-artists', token)
     ]);
-    const artistData = await artistResp.json();
-    const relatedData = await relatedResp.json();
 
     // Auto-fill genre tags from Spotify
     const genres = (artistData.genres||[]).slice(0,5);
@@ -1676,19 +1678,14 @@ async function enrichPickInBackground(pick){
   try {
     const token = await getSpotifyToken();
     const trackId = pick.spotify_url.split('/track/').pop().split('?')[0];
-    const trackResp = await fetch('https://api.spotify.com/v1/tracks/'+trackId, {
-      headers: {'Authorization':'Bearer '+token}
-    });
-    const trackData = await trackResp.json();
+    const trackData = await spotifyFetch('https://api.spotify.com/v1/tracks/'+trackId, token);
     if(!trackData.artists||!trackData.artists[0]) return;
     const artistId = trackData.artists[0].id;
 
-    const [artistResp, relatedResp] = await Promise.all([
-      fetch('https://api.spotify.com/v1/artists/'+artistId, {headers:{'Authorization':'Bearer '+token}}),
-      fetch('https://api.spotify.com/v1/artists/'+artistId+'/related-artists', {headers:{'Authorization':'Bearer '+token}})
+    const [artistData, relatedData] = await Promise.all([
+      spotifyFetch('https://api.spotify.com/v1/artists/'+artistId, token),
+      spotifyFetch('https://api.spotify.com/v1/artists/'+artistId+'/related-artists', token)
     ]);
-    const artistData = await artistResp.json();
-    const relatedData = await relatedResp.json();
 
     const genres = (artistData.genres||[]).slice(0,5);
     const followers = artistData.followers ? artistData.followers.total.toLocaleString() : null;
