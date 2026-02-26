@@ -1359,47 +1359,47 @@ async function renderProfile(userId){
 
 // ── SONG DETAIL ──
 async function renderSongDetail(opts){
-  const userId=opts.userId;const week=opts.week;const year=opts.year||new Date().getFullYear();
+  const userId=opts.userId; const week=opts.week; const year=opts.year||new Date().getFullYear();
   document.getElementById('song-back').onclick=function(){showView('profile',{userId:userId});};
   document.getElementById('song-content').innerHTML='<div class="loading-center"><div class="spinner"></div></div>';
   const {data:pick}=await sb.from('picks').select('*').eq('user_id',userId).eq('week_number',week).eq('year',year).single();
   const {data:profile}=await sb.from('profiles').select('*').eq('id',userId).single();
   if(!pick||!profile)return;
-  currentPick = pick;
-  console.log('Pick from DB:', JSON.stringify({band_info: pick.band_info, tags: pick.tags, related_artists: pick.related_artists}));
-  // Log a listen if viewing someone else's pick
+  currentPick=pick;
+
+  // Log listen
   if(!isGuest&&currentUser.id!==userId){
     const alreadyLogged=sessionStorage.getItem('listen_'+pick.id);
     if(!alreadyLogged){
       sessionStorage.setItem('listen_'+pick.id,'1');
       await sb.from('listens').upsert({pick_id:pick.id,listener_id:currentUser.id,pick_owner_id:userId},{onConflict:'pick_id,listener_id',ignoreDuplicates:true});
-      // Only notify if this is genuinely the first listen
       const {data:existing}=await sb.from('notifications').select('id').eq('user_id',userId).eq('type','listen').eq('actor_id',currentUser.id).eq('pick_id',pick.id).maybeSingle();
       if(!existing) await sb.from('notifications').insert({user_id:userId,type:'listen',actor_id:currentUser.id,pick_id:pick.id,read:false});
     }
   }
-  // Show enrich button only if tags and related_artists are both missing
-  const needsEnrichment = pick.spotify_url && !isGuest && currentUser.id === userId && (
-    !pick.related_artists || !pick.tags || pick.tags.length === 0
-  );
+
+  // Reactions
   if(!isGuest){
     const {data:reactions}=await sb.from('reactions').select('user_id').eq('pick_id',pick.id);
     reactionCount=(reactions||[]).length;
     myReaction=(reactions||[]).some(r=>r.user_id===currentUser.id);
   }
-  const rawTags = pick.tags||[];
-  const tags = Array.isArray(rawTags) ? rawTags : (typeof rawTags==='string' ? rawTags.split(',').map(t=>t.trim()).filter(Boolean) : []);
-  // Use saved related_artists from DB, fall back to local DB lookup — never show both
-  const relatedArtists = pick.related_artists
-    ? pick.related_artists.split(',').filter(Boolean).map(a=>a.trim())
-    : (getRelatedArtistsFromDB(pick.artist, tags) || null);
-  const simSongs = findSimilar(pick.artist, SIMILAR_SONGS);
+
+  // Parse saved data
+  const rawTags=pick.tags||[];
+  const tags=Array.isArray(rawTags)?rawTags:(typeof rawTags==='string'?rawTags.split(',').map(t=>t.trim()).filter(Boolean):[]);
+  const relatedArtists=pick.related_artists
+    ?pick.related_artists.split(',').filter(Boolean).map(a=>a.trim())
+    :(getRelatedArtistsFromDB(pick.artist,tags)||null);
+  const simSongs=findSimilar(pick.artist,SIMILAR_SONGS);
+
+  // Album art
   const artHtml=pick.art_url
     ?'<img class="song-hero-art" src="'+esc(pick.art_url)+'" alt="Album art" onerror="this.outerHTML=\'<div class=\\\'song-hero-art-ph\\\'>🎵</div>\'">'
     :'<div class="song-hero-art-ph">🎵</div>';
-  // Build player HTML
-  let playerHtml='';
-  let fullSongLinks='';
+
+  // Player
+  let playerHtml=''; let fullSongLinks='';
   if(pick.spotify_url){
     const trackId=pick.spotify_url.split('/track/').pop().split('?')[0];
     const isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -1407,34 +1407,30 @@ async function renderSongDetail(opts){
     fullSongLinks+='<a class="play-on-spotify-btn" href="'+spotifyHref+'" target="_blank" rel="noopener"><svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>Full Song on Spotify</a>';
   }
   if(pick.youtube_url){
-    let ytId='';const m2=pick.youtube_url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);if(m2)ytId=m2[1];
-    if(ytId)fullSongLinks+='<a class="play-on-youtube-btn" href="'+pick.youtube_url+'" target="_blank" rel="noopener">▶ Full Song on YouTube</a>';
+    let ytId=''; const m2=pick.youtube_url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/); if(m2)ytId=m2[1];
+    if(ytId) fullSongLinks+='<a class="play-on-youtube-btn" href="'+pick.youtube_url+'" target="_blank" rel="noopener">▶ Full Song on YouTube</a>';
   }
-
   if(pick.spotify_url){
-    const spotifyId=pick.spotify_url.split('/track/').pop().split('?')[0];
-    if(spotifyId){
-      playerHtml='<div class="detail-sec"><h3>🎵 Listen</h3>'
-        +'<iframe style="border-radius:8px;border:none;width:100%;margin-top:0.5rem" '
-        +'src="https://open.spotify.com/embed/track/'+spotifyId+'?utm_source=generator&theme=0" '
-        +'height="152" allowfullscreen allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>'
-        +(fullSongLinks?'<div style="margin-top:0.9rem;display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center"><span style="font-family:\'IBM Plex Mono\',monospace;font-size:0.6rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em">Want the full song?</span>'+fullSongLinks+'</div>':'')
-        +'</div>';
-    }
+    const sid=pick.spotify_url.split('/track/').pop().split('?')[0];
+    if(sid) playerHtml='<div class="detail-sec"><h3>🎵 Listen</h3><iframe style="border-radius:8px;border:none;width:100%;margin-top:0.5rem" src="https://open.spotify.com/embed/track/'+sid+'?utm_source=generator&theme=0" height="152" allowfullscreen allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>'+(fullSongLinks?'<div style="margin-top:0.9rem;display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center"><span style="font-family:\'IBM Plex Mono\',monospace;font-size:0.6rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em">Want the full song?</span>'+fullSongLinks+'</div>':'')+'</div>';
   } else if(pick.youtube_url){
-    let ytId='';const m=pick.youtube_url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);if(m)ytId=m[1];
-    if(ytId){
-      playerHtml='<div class="detail-sec"><h3>🎵 Listen</h3>'
-        +'<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin-top:0.5rem">'
-        +'<iframe style="position:absolute;top:0;left:0;width:100%;height:100%;border:none" '
-        +'src="https://www.youtube.com/embed/'+ytId+'" '
-        +'allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" loading="lazy"></iframe>'
-        +'</div>'
-        +(fullSongLinks?'<div style="margin-top:0.9rem;display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center"><span style="font-family:\'IBM Plex Mono\',monospace;font-size:0.6rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em">Want the full song?</span>'+fullSongLinks+'</div>':'')
-        +'</div>';
-    }
+    let ytId=''; const m=pick.youtube_url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/); if(m)ytId=m[1];
+    if(ytId) playerHtml='<div class="detail-sec"><h3>🎵 Listen</h3><div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin-top:0.5rem"><iframe style="position:absolute;top:0;left:0;width:100%;height:100%;border:none" src="https://www.youtube.com/embed/'+ytId+'" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" loading="lazy"></iframe></div>'+(fullSongLinks?'<div style="margin-top:0.9rem;display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center">'+fullSongLinks+'</div>':'')+'</div>';
   }
 
+  // About section — parse stored band_info
+  function buildAboutHtml(bi){
+    if(!bi||!bi.trim()) return '<div class="detail-sec" id="about-section" style="display:none"></div>';
+    const lines=bi.split(' · ');
+    const pills=lines.filter(l=>l.includes('followers')||l.includes('Popularity score'));
+    const desc=lines.filter(l=>!l.includes('followers')&&!l.includes('Popularity score')).filter(l=>l.trim());
+    const pillsHtml=pills.map(l=>'<span class="artist-stat-pill">'+esc(l)+'</span>').join('');
+    const descHtml=desc.map(l=>'<p>'+esc(l)+'</p>').join('');
+    if(!pillsHtml&&!descHtml) return '<div class="detail-sec" id="about-section" style="display:none"></div>';
+    return '<div class="detail-sec" id="about-section"><h3>About '+esc(pick.artist)+'</h3>'+(pillsHtml?'<div class="artist-stats">'+pillsHtml+'</div>':'')+descHtml+'</div>';
+  }
+
+  // Render page
   document.getElementById('song-content').innerHTML=
     '<div class="song-hero">'+artHtml
     +'<div><div class="song-badge">Week '+week+' &middot; '+getWeekRange(week,year)+' &middot; '+esc(profile.display_name)+'\'s Pick</div>'
@@ -1442,30 +1438,151 @@ async function renderSongDetail(opts){
     +'<div class="song-artist">'+esc(pick.artist)+(pick.release_year?' &middot; '+pick.release_year:'')+'</div>'
     +(pick.note?'<p style="margin-top:1rem;font-size:0.95rem;line-height:1.75;color:var(--text-muted);border-left:2px solid var(--red-dim);padding-left:1rem;font-style:italic">"'+esc(pick.note)+'"</p>':'')
     +(userId===currentUser.id?'<button class="btn btn-ghost" style="margin-top:1.25rem;font-size:0.62rem" onclick="openPickModal()">✏ Edit This Pick</button>':'')
-    +(needsEnrichment?'<button class="btn btn-ghost" id="enrich-btn" style="margin-top:0.75rem;font-size:0.62rem;border-color:#1db954;color:#1db954" onclick="runEnrichment()">✦ Pull in Spotify Info</button>':'')
     +(!isGuest&&userId!==currentUser.id
       ?'<div style="margin-top:1.25rem"><button class="reaction-btn'+(myReaction?' reacted':'')+'" id="detail-reaction-btn" onclick="toggleReaction(\''+pick.id+'\',\''+userId+'\',this)">👍 <span class="reaction-count">'+reactionCount+'</span> '+(myReaction?'Liked':'Like this pick')+'</button></div>'
       :reactionCount?'<div style="margin-top:1rem;font-family:\'IBM Plex Mono\',monospace;font-size:0.65rem;color:var(--text-muted)">'+reactionCount+' 👍</div>':'')
     +'</div></div>'
     +playerHtml
-    +(pick.band_info ? (()=>{
-        const lines = pick.band_info.split(' · ');
-        const statLines = lines.filter(l => l.includes('followers') || l.includes('Popularity score'));
-        const descLines = lines.filter(l => !l.includes('followers') && !l.includes('Popularity score'));
-        const pillsHtml = statLines.map(l=>'<span class="artist-stat-pill">'+esc(l)+'</span>').join('');
-        const descHtml = descLines.filter(l=>l.trim()).map(l=>'<p>'+esc(l)+'</p>').join('');
-        return '<div class="detail-sec"><h3>About '+esc(pick.artist)+'</h3>'
-          +(pillsHtml?'<div class="artist-stats">'+pillsHtml+'</div>':'')
-          +descHtml+'</div>';
-      })() : '')
-    +(tags.length?'<div class="detail-sec enrich-vibes"><h3>🎧 Vibes</h3><div class="tags">'+tags.map(t=>'<div class="tag">'+esc(t)+'</div>').join('')+'</div></div>':'')
+    +buildAboutHtml(pick.band_info)
+    +(tags.length
+      ?'<div class="detail-sec" id="vibes-section"><h3>🎧 Vibes</h3><div class="tags">'+tags.map(t=>'<div class="tag">'+esc(t)+'</div>').join('')+'</div></div>'
+      :'<div class="detail-sec" id="vibes-section" style="display:none"></div>')
     +'<div class="detail-sec"><h3>Song Info</h3>'
     +'<div class="stat-row"><span class="lbl">Title</span><span>'+esc(pick.song)+'</span></div>'
     +'<div class="stat-row"><span class="lbl">Artist</span><span>'+esc(pick.artist)+'</span></div>'
     +(pick.release_year?'<div class="stat-row"><span class="lbl">Year</span><span>'+pick.release_year+'</span></div>':'')
     +'</div>'
-    +(simSongs?'<div class="detail-sec"><h3>🎵 Similar Songs</h3><div class="similar-grid">'+simSongs.map(s=>{const p=s.split(' \u2014 ');return'<div class="sim-item"><strong>'+esc(p[0])+'</strong><span>'+esc(p[1]||'')+'</span></div>';}).join('')+'</div></div>':'')
-    +(relatedArtists?'<div class="detail-sec enrich-related"><h3>🎸 If You Like This, Try</h3><div class="similar-grid">'+relatedArtists.map(a=>'<div class="sim-item"><strong>'+esc(a)+'</strong><span>Similar artist</span></div>').join('')+'</div></div>':'');
+    +(simSongs?'<div class="detail-sec"><h3>🎵 Similar Songs</h3><div class="similar-grid">'+simSongs.map(s=>{const p=s.split('\u2014');return'<div class="sim-item"><strong>'+esc(p[0].trim())+'</strong><span>'+esc((p[1]||'').trim())+'</span></div>';}).join('')+'</div></div>':'')
+    +(relatedArtists
+      ?'<div class="detail-sec" id="related-section"><h3>🎸 If You Like This, Try</h3><div class="similar-grid">'+relatedArtists.map(a=>'<div class="sim-item"><strong>'+esc(a)+'</strong><span>Similar artist</span></div>').join('')+'</div></div>'
+      :'<div class="detail-sec" id="related-section" style="display:none"></div>');
+
+  // Silently fetch and fill in missing data — no button needed
+  autoEnrichSongDetail(pick);
+}
+
+// Fetches artist info from Spotify + genre fallback, injects into page, saves to DB
+async function autoEnrichSongDetail(pick){
+  // Only run if we're missing tags or bio — related artists always come from local DB
+  const hasTags = pick.tags && (Array.isArray(pick.tags)?pick.tags.length:pick.tags.split(',').filter(Boolean).length) > 0;
+  const hasBio = pick.band_info && pick.band_info.trim().length > 0;
+  if(hasTags && hasBio) return; // already have everything
+  if(!pick.spotify_url) return; // no way to look up
+
+  try {
+    const token = await getSpotifyToken();
+    const trackId = pick.spotify_url.split('/track/').pop().split('?')[0];
+    const trackData = await spotifyFetch('https://api.spotify.com/v1/tracks/'+trackId, token);
+    if(!trackData||!trackData.artists||!trackData.artists[0]) return;
+    const artistId = trackData.artists[0].id;
+    const artistData = await spotifyFetch('https://api.spotify.com/v1/artists/'+artistId, token);
+    if(!artistData) return;
+
+    // Genres: use Spotify's if available, otherwise infer from our local map
+    let genres = (artistData.genres||[]).slice(0,5);
+    if(!genres.length) genres = inferGenres(pick.artist);
+
+    const followers = artistData.followers ? artistData.followers.total.toLocaleString() : null;
+    const popularity = artistData.popularity || null;
+
+    // Build bio
+    let bioLines = [];
+    if(genres.length) bioLines.push(genres.slice(0,3).join(', ')+' artist');
+    if(followers) bioLines.push(followers+' followers on Spotify');
+    if(popularity) bioLines.push('Popularity score: '+popularity+'/100');
+    const band_info = bioLines.join(' · ');
+
+    // Save to DB
+    const updates = {};
+    if(!hasBio && band_info) updates.band_info = band_info;
+    if(!hasTags && genres.length) updates.tags = genres;
+    if(!pick.release_year && trackData.album && trackData.album.release_date)
+      updates.release_year = trackData.album.release_date.split('-')[0];
+    if(Object.keys(updates).length) await sb.from('picks').update(updates).eq('id',pick.id);
+
+    // Inject into page (only if user hasn't navigated away)
+    if(!document.getElementById('about-section')) return;
+
+    // About
+    if(!hasBio && band_info){
+      const pills = bioLines.filter(l=>l.includes('followers')||l.includes('Popularity score'));
+      const desc = bioLines.filter(l=>!l.includes('followers')&&!l.includes('Popularity score'));
+      const pillsHtml = pills.map(l=>'<span class="artist-stat-pill">'+esc(l)+'</span>').join('');
+      const descHtml = desc.map(l=>'<p>'+esc(l)+'</p>').join('');
+      const el = document.getElementById('about-section');
+      if(el){
+        el.innerHTML='<h3>About '+esc(pick.artist)+'</h3>'+(pillsHtml?'<div class="artist-stats">'+pillsHtml+'</div>':'')+descHtml;
+        el.style.display='';
+      }
+    }
+
+    // Vibes
+    if(!hasTags && genres.length){
+      const el = document.getElementById('vibes-section');
+      if(el){
+        el.innerHTML='<h3>🎧 Vibes</h3><div class="tags">'+genres.map(t=>'<div class="tag">'+esc(t)+'</div>').join('')+'</div>';
+        el.style.display='';
+      }
+    }
+
+  } catch(e){ /* silent fail — enrichment is best-effort */ }
+}
+
+// Infer genres from our local artist database when Spotify has none
+function inferGenres(artist){
+  const a = artist.toLowerCase();
+  const genreMap = {
+    'the church':'post-punk, dream pop, jangle pop',
+    'echo & the bunnymen':'post-punk, new wave',
+    'joy division':'post-punk, gothic rock',
+    'the cure':'post-punk, gothic rock',
+    'the smiths':'indie pop, post-punk',
+    'new order':'synth-pop, post-punk',
+    'depeche mode':'synth-pop, new wave',
+    'talking heads':'new wave, art rock',
+    'radiohead':'alternative rock, art rock',
+    'portishead':'trip-hop, electronic',
+    'massive attack':'trip-hop, electronic',
+    'slowdive':'shoegaze, dream pop',
+    'my bloody valentine':'shoegaze, noise pop',
+    'cocteau twins':'dream pop, ethereal wave',
+    'mazzy star':'dream pop, slowcore',
+    'sigur ros':'post-rock, ambient',
+    'mogwai':'post-rock, instrumental',
+    'godspeed you':'post-rock, experimental',
+    'explosions in the sky':'post-rock, instrumental',
+    'beach house':'dream pop, indie pop',
+    'tame impala':'psychedelic rock, indie pop',
+    'arctic monkeys':'indie rock, garage rock',
+    'the strokes':'indie rock, garage rock',
+    'interpol':'post-punk revival, indie rock',
+    'lcd soundsystem':'dance punk, indie electronic',
+    'vampire weekend':'indie pop, indie rock',
+    'fleet foxes':'indie folk, baroque pop',
+    'bon iver':'indie folk, chamber pop',
+    'sufjan stevens':'indie folk, chamber pop',
+    'frank ocean':'r&b, alternative r&b',
+    'james blake':'indie r&b, electronic',
+    'kendrick lamar':'hip hop, conscious rap',
+    'tyler the creator':'alternative hip hop, rap',
+    'four tet':'electronic, ambient',
+    'boards of canada':'electronic, ambient',
+    'burial':'uk garage, ambient',
+    'nick drake':'folk, acoustic',
+    'nick cave':'post-punk, gothic rock',
+    'iron & wine':'indie folk, folk pop',
+    'big thief':'indie folk, indie rock',
+    'phoebe bridgers':'indie folk, indie pop',
+    'the national':'indie rock, chamber pop',
+    'pixies':'alternative rock, indie rock',
+    'sonic youth':'noise rock, alternative rock',
+    'pavement':'indie rock, lo-fi',
+    'neutral milk hotel':'indie folk, lo-fi',
+    'built to spill':'indie rock, alternative rock',
+    'modest mouse':'indie rock, alternative rock',
+  };
+  const key = Object.keys(genreMap).find(k => a.includes(k) || k.includes(a));
+  return key ? genreMap[key].split(', ') : [];
 }
 
 // ── SETTINGS ──
@@ -1907,94 +2024,6 @@ function closeSpotifyResults(){
 
 let currentPick = null; // holds pick for enrichment
 
-async function runEnrichment(){
-  const btn = document.getElementById('enrich-btn');
-  if(!btn || !currentPick) return;
-  btn.disabled = true;
-  btn.textContent = '⏳ Fetching...';
-  try {
-    await enrichPickInBackground(currentPick);
-    btn.style.display = 'none';
-  } catch(e) {
-    btn.disabled = false;
-    btn.textContent = '✦ Pull in Spotify Info';
-    btn.style.color = '#1db954';
-    btn.style.borderColor = '#1db954';
-    showToast('Spotify fetch failed — try again in a moment', true);
-  }
-}
-
-async function enrichPickInBackground(pick){
-  await new Promise(r=>setTimeout(r,300));
-  try {
-    const token = await getSpotifyToken();
-    const trackId = pick.spotify_url.split('/track/').pop().split('?')[0];
-    const trackData = await spotifyFetch('https://api.spotify.com/v1/tracks/'+trackId, token);
-    if(!trackData.artists||!trackData.artists[0]) return;
-    const artistId = trackData.artists[0].id;
-
-    const artistData = await spotifyFetch('https://api.spotify.com/v1/artists/'+artistId, token);
-
-    const genres = (artistData.genres||[]).slice(0,5);
-    const followers = artistData.followers ? artistData.followers.total.toLocaleString() : null;
-    const popularity = artistData.popularity || null;
-
-    // Get related artists from local database
-    const relatedNames = getRelatedArtistsFromDB(pick.artist, genres) || [];
-
-    let bioLines = [];
-    if(genres.length) bioLines.push(genres.slice(0,3).join(', ')+(genres.length>3?' and more':'')+' artist');
-    if(followers) bioLines.push(followers+' followers on Spotify');
-    if(popularity) bioLines.push('Popularity score: '+popularity+'/100');
-
-    const updates = {};
-    if(bioLines.length) updates.band_info = bioLines.join(' · ');
-    if(relatedNames.length) updates.related_artists = relatedNames.join(',');
-    if(genres.length) updates.tags = genres;
-    if(!pick.release_year && trackData.album && trackData.album.release_date)
-      updates.release_year = trackData.album.release_date.split('-')[0];
-
-    if(!Object.keys(updates).length) return;
-
-    // Save to DB
-    await sb.from('picks').update(updates).eq('id',pick.id);
-
-    // Get content element — bail if page has changed
-    const content = document.getElementById('song-content');
-    if(!content) return;
-
-    // Vibes
-    if(genres.length){
-      const vibesHtml = '<div class="detail-sec enrich-vibes"><h3>🎧 Vibes</h3><div class="tags">'
-        +genres.map(t=>'<div class="tag">'+esc(t)+'</div>').join('')+'</div></div>';
-      const existing = content.querySelector('.enrich-vibes');
-      if(existing) existing.outerHTML = vibesHtml;
-      else content.insertAdjacentHTML('beforeend', vibesHtml);
-    }
-
-    // About artist
-    const statLines = bioLines.filter(l=>l.includes('followers')||l.includes('Popularity'));
-    const descLines = bioLines.filter(l=>!l.includes('followers')&&!l.includes('Popularity'));
-    const pillsHtml = statLines.map(l=>'<span class="artist-stat-pill">'+esc(l)+'</span>').join('');
-    const descHtml = descLines.map(l=>'<p>'+esc(l)+'</p>').join('');
-    const artistHtml = '<div class="detail-sec enrich-artist"><h3>About '+esc(pick.artist)+'</h3>'
-      +(pillsHtml?'<div class="artist-stats">'+pillsHtml+'</div>':'')+descHtml+'</div>';
-    const existingArtist = content.querySelector('.enrich-artist');
-    if(existingArtist) existingArtist.outerHTML = artistHtml;
-    else content.insertAdjacentHTML('beforeend', artistHtml);
-
-    // Related artists from Claude
-    if(relatedNames.length){
-      const relatedHtml = '<div class="detail-sec enrich-related"><h3>🎸 If You Like This, Try</h3><div class="similar-grid">'
-        +relatedNames.map(a=>'<div class="sim-item"><strong>'+esc(a)+'</strong><span>Similar artist</span></div>').join('')
-        +'</div></div>';
-      const existingRelated = content.querySelector('.enrich-related');
-      if(existingRelated) existingRelated.outerHTML = relatedHtml;
-      else content.insertAdjacentHTML('beforeend', relatedHtml);
-    }
-
-  } catch(e){ console.error('Enrichment failed:', e); throw e; }
-}
 
 // ── HELPERS ──
 function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
