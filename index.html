@@ -1514,12 +1514,10 @@ async function autoEnrichSongDetail(pick){
 
     if(!document.getElementById('about-section')) return;
 
-    // Always inject About — wiki bio preferred, genre fallback if no wiki
+    // Always inject About — wiki bio only, never genre text (that's what Vibes is for)
     const pills = [followers?followers+' followers on Spotify':'', popularity?'Popularity score: '+popularity+'/100':''].filter(Boolean);
     const pillsHtml = pills.map(l=>'<span class="artist-stat-pill">'+esc(l)+'</span>').join('');
-    const bioHtml = wikiSummary
-      ? '<p>'+esc(wikiSummary)+'</p>'
-      : (genres.length ? '<p>'+esc(genres.slice(0,3).join(', ')+(genres.length>3?' and more':''))+' artist.</p>' : '');
+    const bioHtml = wikiSummary ? '<p>'+esc(wikiSummary)+'</p>' : '';
     const aboutEl = document.getElementById('about-section');
     if(aboutEl && (bioHtml||pillsHtml)){
       aboutEl.innerHTML='<h3>About '+esc(pick.artist)+'</h3>'+(pillsHtml?'<div class="artist-stats">'+pillsHtml+'</div>':'')+bioHtml;
@@ -1540,6 +1538,29 @@ async function autoEnrichSongDetail(pick){
 function inferGenres(artist){
   const a = artist.toLowerCase();
   const genreMap = {
+    'mumford & sons':'folk rock, chamber folk, indie folk',
+    'mumford and sons':'folk rock, chamber folk, indie folk',
+    'the lumineers':'indie folk, folk rock, americana',
+    'of monsters and men':'indie folk, indie pop',
+    'fleet foxes':'indie folk, baroque pop',
+    'marcus mumford':'folk rock, indie folk',
+    'imagine dragons':'pop rock, indie rock, alternative rock',
+    'arcade fire':'indie rock, baroque pop, art rock',
+    'vampire weekend':'indie pop, indie rock, chamber pop',
+    'foals':'indie rock, math rock, post-punk',
+    'alt-j':'indie rock, art rock, psychedelic pop',
+    'glass animals':'psychedelic pop, indie pop',
+    'hozier':'blues rock, indie rock, folk rock',
+    'birdy':'indie pop, folk pop',
+    'ben howard':'indie folk, folk pop',
+    'damien rice':'indie folk, singer-songwriter',
+    'iron & wine':'indie folk, folk pop',
+    'jose gonzalez':'indie folk, acoustic',
+    'james vincent mcmorrow':'indie folk, indie pop',
+    'bon iver':'indie folk, chamber pop',
+    'the national':'indie rock, chamber pop',
+    'the war on drugs':'indie rock, heartland rock',
+    'LCD soundsystem':'dance punk, indie electronic',
     'the church':'post-punk, dream pop, jangle pop',
     'echo & the bunnymen':'post-punk, new wave',
     'joy division':'post-punk, gothic rock',
