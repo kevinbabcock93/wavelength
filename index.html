@@ -1463,13 +1463,12 @@ async function renderSongDetail(opts){
 
 // Fetches artist info from Spotify + genre fallback, injects into page, saves to DB
 async function autoEnrichSongDetail(pick){
-  // Only run if we're missing tags or bio — related artists always come from local DB
   const hasTags = pick.tags && (Array.isArray(pick.tags)?pick.tags.length:pick.tags.split(',').filter(Boolean).length) > 0;
   const hasBio = pick.band_info && pick.band_info.trim().length > 0;
-  if(hasTags && hasBio) return; // already have everything
-  if(!pick.spotify_url) return; // no way to look up
+  if(!pick.spotify_url) return;
 
   try {
+    // Fetch Spotify data for genres/stats
     const token = await getSpotifyToken();
     const trackId = pick.spotify_url.split('/track/').pop().split('?')[0];
     const trackData = await spotifyFetch('https://api.spotify.com/v1/tracks/'+trackId, token);
@@ -1478,45 +1477,58 @@ async function autoEnrichSongDetail(pick){
     const artistData = await spotifyFetch('https://api.spotify.com/v1/artists/'+artistId, token);
     if(!artistData) return;
 
-    // Genres: use Spotify's if available, otherwise infer from our local map
     let genres = (artistData.genres||[]).slice(0,5);
     if(!genres.length) genres = inferGenres(pick.artist);
-
     const followers = artistData.followers ? artistData.followers.total.toLocaleString() : null;
     const popularity = artistData.popularity || null;
 
-    // Build bio
-    let bioLines = [];
-    if(genres.length) bioLines.push(genres.slice(0,3).join(', ')+' artist');
-    if(followers) bioLines.push(followers+' followers on Spotify');
-    if(popularity) bioLines.push('Popularity score: '+popularity+'/100');
-    const band_info = bioLines.join(' · ');
+    // Fetch Wikipedia summary for a real bio (free, no auth, no CORS issues)
+    let wikiSummary = '';
+    try {
+      const wikiRes = await fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(pick.artist));
+      if(wikiRes.ok){
+        const wikiData = await wikiRes.json();
+        if(wikiData.extract && wikiData.type !== 'disambiguation'){
+          // Take first 2 sentences max
+          const sentences = wikiData.extract.match(/[^.!?]+[.!?]+/g)||[];
+          wikiSummary = sentences.slice(0,2).join(' ').trim();
+        }
+      }
+    } catch(e){ /* wiki optional */ }
 
-    // Save to DB
-    const updates = {};
-    if(!hasBio && band_info) updates.band_info = band_info;
-    if(!hasTags && genres.length) updates.tags = genres;
-    if(!pick.release_year && trackData.album && trackData.album.release_date)
-      updates.release_year = trackData.album.release_date.split('-')[0];
-    if(Object.keys(updates).length) await sb.from('picks').update(updates).eq('id',pick.id);
+    // Build stat pills (followers + popularity only — no genres here)
+    const pills = [];
+    if(followers) pills.push(followers+' followers on Spotify');
+    if(popularity) pills.push('Popularity score: '+popularity+'/100');
+    const band_info = (wikiSummary ? wikiSummary+' · ' : '') + pills.join(' · ');
 
-    // Inject into page (only if user hasn't navigated away)
+    // Save to DB only if this is the pick owner (RLS allows it)
+    const isOwner = !isGuest && currentUser && currentUser.id === pick.user_id;
+    if(isOwner){
+      const updates = {};
+      if(!hasBio && band_info) updates.band_info = band_info;
+      if(!hasTags && genres.length) updates.tags = genres;
+      if(!pick.release_year && trackData.album && trackData.album.release_date)
+        updates.release_year = trackData.album.release_date.split('-')[0];
+      if(Object.keys(updates).length) await sb.from('picks').update(updates).eq('id',pick.id);
+    }
+
+    // Inject into page regardless of ownership
     if(!document.getElementById('about-section')) return;
 
-    // About
-    if(!hasBio && band_info){
-      const pills = bioLines.filter(l=>l.includes('followers')||l.includes('Popularity score'));
-      const desc = bioLines.filter(l=>!l.includes('followers')&&!l.includes('Popularity score'));
+    // About — show wiki bio + stat pills, NO genre text
+    if(!hasBio){
       const pillsHtml = pills.map(l=>'<span class="artist-stat-pill">'+esc(l)+'</span>').join('');
-      const descHtml = desc.map(l=>'<p>'+esc(l)+'</p>').join('');
       const el = document.getElementById('about-section');
-      if(el){
-        el.innerHTML='<h3>About '+esc(pick.artist)+'</h3>'+(pillsHtml?'<div class="artist-stats">'+pillsHtml+'</div>':'')+descHtml;
+      if(el && (wikiSummary || pillsHtml)){
+        el.innerHTML='<h3>About '+esc(pick.artist)+'</h3>'
+          +(pillsHtml?'<div class="artist-stats">'+pillsHtml+'</div>':'')
+          +(wikiSummary?'<p>'+esc(wikiSummary)+'</p>':'');
         el.style.display='';
       }
     }
 
-    // Vibes
+    // Vibes — genres only
     if(!hasTags && genres.length){
       const el = document.getElementById('vibes-section');
       if(el){
@@ -1525,7 +1537,7 @@ async function autoEnrichSongDetail(pick){
       }
     }
 
-  } catch(e){ /* silent fail — enrichment is best-effort */ }
+  } catch(e){ /* silent fail */ }
 }
 
 // Infer genres from our local artist database when Spotify has none
