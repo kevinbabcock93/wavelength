@@ -1464,7 +1464,13 @@ async function renderSongDetail(opts){
 // Fetches artist info from Spotify + genre fallback, injects into page, saves to DB
 async function autoEnrichSongDetail(pick){
   const hasTags = pick.tags && (Array.isArray(pick.tags)?pick.tags.length:pick.tags.split(',').filter(Boolean).length) > 0;
-  const hasBio = pick.band_info && pick.band_info.trim().length > 0;
+  // Detect stale bio — old format was "genre, genre artist · X followers · Popularity score"
+  // Real Wikipedia bios have prose sentences with capital letters, commas mid-sentence, etc.
+  const bioText = (pick.band_info||'').trim();
+  const isStaleBio = !bioText
+    || /artist(\s·|$)/.test(bioText)  // ends with "artist" or "artist ·"
+    || (/followers on Spotify/.test(bioText) && bioText.length < 120); // only stats, no real prose
+  const hasBio = bioText.length > 0 && !isStaleBio;
   if(!pick.spotify_url) return;
 
   try {
