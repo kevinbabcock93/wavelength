@@ -1126,7 +1126,7 @@ async function renderSongDetail(opts){
 }
 
 // ── ENRICHMENT — Claude API generates bio + genres for every artist ──
-const ANTHROPIC_KEY = ['sk-ant-api03-ERcAQa3zsNt_2uGujVORweQ4','RkRAaFDYQfYwamv9l_OJ6APlwMWWjmAe6ceziwp9BsEI-yTG21x4yFMAUvUjig-GHorDwAA'].join('');
+let ANTHROPIC_KEY = '';
 
 async function autoEnrichSongDetail(pick){
   // Check cache first
@@ -1584,6 +1584,12 @@ function showToast(msg,isErr){
 document.getElementById('pick-modal').addEventListener('click',function(e){if(e.target.id==='pick-modal')closePickModal();});
 
 (async function init(){
+  // Fetch API key from Supabase config
+  try {
+    const {data:cfg} = await sb.from('app_config').select('value').eq('key','anthropic_key').single();
+    if(cfg) ANTHROPIC_KEY = cfg.value;
+  } catch(e){ console.log('Config fetch error:', e); }
+
   const {data:{session}}=await sb.auth.getSession();
   if(session){currentUser=session.user;await loadProfileAndContinue();}
   else showView('auth');
