@@ -1150,35 +1150,8 @@ async function autoEnrichSongDetail(pick){
     } catch(e){}
   }
 
-  // ── SOURCE 2: MusicBrainz — genres (tags) + basic bio ──
-  if(!result.genres.length || !result.bio){
-    try{
-      const mbResp = await fetch(
-        'https://musicbrainz.org/ws/2/artist/?query='+encodeURIComponent(pick.artist)+'&fmt=json&limit=1',
-        {headers:{'User-Agent':'Wavelength/1.0'}}
-      );
-      if(mbResp.ok){
-        const mbData = await mbResp.json();
-        const artist = mbData.artists && mbData.artists[0];
-        if(artist){
-          if(!result.genres.length){
-            const tags = (artist.tags||[]).sort((a,b)=>b.count-a.count).slice(0,5).map(t=>t.name);
-            if(tags.length) result.genres = tags;
-          }
-          if(!result.bio){
-            const parts = [];
-            if(artist.type) parts.push(artist.type);
-            if(artist['begin-area']) parts.push('from '+artist['begin-area'].name);
-            if(artist.disambiguation) parts.push(artist.disambiguation);
-            if(parts.length) result.bio = pick.artist+' — '+parts.join(', ')+'.';
-          }
-        }
-      }
-    } catch(e){}
-  }
-
-  // ── SOURCE 3: Wikipedia — extract + categories for bio + genres ──
-  if(!result.genres.length || !result.bio){
+  // ── SOURCE 2: Wikipedia — real bio + genre categories ──
+  if(!result.bio){
     try{
       const wikiSearch = await fetch(
         'https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch='
@@ -1186,9 +1159,8 @@ async function autoEnrichSongDetail(pick){
         +'&format=json&origin=*&srlimit=3'
       );
       const wikiSearchData = await wikiSearch.json();
-      const wikiResults = wikiSearchData.query && wikiSearchData.query.search;
-      if(wikiResults && wikiResults.length){
-        // Pick the result whose title most closely matches the artist
+      const wikiResults = (wikiSearchData.query && wikiSearchData.query.search) || [];
+      if(wikiResults.length){
         const artistLower = pick.artist.toLowerCase();
         const best = wikiResults.find(r=>r.title.toLowerCase().includes(artistLower)||artistLower.includes(r.title.toLowerCase())) || wikiResults[0];
         const pageResp = await fetch(
@@ -1198,13 +1170,12 @@ async function autoEnrichSongDetail(pick){
         );
         const pageData = await pageResp.json();
         const page = Object.values(pageData.query.pages)[0];
-        if(page && !page.missing){
-          if(!result.bio && page.extract){
-            const sentences = page.extract.replace(/\n/g,' ').match(/[^.!?]+[.!?]+/g)||[];
-            result.bio = sentences.slice(0,2).join(' ').trim();
-          }
+        if(page && !page.missing && page.extract){
+          const sentences = page.extract.replace(/\n/g,' ').match(/[^.!?]+[.!?]+/g)||[];
+          result.bio = sentences.slice(0,2).join(' ').trim();
+          // Also grab genres from categories if Spotify didn't give us any
           if(!result.genres.length && page.categories){
-            const genreWords = ['rock','pop','folk','indie','jazz','electronic','hip.hop','r&b','soul','punk','metal','country','ambient','dance','alternative','blues','funk','house','rap','singer-songwriter','post-punk','dream pop','shoegaze','new wave','synth','gospel','classical','reggae','grunge','emo','ska'];
+            const genreWords = ['rock','pop','folk','indie','jazz','electronic','hip.hop','r&b','soul','punk','metal','country','ambient','dance','alternative','blues','funk','house','rap','singer-songwriter','post-punk','dream pop','shoegaze','new wave','synth','gospel','classical','reggae','grunge','emo'];
             const found = [];
             page.categories.forEach(c=>{
               const cat = c.title.replace('Category:','').toLowerCase();
@@ -1226,36 +1197,26 @@ async function autoEnrichSongDetail(pick){
     } catch(e){}
   }
 
-  // ── SOURCE 4: Last.fm — tags + bio, great for niche artists ──
-  if(!result.genres.length || !result.bio){
+  // ── SOURCE 3: MusicBrainz — genres for artists Wikipedia missed ──
+  if(!result.genres.length){
     try{
-      const lfmResp = await fetch(
-        'https://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist='
-        +encodeURIComponent(pick.artist)
-        +'&api_key=43b1d08cf8fa2d6b2e945289bf7be98d&format=json'
+      const mbResp = await fetch(
+        'https://musicbrainz.org/ws/2/artist/?query='+encodeURIComponent(pick.artist)+'&fmt=json&limit=1',
+        {headers:{'User-Agent':'Wavelength/1.0'}}
       );
-      if(lfmResp.ok){
-        const lfmData = await lfmResp.json();
-        const lfmArtist = lfmData.artist;
-        if(lfmArtist){
-          if(!result.genres.length){
-            const lfmTags = ((lfmArtist.tags && lfmArtist.tags.tag)||[]).map(t=>t.name.toLowerCase()).filter(t=>t.length<30);
-            if(lfmTags.length) result.genres = lfmTags.slice(0,5);
-          }
-          if(!result.bio && lfmArtist.bio && lfmArtist.bio.summary){
-            const summary = lfmArtist.bio.summary.replace(/<a[^>]*>.*?<\/a>/g,'').replace(/<[^>]+>/g,'').trim();
-            const sentences = summary.match(/[^.!?]+[.!?]+/g)||[];
-            result.bio = sentences.slice(0,2).join(' ').trim();
-          }
+      if(mbResp.ok){
+        const mbData = await mbResp.json();
+        const artist = mbData.artists && mbData.artists[0];
+        if(artist){
+          const tags = (artist.tags||[]).sort((a,b)=>b.count-a.count).slice(0,5).map(t=>t.name);
+          if(tags.length) result.genres = tags;
         }
       }
     } catch(e){}
   }
 
-  // ── SOURCE 5: local inferGenres map as last resort ──
-  if(!result.genres.length){
-    result.genres = inferGenres(pick.artist);
-  }
+  // ── SOURCE 4: local inferGenres map — final fallback ──
+  if(!result.genres.length) result.genres = inferGenres(pick.artist);
 
   if(!result.genres.length && !result.bio) return;
 
@@ -1271,6 +1232,101 @@ async function autoEnrichSongDetail(pick){
   }
 
   applyEnrichment(pick, result);
+}
+
+// Local genre map — fallback for artists not found elsewhere
+function inferGenres(artist){
+  const a = (artist||'').toLowerCase();
+  const map = {
+    'mumford & sons':'folk rock, chamber folk, indie folk',
+    'mumford and sons':'folk rock, chamber folk, indie folk',
+    'the lumineers':'indie folk, folk rock, americana',
+    'of monsters and men':'indie folk, indie pop',
+    'fleet foxes':'indie folk, baroque pop',
+    'the avett brothers':'folk rock, americana, indie folk',
+    'iron & wine':'indie folk, folk pop',
+    'hozier':'blues rock, indie rock, folk rock',
+    'bon iver':'indie folk, chamber pop',
+    'sufjan stevens':'indie folk, chamber pop',
+    'the national':'indie rock, chamber pop',
+    'arcade fire':'indie rock, baroque pop, art rock',
+    'vampire weekend':'indie pop, indie rock, chamber pop',
+    'tame impala':'psychedelic rock, indie pop',
+    'arctic monkeys':'indie rock, garage rock',
+    'the strokes':'indie rock, garage rock',
+    'interpol':'post-punk revival, indie rock',
+    'radiohead':'alternative rock, art rock',
+    'the church':'post-punk, dream pop, jangle pop',
+    'joy division':'post-punk, gothic rock',
+    'the cure':'post-punk, gothic rock',
+    'the smiths':'indie pop, post-punk',
+    'new order':'synth-pop, post-punk',
+    'depeche mode':'synth-pop, new wave',
+    'talking heads':'new wave, art rock',
+    'slowdive':'shoegaze, dream pop',
+    'my bloody valentine':'shoegaze, noise pop',
+    'cocteau twins':'dream pop, ethereal wave',
+    'mazzy star':'dream pop, slowcore',
+    'beach house':'dream pop, indie pop',
+    'sigur ros':'post-rock, ambient',
+    'mogwai':'post-rock, instrumental',
+    'explosions in the sky':'post-rock, instrumental',
+    'portishead':'trip-hop, electronic',
+    'massive attack':'trip-hop, electronic',
+    'four tet':'electronic, ambient',
+    'boards of canada':'electronic, ambient',
+    'burial':'uk garage, ambient',
+    'frank ocean':'r&b, alternative r&b',
+    'james blake':'indie r&b, electronic',
+    'kendrick lamar':'hip hop, conscious rap',
+    'tyler the creator':'alternative hip hop, rap',
+    'phoebe bridgers':'indie folk, indie pop',
+    'big thief':'indie folk, indie rock',
+    'nick drake':'folk, acoustic',
+    'nick cave':'post-punk, gothic rock',
+    'joni mitchell':'folk, singer-songwriter',
+    'fleetwood mac':'classic rock, soft rock',
+    'david bowie':'art rock, glam rock',
+    'kate bush':'art pop, progressive pop',
+    'pixies':'alternative rock, indie rock',
+    'pavement':'indie rock, lo-fi',
+    'neutral milk hotel':'indie folk, lo-fi',
+    'lcd soundsystem':'dance punk, indie electronic',
+    'st. vincent':'art rock, indie pop',
+    'angel olsen':'indie folk, art rock',
+    'sharon van etten':'indie rock, indie folk',
+    'weyes blood':'baroque pop, indie folk',
+    'father john misty':'indie folk, indie rock',
+    'julien baker':'indie folk, emo',
+    'japanese breakfast':'indie pop, indie rock',
+    'snail mail':'indie rock, indie pop',
+    'soccer mommy':'indie rock, indie pop',
+    'alex g':'indie rock, lo-fi',
+    'mac demarco':'indie pop, lo-fi',
+    'mitski':'indie rock, art rock',
+    'car seat headrest':'indie rock, lo-fi',
+    'courtney barnett':'indie rock, garage rock',
+    'waxahatchee':'indie folk, americana',
+    'boygenius':'indie folk, indie rock',
+    'men i trust':'dream pop, indie pop',
+    'cigarettes after sex':'dream pop, slowcore',
+    'lana del rey':'dream pop, indie pop',
+    'billie eilish':'electropop, indie pop',
+    'olivia rodrigo':'pop rock, bedroom pop',
+    'taylor swift':'pop, country pop',
+    'harry styles':'pop rock, soft rock',
+    'frank sinatra':'traditional pop, jazz',
+    'the beatles':'rock, british invasion',
+    'the rolling stones':'rock, blues rock',
+    'led zeppelin':'hard rock, blues rock',
+    'pink floyd':'progressive rock, psychedelic rock',
+    'david bowie':'art rock, glam rock',
+    'balu brigada':'indie pop, alternative',
+    'say now':'indie pop, alternative',
+    'no vacation':'dream pop, indie pop, shoegaze',
+  };
+  const key = Object.keys(map).find(k => a.includes(k) || k.includes(a));
+  return key ? map[key].split(', ') : [];
 }
 function applyEnrichment(pick, data){
   const genres = data.genres||[];
