@@ -1125,63 +1125,153 @@ async function renderSongDetail(opts){
   autoEnrichSongDetail(pick);
 }
 
-// ── ENRICHMENT — Claude API generates bio + genres for every artist ──
-let ANTHROPIC_KEY = '';
-
+// ── ENRICHMENT — tries every source until something is found ──
 async function autoEnrichSongDetail(pick){
-  // Check cache first
   const cacheKey = 'enrich_' + (pick.artist||'').toLowerCase().replace(/\s+/g,'_');
   const cached = sessionStorage.getItem(cacheKey);
   if(cached){
     try{ applyEnrichment(pick, JSON.parse(cached)); return; } catch(e){}
   }
 
-  try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': ANTHROPIC_KEY,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 300,
-        messages: [{
-          role: 'user',
-          content: `For the artist "${pick.artist}" and their song "${pick.song}", respond with ONLY a JSON object, no other text:
-{
-  "genres": ["genre1", "genre2", "genre3"],
-  "bio": "2-3 sentence description of the artist's sound and significance."
+  const result = { genres: [], bio: '' };
+
+  // ── SOURCE 1: Spotify — genres from artist endpoint ──
+  if(pick.spotify_url){
+    try{
+      const token = await getSpotifyToken();
+      const trackId = pick.spotify_url.split('/track/').pop().split('?')[0];
+      const trackData = await spotifyFetch('https://api.spotify.com/v1/tracks/'+trackId, token);
+      if(trackData && trackData.artists && trackData.artists[0]){
+        const artistData = await spotifyFetch('https://api.spotify.com/v1/artists/'+trackData.artists[0].id, token);
+        if(artistData && artistData.genres && artistData.genres.length){
+          result.genres = artistData.genres.slice(0,5);
+        }
+      }
+    } catch(e){}
+  }
+
+  // ── SOURCE 2: MusicBrainz — genres (tags) + basic bio ──
+  if(!result.genres.length || !result.bio){
+    try{
+      const mbResp = await fetch(
+        'https://musicbrainz.org/ws/2/artist/?query='+encodeURIComponent(pick.artist)+'&fmt=json&limit=1',
+        {headers:{'User-Agent':'Wavelength/1.0'}}
+      );
+      if(mbResp.ok){
+        const mbData = await mbResp.json();
+        const artist = mbData.artists && mbData.artists[0];
+        if(artist){
+          if(!result.genres.length){
+            const tags = (artist.tags||[]).sort((a,b)=>b.count-a.count).slice(0,5).map(t=>t.name);
+            if(tags.length) result.genres = tags;
+          }
+          if(!result.bio){
+            const parts = [];
+            if(artist.type) parts.push(artist.type);
+            if(artist['begin-area']) parts.push('from '+artist['begin-area'].name);
+            if(artist.disambiguation) parts.push(artist.disambiguation);
+            if(parts.length) result.bio = pick.artist+' — '+parts.join(', ')+'.';
+          }
+        }
+      }
+    } catch(e){}
+  }
+
+  // ── SOURCE 3: Wikipedia — extract + categories for bio + genres ──
+  if(!result.genres.length || !result.bio){
+    try{
+      const wikiSearch = await fetch(
+        'https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch='
+        +encodeURIComponent(pick.artist+' band OR musician OR singer')
+        +'&format=json&origin=*&srlimit=3'
+      );
+      const wikiSearchData = await wikiSearch.json();
+      const wikiResults = wikiSearchData.query && wikiSearchData.query.search;
+      if(wikiResults && wikiResults.length){
+        // Pick the result whose title most closely matches the artist
+        const artistLower = pick.artist.toLowerCase();
+        const best = wikiResults.find(r=>r.title.toLowerCase().includes(artistLower)||artistLower.includes(r.title.toLowerCase())) || wikiResults[0];
+        const pageResp = await fetch(
+          'https://en.wikipedia.org/w/api.php?action=query&titles='
+          +encodeURIComponent(best.title)
+          +'&prop=extracts|categories&exintro=true&explaintext=true&catlimit=30&format=json&origin=*'
+        );
+        const pageData = await pageResp.json();
+        const page = Object.values(pageData.query.pages)[0];
+        if(page && !page.missing){
+          if(!result.bio && page.extract){
+            const sentences = page.extract.replace(/\n/g,' ').match(/[^.!?]+[.!?]+/g)||[];
+            result.bio = sentences.slice(0,2).join(' ').trim();
+          }
+          if(!result.genres.length && page.categories){
+            const genreWords = ['rock','pop','folk','indie','jazz','electronic','hip.hop','r&b','soul','punk','metal','country','ambient','dance','alternative','blues','funk','house','rap','singer-songwriter','post-punk','dream pop','shoegaze','new wave','synth','gospel','classical','reggae','grunge','emo','ska'];
+            const found = [];
+            page.categories.forEach(c=>{
+              const cat = c.title.replace('Category:','').toLowerCase();
+              genreWords.forEach(g=>{
+                if(cat.includes(g)){
+                  const clean = cat
+                    .replace(/\d{4}s?\s/g,'')
+                    .replace(/american |british |english |australian |canadian |irish |scottish /g,'')
+                    .replace(/ musicians| music| bands| groups| artists/g,'')
+                    .trim();
+                  if(clean.length>2 && clean.length<35 && !found.includes(clean)) found.push(clean);
+                }
+              });
+            });
+            if(found.length) result.genres = found.slice(0,5);
+          }
+        }
+      }
+    } catch(e){}
+  }
+
+  // ── SOURCE 4: Last.fm — tags + bio, great for niche artists ──
+  if(!result.genres.length || !result.bio){
+    try{
+      const lfmResp = await fetch(
+        'https://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist='
+        +encodeURIComponent(pick.artist)
+        +'&api_key=43b1d08cf8fa2d6b2e945289bf7be98d&format=json'
+      );
+      if(lfmResp.ok){
+        const lfmData = await lfmResp.json();
+        const lfmArtist = lfmData.artist;
+        if(lfmArtist){
+          if(!result.genres.length){
+            const lfmTags = ((lfmArtist.tags && lfmArtist.tags.tag)||[]).map(t=>t.name.toLowerCase()).filter(t=>t.length<30);
+            if(lfmTags.length) result.genres = lfmTags.slice(0,5);
+          }
+          if(!result.bio && lfmArtist.bio && lfmArtist.bio.summary){
+            const summary = lfmArtist.bio.summary.replace(/<a[^>]*>.*?<\/a>/g,'').replace(/<[^>]+>/g,'').trim();
+            const sentences = summary.match(/[^.!?]+[.!?]+/g)||[];
+            result.bio = sentences.slice(0,2).join(' ').trim();
+          }
+        }
+      }
+    } catch(e){}
+  }
+
+  // ── SOURCE 5: local inferGenres map as last resort ──
+  if(!result.genres.length){
+    result.genres = inferGenres(pick.artist);
+  }
+
+  if(!result.genres.length && !result.bio) return;
+
+  sessionStorage.setItem(cacheKey, JSON.stringify(result));
+
+  // Save to DB if owner
+  const isOwner = !isGuest && currentUser && currentUser.id === pick.user_id;
+  if(isOwner){
+    const updates = {};
+    if((!pick.tags||!pick.tags.length) && result.genres.length) updates.tags = result.genres;
+    if(!pick.band_info && result.bio) updates.band_info = result.bio;
+    if(Object.keys(updates).length) sb.from('picks').update(updates).eq('id',pick.id);
+  }
+
+  applyEnrichment(pick, result);
 }
-Genres should be specific and accurate (e.g. "indie folk", "dream pop", "post-punk"). Bio should be interesting and informative, not generic.`
-        }]
-      })
-    });
-
-    const data = await resp.json();
-    console.log('Anthropic status:', resp.status, JSON.stringify(data));
-    if(!resp.ok) throw new Error('API '+resp.status+': '+JSON.stringify(data));
-    const text = (data.content&&data.content[0]&&data.content[0].text)||'';
-    const clean = text.replace(/```json|```/g,'').trim();
-    const parsed = JSON.parse(clean);
-
-    sessionStorage.setItem(cacheKey, JSON.stringify(parsed));
-
-    // Save to DB if owner
-    const isOwner = !isGuest && currentUser && currentUser.id === pick.user_id;
-    if(isOwner){
-      const updates = {};
-      if(!pick.tags||!pick.tags.length) updates.tags = parsed.genres||[];
-      if(!pick.band_info) updates.band_info = parsed.bio||'';
-      if(Object.keys(updates).length) sb.from('picks').update(updates).eq('id',pick.id);
-    }
-
-    applyEnrichment(pick, parsed);
-  } catch(e){ console.log('Enrichment error:', e); }
-}
-
 function applyEnrichment(pick, data){
   const genres = data.genres||[];
   const bio = data.bio||'';
@@ -1584,12 +1674,6 @@ function showToast(msg,isErr){
 document.getElementById('pick-modal').addEventListener('click',function(e){if(e.target.id==='pick-modal')closePickModal();});
 
 (async function init(){
-  // Fetch API key from Supabase config
-  try {
-    const {data:cfg} = await sb.from('app_config').select('value').eq('key','anthropic_key').single();
-    if(cfg) ANTHROPIC_KEY = cfg.value;
-  } catch(e){ console.log('Config fetch error:', e); }
-
   const {data:{session}}=await sb.auth.getSession();
   if(session){currentUser=session.user;await loadProfileAndContinue();}
   else showView('auth');
