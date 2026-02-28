@@ -1138,7 +1138,7 @@ async function renderSongDetail(opts){
     +'<div class="detail-sec" id="vibes-section" style="display:none"></div>'
     +(simSongs?'<div class="detail-sec"><h3>🎵 Similar Songs</h3><div class="similar-grid">'+simSongs.map(s=>{const p=s.split('\u2014');return'<div class="sim-item"><strong>'+esc(p[0].trim())+'</strong><span>'+esc((p[1]||'').trim())+'</span></div>';}).join('')+'</div></div>':'')
     +(relatedArtists
-      ?'<div class="detail-sec" id="related-section"><h3>🎸 If You Like This, Try</h3><div class="similar-grid">'+relatedArtists.map(a=>'<div class="sim-item"><strong>'+esc(a)+'</strong><span>Similar artist</span></div>').join('')+'</div></div>'
+      ?'<div class="detail-sec" id="related-section"><h3>🎸 If You Like This, Try These Similar Artists</h3><div class="similar-grid">'+relatedArtists.map(a=>'<div class="sim-item"><strong>'+esc(a)+'</strong></div>').join('')+'</div></div>'
       :'<div class="detail-sec" id="related-section" style="display:none"></div>');
 
   // Show saved data instantly if we have it, then always refresh via Claude API
