@@ -1485,15 +1485,22 @@ async function autoEnrichSongDetail(pick){
     const followers = artistData.followers ? artistData.followers.total.toLocaleString() : null;
     const popularity = artistData.popularity || null;
 
-    // Wikipedia bio
+    // Wikipedia bio — use search API first to find the right article title
     let wikiSummary = '';
     try {
-      const wikiRes = await fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(pick.artist));
-      if(wikiRes.ok){
-        const wikiData = await wikiRes.json();
-        if(wikiData.extract && wikiData.type!=='disambiguation'){
-          const sentences = wikiData.extract.match(/[^.!?]+[.!?]+/g)||[];
-          wikiSummary = sentences.slice(0,2).join(' ').trim();
+      // Step 1: search for the artist to get the correct page title
+      const searchRes = await fetch('https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch='+encodeURIComponent(pick.artist+' band OR musician OR singer')+'&srlimit=1&format=json&origin=*');
+      const searchData = await searchRes.json();
+      const pageTitle = searchData.query&&searchData.query.search&&searchData.query.search[0]&&searchData.query.search[0].title;
+      if(pageTitle){
+        // Step 2: fetch the summary for that exact title
+        const summaryRes = await fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(pageTitle));
+        if(summaryRes.ok){
+          const summaryData = await summaryRes.json();
+          if(summaryData.extract && summaryData.type!=='disambiguation'){
+            const sentences = summaryData.extract.match(/[^.!?]+[.!?]+/g)||[];
+            wikiSummary = sentences.slice(0,2).join(' ').trim();
+          }
         }
       }
     } catch(e){}
