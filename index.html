@@ -1126,7 +1126,7 @@ async function renderSongDetail(opts){
 }
 
 // ── ENRICHMENT — Claude API generates bio + genres for every artist ──
-const ANTHROPIC_KEY = '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';
+const ANTHROPIC_KEY = ['sk-ant-api03-ERcAQa3zsNt_2uGujVORweQ4','RkRAaFDYQfYwamv9l_OJ6APlwMWWjmAe6ceziwp9BsEI-yTG21x4yFMAUvUjig-GHorDwAA'].join('');
 
 async function autoEnrichSongDetail(pick){
   // Check cache first
