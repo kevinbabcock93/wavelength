@@ -1161,13 +1161,15 @@ Genres should be specific and accurate (e.g. "indie folk", "dream pop", "post-pu
     });
 
     const data = await resp.json();
+    console.log('Anthropic status:', resp.status, JSON.stringify(data));
+    if(!resp.ok) throw new Error('API '+resp.status+': '+JSON.stringify(data));
     const text = (data.content&&data.content[0]&&data.content[0].text)||'';
     const clean = text.replace(/```json|```/g,'').trim();
     const parsed = JSON.parse(clean);
 
     sessionStorage.setItem(cacheKey, JSON.stringify(parsed));
 
-    // Save to DB if owner and not already saved
+    // Save to DB if owner
     const isOwner = !isGuest && currentUser && currentUser.id === pick.user_id;
     if(isOwner){
       const updates = {};
