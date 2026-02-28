@@ -1117,134 +1117,84 @@ async function renderSongDetail(opts){
       ?'<div class="detail-sec" id="related-section"><h3>🎸 If You Like This, Try</h3><div class="similar-grid">'+relatedArtists.map(a=>'<div class="sim-item"><strong>'+esc(a)+'</strong><span>Similar artist</span></div>').join('')+'</div></div>'
       :'<div class="detail-sec" id="related-section" style="display:none"></div>');
 
-  // Always enrich — fills About + Vibes from Spotify (no skipping)
+  // Show saved data instantly if we have it, then always refresh via Claude API
+  const savedTags = Array.isArray(pick.tags) ? pick.tags : [];
+  if(savedTags.length || pick.band_info){
+    applyEnrichment(pick, {genres: savedTags, bio: pick.band_info||''});
+  }
   autoEnrichSongDetail(pick);
 }
 
-// ── ENRICHMENT — always runs, always overwrites About + Vibes ──
+// ── ENRICHMENT — Claude API generates bio + genres for every artist ──
+const ANTHROPIC_KEY = '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';
+
 async function autoEnrichSongDetail(pick){
-  if(!pick.spotify_url) return;
+  // Check cache first
+  const cacheKey = 'enrich_' + (pick.artist||'').toLowerCase().replace(/\s+/g,'_');
+  const cached = sessionStorage.getItem(cacheKey);
+  if(cached){
+    try{ applyEnrichment(pick, JSON.parse(cached)); return; } catch(e){}
+  }
 
   try {
-    const token = await getSpotifyToken();
-    const trackId = pick.spotify_url.split('/track/').pop().split('?')[0];
-    const trackData = await spotifyFetch('https://api.spotify.com/v1/tracks/'+trackId, token);
-    if(!trackData||!trackData.artists||!trackData.artists[0]) return;
-    const artistId = trackData.artists[0].id;
-    const artistData = await spotifyFetch('https://api.spotify.com/v1/artists/'+artistId, token);
-    if(!artistData) return;
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 300,
+        messages: [{
+          role: 'user',
+          content: `For the artist "${pick.artist}" and their song "${pick.song}", respond with ONLY a JSON object, no other text:
+{
+  "genres": ["genre1", "genre2", "genre3"],
+  "bio": "2-3 sentence description of the artist's sound and significance."
+}
+Genres should be specific and accurate (e.g. "indie folk", "dream pop", "post-punk"). Bio should be interesting and informative, not generic.`
+        }]
+      })
+    });
 
-    // Genres: Spotify first, local map fallback
-    const spotifyGenres = (artistData.genres||[]).slice(0,5);
-    const genres = spotifyGenres.length ? spotifyGenres : inferGenres(pick.artist);
+    const data = await resp.json();
+    const text = (data.content&&data.content[0]&&data.content[0].text)||'';
+    const clean = text.replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(clean);
 
-    const followers = artistData.followers ? artistData.followers.total.toLocaleString() : null;
-    const popularity = artistData.popularity || null;
+    sessionStorage.setItem(cacheKey, JSON.stringify(parsed));
 
-    // Save to DB only if owner
+    // Save to DB if owner and not already saved
     const isOwner = !isGuest && currentUser && currentUser.id === pick.user_id;
     if(isOwner){
       const updates = {};
-      if(genres.length) updates.tags = genres;
-      const parts = [];
-      if(followers) parts.push(followers+' followers on Spotify');
-      if(popularity) parts.push('Popularity score: '+popularity+'/100');
-      if(parts.length) updates.band_info = parts.join(' \u00b7 ');
-      if(!pick.release_year && trackData.album && trackData.album.release_date)
-        updates.release_year = trackData.album.release_date.split('-')[0];
+      if(!pick.tags||!pick.tags.length) updates.tags = parsed.genres||[];
+      if(!pick.band_info) updates.band_info = parsed.bio||'';
       if(Object.keys(updates).length) sb.from('picks').update(updates).eq('id',pick.id);
     }
 
-    if(!document.getElementById('about-section')) return;
-
-    // Always inject About — Spotify stat pills
-    const pills = [];
-    if(followers) pills.push(followers+' followers on Spotify');
-    if(popularity) pills.push('Popularity score: '+popularity+'/100');
-    const aboutEl = document.getElementById('about-section');
-    if(aboutEl && pills.length){
-      const pillsHtml = pills.map(l=>'<span class="artist-stat-pill">'+esc(l)+'</span>').join('');
-      aboutEl.innerHTML='<h3>About '+esc(pick.artist)+'</h3><div class="artist-stats">'+pillsHtml+'</div>';
-      aboutEl.style.display='';
-    }
-
-    // Always inject Vibes — Spotify genres or local map
-    const vibesEl = document.getElementById('vibes-section');
-    if(vibesEl && genres.length){
-      vibesEl.innerHTML='<h3>\uD83C\uDFA7 Vibes</h3><div class="tags">'+genres.map(t=>'<div class="tag">'+esc(t)+'</div>').join('')+'</div>';
-      vibesEl.style.display='';
-    }
-
-  } catch(e){}
+    applyEnrichment(pick, parsed);
+  } catch(e){ console.log('Enrichment error:', e); }
 }
 
-// Infer genres from local map when Spotify has none
-function inferGenres(artist){
-  const a = artist.toLowerCase();
-  const genreMap = {
-    'mumford & sons':'folk rock, chamber folk, indie folk',
-    'mumford and sons':'folk rock, chamber folk, indie folk',
-    'the lumineers':'indie folk, folk rock, americana',
-    'of monsters and men':'indie folk, indie pop',
-    'fleet foxes':'indie folk, baroque pop',
-    'the avett brothers':'folk rock, americana, indie folk',
-    'iron & wine':'indie folk, folk pop',
-    'lord huron':'indie folk, indie pop',
-    'bear\'s den':'indie folk, folk rock',
-    'the head and the heart':'indie folk, folk rock',
-    'gregory alan isakov':'indie folk, singer-songwriter',
-    'caamp':'indie folk, folk rock',
-    'hozier':'blues rock, indie rock, folk rock',
-    'bon iver':'indie folk, chamber pop',
-    'sufjan stevens':'indie folk, chamber pop',
-    'the national':'indie rock, chamber pop',
-    'arcade fire':'indie rock, baroque pop, art rock',
-    'vampire weekend':'indie pop, indie rock, chamber pop',
-    'tame impala':'psychedelic rock, indie pop',
-    'arctic monkeys':'indie rock, garage rock',
-    'the strokes':'indie rock, garage rock',
-    'interpol':'post-punk revival, indie rock',
-    'radiohead':'alternative rock, art rock',
-    'the church':'post-punk, dream pop, jangle pop',
-    'echo & the bunnymen':'post-punk, new wave',
-    'joy division':'post-punk, gothic rock',
-    'the cure':'post-punk, gothic rock',
-    'the smiths':'indie pop, post-punk',
-    'new order':'synth-pop, post-punk',
-    'depeche mode':'synth-pop, new wave',
-    'talking heads':'new wave, art rock',
-    'slowdive':'shoegaze, dream pop',
-    'my bloody valentine':'shoegaze, noise pop',
-    'cocteau twins':'dream pop, ethereal wave',
-    'mazzy star':'dream pop, slowcore',
-    'beach house':'dream pop, indie pop',
-    'sigur ros':'post-rock, ambient',
-    'mogwai':'post-rock, instrumental',
-    'explosions in the sky':'post-rock, instrumental',
-    'portishead':'trip-hop, electronic',
-    'massive attack':'trip-hop, electronic',
-    'four tet':'electronic, ambient',
-    'boards of canada':'electronic, ambient',
-    'burial':'uk garage, ambient',
-    'frank ocean':'r&b, alternative r&b',
-    'james blake':'indie r&b, electronic',
-    'kendrick lamar':'hip hop, conscious rap',
-    'tyler the creator':'alternative hip hop, rap',
-    'phoebe bridgers':'indie folk, indie pop',
-    'big thief':'indie folk, indie rock',
-    'fleet foxes':'indie folk, baroque pop',
-    'pixies':'alternative rock, indie rock',
-    'pavement':'indie rock, lo-fi',
-    'neutral milk hotel':'indie folk, lo-fi',
-    'nick drake':'folk, acoustic',
-    'nick cave':'post-punk, gothic rock',
-    'joni mitchell':'folk, singer-songwriter',
-    'fleetwood mac':'classic rock, soft rock',
-    'david bowie':'art rock, glam rock',
-    'kate bush':'art pop, progressive pop',
-  };
-  const key = Object.keys(genreMap).find(k => a.includes(k) || k.includes(a));
-  return key ? genreMap[key].split(', ') : [];
+function applyEnrichment(pick, data){
+  const genres = data.genres||[];
+  const bio = data.bio||'';
+
+  const aboutEl = document.getElementById('about-section');
+  if(aboutEl && bio){
+    aboutEl.innerHTML = '<h3>About '+esc(pick.artist)+'</h3><p>'+esc(bio)+'</p>';
+    aboutEl.style.display = '';
+  }
+
+  const vibesEl = document.getElementById('vibes-section');
+  if(vibesEl && genres.length){
+    vibesEl.innerHTML = '<h3>\uD83C\uDFA7 Vibes</h3><div class="tags">'+genres.map(t=>'<div class="tag">'+esc(t)+'</div>').join('')+'</div>';
+    vibesEl.style.display = '';
+  }
 }
 
 function renderSettings(){
