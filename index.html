@@ -1130,23 +1130,17 @@ async function renderSongDetail(opts){
     ?'<img class="song-hero-art" src="'+esc(pick.art_url)+'" alt="Album art" onerror="this.outerHTML=\'<div class=\\\'song-hero-art-ph\\\'>🎵</div>\'">'
     :'<div class="song-hero-art-ph">🎵</div>';
 
-  let playerHtml='';let fullSongLinks='';
+  let playerHtml='';
   if(pick.spotify_url){
     const trackId=pick.spotify_url.split('/track/').pop().split('?')[0];
     const isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     const spotifyHref=isMobile?'spotify:track:'+trackId:'https://open.spotify.com/track/'+trackId;
-    fullSongLinks+='<a class="play-on-spotify-btn" href="'+spotifyHref+'" target="_blank" rel="noopener"><svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>Full Song on Spotify</a>';
-  }
-  if(pick.youtube_url){
-    let ytId='';const m2=pick.youtube_url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);if(m2)ytId=m2[1];
-    if(ytId)fullSongLinks+='<a class="play-on-youtube-btn" href="'+pick.youtube_url+'" target="_blank" rel="noopener">▶ Full Song on YouTube</a>';
-  }
-  if(pick.spotify_url){
-    const sid=pick.spotify_url.split('/track/').pop().split('?')[0];
-    if(sid)playerHtml='<div class="detail-sec"><h3>🎵 Listen</h3><iframe style="border-radius:8px;border:none;width:100%;margin-top:0.5rem" src="https://open.spotify.com/embed/track/'+sid+'?utm_source=generator&theme=0" height="152" allowfullscreen allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>'+(fullSongLinks?'<div style="margin-top:0.9rem;display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center"><span style="font-family:\'IBM Plex Mono\',monospace;font-size:0.6rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em">Want the full song?</span>'+fullSongLinks+'</div>':'')+'</div>';
+    const previewBtn='<button onclick="toggleSpotifyPreview(\''+trackId+'\',this)" style="display:inline-flex;align-items:center;gap:0.5rem;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text-muted);font-family:\'IBM Plex Mono\',monospace;font-size:0.65rem;font-weight:500;text-transform:uppercase;letter-spacing:0.08em;padding:0.55rem 1rem;cursor:pointer;transition:all 0.15s" onmouseover="this.style.borderColor=\'var(--red-dim)\';this.style.color=\'var(--white)\'" onmouseout="this.style.borderColor=\'var(--border)\';this.style.color=\'var(--text-muted)\'">▶ 30s Preview</button>';
+    const spotifyBtn='<a class="play-on-spotify-btn" href="'+spotifyHref+'" target="_blank" rel="noopener"><svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>Full Song on Spotify</a>';
+    playerHtml='<div class="detail-sec"><h3>🎵 Listen</h3><div style="display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center;margin-top:0.5rem">'+previewBtn+spotifyBtn+'</div><div id="preview-player" style="margin-top:0.85rem"></div></div>';
   } else if(pick.youtube_url){
     let ytId='';const m=pick.youtube_url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);if(m)ytId=m[1];
-    if(ytId)playerHtml='<div class="detail-sec"><h3>🎵 Listen</h3><div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin-top:0.5rem"><iframe style="position:absolute;top:0;left:0;width:100%;height:100%;border:none" src="https://www.youtube.com/embed/'+ytId+'" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" loading="lazy"></iframe></div>'+(fullSongLinks?'<div style="margin-top:0.9rem;display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center">'+fullSongLinks+'</div>':'')+'</div>';
+    if(ytId)playerHtml='<div class="detail-sec"><h3>🎵 Listen</h3><div style="display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center;margin-top:0.5rem"><a class="play-on-youtube-btn" href="'+pick.youtube_url+'" target="_blank" rel="noopener">▶ Full Song on YouTube</a></div></div>';
   }
 
   // Render page — About and Vibes start hidden, autoEnrich always fills them in
@@ -1448,6 +1442,20 @@ async function loadComments(pickId){
 
   
   el.innerHTML = topLevel.map(c=>renderComment(c,false)).join('');
+}
+
+function toggleSpotifyPreview(trackId, btn){
+  const container = document.getElementById('preview-player');
+  if(!container) return;
+  if(container.dataset.open === '1'){
+    container.innerHTML = '';
+    container.dataset.open = '0';
+    btn.textContent = '▶ 30s Preview';
+  } else {
+    container.innerHTML = '<iframe style="border-radius:8px;border:none;width:100%" src="https://open.spotify.com/embed/track/'+trackId+'?utm_source=generator&theme=0" height="80" allowfullscreen allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>';
+    container.dataset.open = '1';
+    btn.textContent = '■ Close Preview';
+  }
 }
 
 function formatTimeAgo(ts){
