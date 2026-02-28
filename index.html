@@ -138,7 +138,6 @@
   .sim-item:hover { border-color: var(--red-dim); background: var(--surface2); transform: translateY(-1px); }
   .sim-item strong { font-family: 'Bebas Neue', sans-serif; font-size: 1.05rem; letter-spacing: 0.04em; display: block; margin-bottom: 0.15rem; color: var(--white); }
   .sim-item span { font-size: 0.75rem; color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-style: normal; letter-spacing: 0.04em; }
-  /* Artist stat pills */
   .artist-stats { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
   .artist-stat-pill { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.06em; padding: 0.3rem 0.75rem; border-radius: 20px; background: var(--surface2); border: 1px solid var(--border); color: var(--text-muted); }
   .settings-wrap { max-width: 560px; margin: 0 auto; padding: 2rem; }
@@ -243,7 +242,6 @@
     .about-wrap { padding: 0 1rem 6rem; }
     .about-hero { padding: 2rem 0 2rem; }
   }
-  /* ── SPOTIFY SEARCH ── */
   .spotify-search-results { position: absolute; top: 100%; left: 0; right: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; z-index: 500; max-height: 280px; overflow-y: auto; box-shadow: 0 8px 24px rgba(0,0,0,0.5); display: none; }
   .spotify-search-results.open { display: block; }
   .spotify-result { display: flex; align-items: center; gap: 0.75rem; padding: 0.65rem 0.9rem; cursor: pointer; transition: background 0.1s; border-bottom: 1px solid var(--border); }
@@ -274,7 +272,6 @@
   .notif-text strong { color: var(--white); }
   .notif-time { font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; color: var(--text-dim); margin-top: 0.25rem; }
   .notif-empty { padding: 2rem; text-align: center; font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; color: var(--text-dim); }
-  /* ── REACTIONS ── */
   .reaction-btn { display: inline-flex; align-items: center; gap: 0.35rem; background: none; border: 1px solid var(--border); border-radius: 20px; padding: 0.3rem 0.75rem; font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--text-muted); cursor: pointer; transition: all 0.15s; }
   .reaction-btn:hover { border-color: var(--red-dim); color: var(--white); }
   .reaction-btn.reacted { background: rgba(204,17,17,0.12); border-color: var(--red); color: var(--red); }
@@ -323,8 +320,6 @@
 <!-- AUTH -->
 <div class="view active" id="view-auth">
   <div class="auth-split">
-
-    <!-- LEFT: David Byrne image -->
     <div class="auth-image-side">
       <img src="https://www.rollingstone.com/wp-content/uploads/2023/09/SMS_005.jpg?w=1600&h=900&crop=1" alt="David Byrne" class="auth-split-img" />
       <div class="auth-split-overlay">
@@ -335,8 +330,6 @@
         <div class="auth-split-question">What do you have<br>to share?</div>
       </div>
     </div>
-
-    <!-- RIGHT: Form -->
     <div class="auth-form-side">
       <div class="center-box">
         <div class="auth-logo" style="margin-bottom:0.2rem">🎵 Wave<span>length</span></div>
@@ -345,7 +338,6 @@
           <button class="auth-tab active" id="tab-signin" onclick="switchTab('signin')">Sign In</button>
           <button class="auth-tab" id="tab-signup" onclick="switchTab('signup')">Sign Up</button>
         </div>
-        <!-- Browse button moved above form fields -->
         <div style="margin-bottom:1.2rem">
           <button class="btn btn-ghost btn-wide" onclick="browseAsGuest()" style="border-color:var(--red-dim);color:var(--text-muted)">👀 Just browsing — show me around</button>
         </div>
@@ -386,7 +378,6 @@
         </p>
       </div>
     </div>
-
   </div>
 </div>
 
@@ -407,7 +398,7 @@
   </div>
 </div>
 
-<!-- RESET PASSWORD (shown after clicking email link) -->
+<!-- RESET PASSWORD -->
 <div class="view" id="view-resetpassword">
   <div class="center-screen">
     <div class="center-box">
@@ -459,42 +450,34 @@
 <!-- ABOUT -->
 <div class="view" id="view-about">
   <div class="about-wrap">
-
     <div class="about-hero">
       <div class="about-hero-deco">🎵</div>
       <div class="week-pill">About</div>
       <h1 class="about-title">Some songs just<br><span>stay with you.</span></h1>
       <p class="about-intro">You know the feeling. It's Tuesday evening and a song comes on and suddenly everything makes sense. Or nothing does. Either way, you need someone to know.</p>
     </div>
-
     <div class="about-body">
-
       <div class="about-section">
         <div class="about-section-label">Why we built this</div>
         <p>Wavelength started as a simple idea between friends — the kind of people who are always sending each other songs at odd hours with no explanation except <em>"you need to hear this."</em></p>
         <p>We wanted a place that wasn't about follower counts or algorithms or whatever everyone else is listening to. Just the people we actually care about, and one song a week that says something true about where they are right now.</p>
         <p>So we built it.</p>
       </div>
-
       <div class="about-section">
         <div class="about-section-label">How it works</div>
         <p>Every week, you pick one song. That's it. Not a playlist. Not a mood board. One song — the one that's been living in your head, the one that felt right for this particular stretch of days.</p>
         <p>Your friends do the same. And every week you get a small window into where everyone is, told entirely through music.</p>
       </div>
-
       <div class="about-section">
         <div class="about-section-label">What it becomes</div>
         <p>Over time, your profile becomes something unexpected — a real archive of your life told in songs. Scroll back through your picks six months from now and you'll remember exactly what you were going through when you chose each one.</p>
         <p>Music has always been how we mark time. Wavelength just makes that a little more intentional.</p>
       </div>
-
       <div class="about-section">
         <div class="about-section-label">Who it's for</div>
         <p>People who take music personally. People who want to stay close to the friends who matter, even when life pulls everyone in different directions. People who believe that what someone's listening to on a random Wednesday tells you more about them than anything they'd ever post.</p>
       </div>
-
     </div>
-
     <div class="about-closing">
       <div class="about-david-wrap">
         <img src="https://www.rollingstone.com/wp-content/uploads/2023/09/SMS_005.jpg?w=1600&h=900&crop=1" alt="David Byrne" class="about-david-img" />
@@ -505,7 +488,6 @@
         <button class="btn btn-ghost" style="font-size:0.75rem;padding:0.9rem 1.5rem" onclick="browseAsGuest()">Browse first</button>
       </div>
     </div>
-
   </div>
 </div>
 
@@ -522,7 +504,6 @@
     <span class="nav-user" id="nav-user"></span>
     <button class="btn btn-primary" id="nav-pick-btn" onclick="openPickModal()">+ This Week</button>
     <button class="btn btn-primary" id="nav-join-btn" style="display:none" onclick="showView('auth')">Join Wavelength</button>
-    <!-- NOTIFICATION BELL -->
     <div class="notif-bell-wrap" id="notif-bell-wrap" style="display:none">
       <button class="notif-bell-btn" id="notif-bell" onclick="toggleNotifPanel()">
         🔔
@@ -653,8 +634,6 @@
     <button class="modal-close" onclick="closePickModal()">✕</button>
     <h3>🎵 This Week's Pick</h3>
     <p class="modal-sub" id="pick-week-label"></p>
-
-    <!-- SPOTIFY SEARCH -->
     <div class="form-group" style="position:relative">
       <label>Search for a song</label>
       <div style="display:flex;gap:0.5rem">
@@ -663,8 +642,6 @@
       </div>
       <div class="spotify-search-results" id="spotify-search-results"></div>
     </div>
-
-    <!-- SELECTED SONG PREVIEW -->
     <div id="pick-selected-preview" style="display:none;margin-bottom:1.2rem">
       <div style="display:flex;align-items:center;gap:0.9rem;background:var(--surface2);border:1px solid var(--red-dim);border-radius:6px;padding:0.75rem">
         <img id="pick-preview-art" src="" alt="" style="width:52px;height:52px;border-radius:4px;object-fit:cover;flex-shrink:0" />
@@ -676,25 +653,19 @@
         <div style="margin-left:auto;flex-shrink:0;color:#1db954;font-size:0.7rem">✓ Selected</div>
       </div>
     </div>
-
-    <!-- HIDDEN AUTO-FILLED FIELDS -->
     <input type="hidden" id="p-song" />
     <input type="hidden" id="p-artist" />
     <input type="hidden" id="p-art" />
     <input type="hidden" id="p-spotify" />
     <input type="hidden" id="p-year" />
-
-    <!-- YOUTUBE FALLBACK -->
     <div class="form-group" id="p-youtube-group">
       <label>YouTube Link <span style="color:var(--text-dim)">(optional — if not on Spotify)</span></label>
       <input type="text" id="p-youtube" placeholder="https://www.youtube.com/watch?v=..." />
     </div>
-
     <div class="form-group">
       <label>Why this song? <span style="color:var(--text-dim)">(optional)</span></label>
       <textarea id="p-note" placeholder="What makes this your pick this week?"></textarea>
     </div>
-    <!-- tags and band_info auto-populated from Spotify, not user-editable -->
     <input type="hidden" id="p-tags" />
     <input type="hidden" id="p-bandinfo" />
     <button class="btn btn-primary btn-wide" id="pick-save-btn" onclick="savePick()">Save Pick</button>
@@ -728,251 +699,47 @@
 </div>
 
 <script>
-// ── HARDCODED CREDENTIALS — no setup screen needed ──
 const SUPABASE_URL = "https://ozkrjvyuptwlzaqhqljc.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im96a3Jqdnl1cHR3bHphcWhxbGpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzODI2NDksImV4cCI6MjA4Njk1ODY0OX0.SqNJLTYZwnHV5kywP1PyLdp9-y76ugu-PyfL7BOGLIA";
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-    storageKey: 'wavelength-auth'
-  }
+  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storageKey: 'wavelength-auth' }
 });
 
 let currentUser = null, currentProfile = null;
 
-// ── SIMILAR MUSIC ──
 const SIMILAR_SONGS = {'kate bush':['Running Up That Hill — Kate Bush','Wuthering Heights — Kate Bush','Cloudbusting — Kate Bush','The Hounds of Love — Kate Bush'],'radiohead':['Exit Music (For a Film) — Radiohead','How to Disappear Completely — Radiohead','Street Spirit — Radiohead','Reckoner — Radiohead'],'kendrick lamar':['Alright — Kendrick Lamar','DNA. — Kendrick Lamar','m.A.A.d city — Kendrick Lamar','Swimming Pools — Kendrick Lamar'],'frank ocean':['Nights — Frank Ocean','Self Control — Frank Ocean','Pink + White — Frank Ocean','Seigfried — Frank Ocean'],'tame impala':['Let It Happen — Tame Impala','Feels Like We Only Go Backwards — Tame Impala','Eventually — Tame Impala','New Person, Same Old Mistakes — Tame Impala'],'the national':['Bloodbuzz Ohio — The National','Sorrow — The National','Afraid of Everyone — The National','Terrible Love — The National'],'bon iver':['Holocene — Bon Iver','Skinny Love — Bon Iver','Towers — Bon Iver','Michicant — Bon Iver'],'phoebe bridgers':['Motion Sickness — Phoebe Bridgers','Savior Complex — Phoebe Bridgers','Funeral — Phoebe Bridgers']};
-const SIMILAR_ARTISTS = {
-  // ── INDIE / ALTERNATIVE ──
-  'radiohead':['Portishead','Thom Yorke','Sigur Rós','The National','Mogwai','Boards of Canada'],
-  'the national':['Frightened Rabbit','Bon Iver','Iron & Wine','Sufjan Stevens','Villagers','The War on Drugs'],
-  'bon iver':['The National','Fleet Foxes','Sufjan Stevens','Elbow','Gregory Alan Isakov','S. Carey'],
-  'tame impala':['MGMT','Unknown Mortal Orchestra','Pond','Flaming Lips','Allah-Las','Mac DeMarco'],
-  'arctic monkeys':['The Last Shadow Puppets','Miles Kane','Interpol','The Strokes','Humbug-era Black Keys','Richard Hawley'],
-  'the strokes':['Arctic Monkeys','Interpol','Yeah Yeah Yeahs','LCD Soundsystem','Clap Your Hands Say Yeah','The Walkmen'],
-  'interpol':['The Strokes','Editors','Doves','The National','White Lies','She Wants Revenge'],
-  'lcd soundsystem':['Hot Chip','Caribou','Four Tet','!!! (Chk Chk Chk)','New Order','Daft Punk'],
-  'mgmt':['Tame Impala','Of Montreal','Animal Collective','Flaming Lips','Ariel Pink','Neon Indian'],
-  'vampire weekend':['Rostam','Paul Simon','Ezra Koenig','Ra Ra Riot','Dirty Projectors','Grizzly Bear'],
-  'grizzly bear':['Fleet Foxes','Dirty Projectors','Animal Collective','Beach House','Department of Eagles','Deerhunter'],
-  'fleet foxes':['Grizzly Bear','Iron & Wine','Bon Iver','My Morning Jacket','Father John Misty','Joanna Newsom'],
-  'beach house':['Mazzy Star','Cocteau Twins','Grouper','Slowdive','Cigarettes After Sex','Still Woozy'],
-  'car seat headrest':['Alex G','Girlpool','Palehound','Snail Mail','illuminati hotties','Julien Baker'],
-  'the war on drugs':['Kurt Vile','Real Estate','Phosphorescent','Sun Kil Moon','Jason Isbell','Wilco'],
-  'kurt vile':['The War on Drugs','Real Estate','Steve Gunn','Woods','Angel Olsen','Courtney Barnett'],
-  'courtney barnett':['Kurt Vile','Palehound','Snail Mail','Waxahatchee','Julien Baker','Lucy Dacus'],
-  'snail mail':['Soccer Mommy','Girlpool','Palehound','Jay Som','Julien Baker','Hovvdy'],
-  'soccer mommy':['Snail Mail','Jay Som','Frankie Cosmos','Hovvdy','Julia Jacklin','Palehound'],
-  'big thief':['Adrianne Lenker','Waxahatchee','Tiny Ruins','Hand Habits','Faye Webster','Indigo De Souza'],
-  'waxahatchee':['Big Thief','Hurray for the Riff Raff','Mountain Goats','Julien Baker','Angel Olsen','Neko Case'],
-  'angel olsen':['Sharon Van Etten','Waxahatchee','Marissa Nadler','Hand Habits','Julia Jacklin','Aldous Harding'],
-  'sharon van etten':['Angel Olsen','Julien Baker','Phoebe Bridgers','Adrianne Lenker','Hand Habits','Weyes Blood'],
-  'weyes blood':['Father John Misty','Judee Sill','Joni Mitchell','Karen Dalton','Aldous Harding','Julia Holter'],
-  'father john misty':['Fleet Foxes','Weyes Blood','Kevin Morby','Jonathan Wilson','Unknown Mortal Orchestra','Perfume Genius'],
-  'perfume genius':['Sufjan Stevens','Weyes Blood','Bon Iver','Julia Holter','How to Dress Well','Aldous Harding'],
-  'sufjan stevens':['Bon Iver','Joanna Newsom','Fleet Foxes','Perfume Genius','Weyes Blood','Owen Pallett'],
-  'phoebe bridgers':['Julien Baker','Lucy Dacus','boygenius','Angel Olsen','Soccer Mommy','Snail Mail'],
-  'julien baker':['Phoebe Bridgers','Lucy Dacus','boygenius','Hop Along','Palehound','Hand Habits'],
-  'boygenius':['Phoebe Bridgers','Julien Baker','Lucy Dacus','Angel Olsen','Sharon Van Etten','Big Thief'],
-  'deerhunter':['Atlas Sound','Real Estate','Grizzly Bear','Beach House','Wild Nothing','Ducktails'],
-  'real estate':['Deerhunter','Wild Nothing','Beach Fossils','Woods','Ducktails','The Clientele'],
-  'mac demarco':['Alex G','Homeshake','Mild High Club','Drugdealer','Men I Trust','Whitney'],
-  'alex g':['Car Seat Headrest','Hand Habits','Hovvdy','Florist','Tomberlin','Snail Mail'],
-  'mitski':['Japanese Breakfast','Hand Habits','Palehound','Soccer Mommy','Advance Base','Florist'],
-  'japanese breakfast':['Mitski','illuminati hotties','Alex G','Snail Mail','Hand Habits','Caroline Rose'],
-  'faye webster':['Big Thief','Hand Habits','Charlotte Day Wilson','Beabadoobee','Men I Trust','Hovvdy'],
-  'men i trust':['Beach House','Wild Nothing','Mac DeMarco','Whitney','Homeshake','Still Woozy'],
-  'whitney':['Shintaro Sakamoto','Men I Trust','Hovvdy','Hand Habits','Mild High Club','Whitney Rose'],
-  'wilco':['Uncle Tupelo','Son Volt','Jay Farrar','Tweedy','The War on Drugs','Silver Jews'],
-  // ── INDIE POP / DREAM POP ──
-  'kate bush':['Björk','Florence + The Machine','Tori Amos','Bat for Lashes','Anna Calvi','St. Vincent'],
-  'björk':['Kate Bush','Sigur Rós','Fever Ray','Múm','Arca','Holly Herndon'],
-  'florence + the machine':['Kate Bush','Bat for Lashes','Lykke Li','Anna Calvi','Daughter','Oh Wonder'],
-  'st. vincent':['Talking Heads','David Byrne','Annie Clark','Cate Le Bon','Rostam','Sufjan Stevens'],
-  'lorde':['Ella Yelich-O\'Connor','Lana Del Rey','Halsey','Banks','Billie Eilish','Sza'],
-  'lana del rey':['Lorde','Weyes Blood','Mazzy Star','Hope Sandoval','Beach House','Cigarettes After Sex'],
-  'cigarettes after sex':['Beach House','Mazzy Star','Lana Del Rey','Her','Wild Nothing','Chelsea Wolfe'],
-  'billie eilish':['Lorde','Olivia Rodrigo','Clairo','Remi Wolf','girl in red','Role Model'],
-  'clairo':['Beabadoobee','Soccer Mommy','Rex Orange County','Still Woozy','Men I Trust','Snail Mail'],
-  'beabadoobee':['Clairo','Soccer Mommy','Snail Mail','Remi Wolf','girl in red','Spacey Jane'],
-  'olivia rodrigo':['Billie Eilish','Lorde','Gracie Abrams','Sabrina Carpenter','Girl in Red','Maisie Peters'],
-  'rex orange county':['Still Woozy','Dominic Fike','Clairo','Men I Trust','Homeshake','boy pablo'],
-  'still woozy':['Rex Orange County','Dominic Fike','Clairo','Remi Wolf','Role Model','Jake Wesley Rogers'],
-  'remi wolf':['Still Woozy','Dominic Fike','Clairo','Brockhampton','Rex Orange County','Steve Lacy'],
-  'dominic fike':['Rex Orange County','Still Woozy','Omar Apollo','Remi Wolf','Steve Lacy','Brockhampton'],
-  // ── R&B / SOUL / NEO-SOUL ──
-  'frank ocean':['Syd','Steve Lacy','Brent Faiyaz','Daniel Caesar','Sampha','James Blake'],
-  'james blake':['Bon Iver','Sampha','Moses Sumney','How to Dress Well','Sohn','Banks'],
-  'sampha':['James Blake','Sohn','Kwabs','Moses Sumney','Frank Ocean','Kojey Radical'],
-  'daniel caesar':['Frank Ocean','H.E.R.','Lucky Daye','Brent Faiyaz','Syd','Charlotte Day Wilson'],
-  'brent faiyaz':['Frank Ocean','Daniel Caesar','Syd','Steve Lacy','Ari Lennox','Lucky Daye'],
-  'syd':['Frank Ocean','Steve Lacy','Brent Faiyaz','Ravyn Lenae','Charlotte Day Wilson','H.E.R.'],
-  'steve lacy':['Frank Ocean','Syd','Brent Faiyaz','Rex Orange County','Remi Wolf','Ravyn Lenae'],
-  'h.e.r.':['Jhené Aiko','Kehlani','Sza','Ari Lennox','Summer Walker','Alicia Keys'],
-  'sza':['H.E.R.','Jhené Aiko','Summer Walker','Kehlani','Ari Lennox','Ravyn Lenae'],
-  'jhené aiko':['Sza','H.E.R.','Kehlani','Summer Walker','Banks','Snoh Aalegra'],
-  'summer walker':['Sza','H.E.R.','Kehlani','Jhené Aiko','Ari Lennox','Lucky Daye'],
-  'kehlani':['Sza','H.E.R.','Jhené Aiko','Summer Walker','Tinashe','Ravyn Lenae'],
-  'moses sumney':['Sampha','James Blake','Perfume Genius','Bon Iver','How to Dress Well','Anohni'],
-  'blood orange':['Frank Ocean','Solange','Kelela','Arca','How to Dress Well','Kindness'],
-  'solange':['Blood Orange','Kelela','Sza','Frank Ocean','Erykah Badu','Janelle Monáe'],
-  'janelle monáe':['Solange','Prince','Erykah Badu','Cindi Mayweather','St. Vincent','Lianne La Havas'],
-  'erykah badu':['D\'Angelo','Lauryn Hill','Bilal','Jill Scott','Common','Mos Def'],
-  'd\'angelo':['Erykah Badu','Maxwell','Lauryn Hill','Bilal','Prince','Anthony Hamilton'],
-  // ── HIP-HOP / RAP ──
-  'kendrick lamar':['J. Cole','Isaiah Rashad','ScHoolboy Q','Jay Rock','Ab-Soul','SZA'],
-  'j. cole':['Kendrick Lamar','Drake','Big K.R.I.T.','Wale','Dreamville','Bas'],
-  'earl sweatshirt':['MF DOOM','Mach-Hommy','MIKE','billy woods','Armand Hammer','Boldly'],
-  'tyler the creator':['Frank Ocean','Odd Future','Vince Staples','BROCKHAMPTON','Kali Uchis','Rex Orange County'],
-  'vince staples':['Tyler the Creator','Earl Sweatshirt','Danny Brown','Saba','Buddy','Freddie Gibbs'],
-  'danny brown':['Vince Staples','JPEGMAFIA','Death Grips','clipping.','Open Mike Eagle','aesop rock'],
-  'jpegmafia':['Danny Brown','Death Grips','clipping.','serpentwithfeet','Injury Reserve','Show Me The Body'],
-  'death grips':['JPEGMAFIA','clipping.','Show Me The Body','Daughters','Merzbow','Ho99o9'],
-  'childish gambino':['Frank Ocean','Tyler the Creator','Chance the Rapper','Donald Glover','Janelle Monáe','Blood Orange'],
-  'chance the rapper':['Childish Gambino','Noname','Saba','Mick Jenkins','Joey Purp','Knox Fortune'],
-  'noname':['Saba','Chance the Rapper','Mick Jenkins','Tierra Whack','Lianne La Havas','Jamila Woods'],
-  'saba':['Noname','Chance the Rapper','Mick Jenkins','Femdot','Ravyn Lenae','Smino'],
-  'freddie gibbs':['Madlib','Pusha T','Boldy James','Benny the Butcher','Ransom','Vince Staples'],
-  'mf doom':['Madlib','Ghostface Killah','Czarface','Danger Doom','Captain Murphy','Billy Woods'],
-  'outkast':['Goodie Mob','Erykah Badu','Janelle Monáe','UGK','Dungeon Family','Cee-Lo Green'],
-  'kanye west':['Kid Cudi','Chance the Rapper','Pusha T','Common','Jay-Z','Childish Gambino'],
-  'kid cudi':['Kanye West','Travis Scott','Pusha T','Chip tha Ripper','Don Broco','The Neighbourhood'],
-  'travis scott':['Kid Cudi','Young Thug','Drake','Future','Nav','Don Toliver'],
-  'drake':['J. Cole','Travis Scott','Future','PartyNextDoor','dvsn','Majid Jordan'],
-  'mac miller':['Chance the Rapper','J. Cole','Tyler the Creator','Joey Bada$$','Logic','Vince Staples'],
-  // ── ELECTRONIC / DANCE ──
-  'four tet':['Caribou','Bonobo','Jon Hopkins','Floating Points','Nicolas Jaar','Burial'],
-  'caribou':['Four Tet','Bonobo','Jon Hopkins','Floating Points','Nils Frahm','Com Truise'],
-  'bonobo':['Caribou','Four Tet','Tycho','Emancipator','Catching Flies','Maribou State'],
-  'burial':['Four Tet','The Caretaker','Actress','Boards of Canada','Andy Stott','Demdike Stare'],
-  'boards of canada':['Burial','Aphex Twin','Autechre','Plaid','Bibio','Tycho'],
-  'aphex twin':['Boards of Canada','Autechre','Squarepusher','Plaid','Luke Vibert','Orbital'],
-  'nicolas jaar':['Actress','Four Tet','Burial','The Field','Ben Frost','Objekt'],
-  'jon hopkins':['Nils Frahm','Olafur Arnalds','Rival Consoles','Max Richter','Peter Broderick','Floating Points'],
-  'floating points':['Four Tet','Caribou','Jon Hopkins','Sohn','Matthew Halsall','Yussef Kamaal'],
-  'james holden':['Nicolas Jaar','Andy Stott','Objekt','Function','Demdike Stare','Actress'],
-  'daft punk':['LCD Soundsystem','Justice','Kavinsky','Moderat','Phoenix','Air'],
-  'justice':['Daft Punk','Boys Noize','Kavinsky','SebastiAn','Gesaffelstein','Chromatics'],
-  'tycho':['Bonobo','Washed Out','Emancipator','Catching Flies','Maribou State','S U R V I V E'],
-  'washed out':['Tycho','Toro y Moi','Neon Indian','Small Black','How to Dress Well','Ducktails'],
-  'toro y moi':['Washed Out','Neon Indian','Tycho','Small Black','How to Dress Well','Com Truise'],
-  'moderat':['Modeselektor','Apparat','Nils Frahm','Jon Hopkins','Rival Consoles','Sohn'],
-  'bicep':['Four Tet','Floating Points','Caribou','Jon Hopkins','Peggy Gou','Mall Grab'],
-  'disclosure':['AlunaGeorge','Tourist','Duke Dumont','George FitzGerald','Julio Bashmore','Shadow Child'],
-  // ── ROCK / POST-PUNK / NOISE ──
-  'david bowie':['Iggy Pop','Lou Reed','Brian Eno','Roxy Music','T. Rex','Nick Cave'],
-  'the cure':['Siouxsie and the Banshees','Bauhaus','The Smiths','Joy Division','Cocteau Twins','Wire'],
-  'the smiths':['Morrissey','Johnny Marr','The Cure','New Order','Aztec Camera','Lloyd Cole'],
-  'joy division':['New Order','The Cure','Bauhaus','Siouxsie and the Banshees','Wire','The Fall'],
-  'new order':['Joy Division','The Cure','The Smiths','Depeche Mode','Electronic','Pet Shop Boys'],
-  'depeche mode':['New Order','Tears for Fears','Pet Shop Boys','Soft Cell','The Cure','Ultravox'],
-  'talking heads':['David Byrne','Brian Eno','Television','Pere Ubu','XTC','Devo'],
-  'pixies':['Dinosaur Jr.','Husker Du','Sebadoh','Guided by Voices','Pavement','Archers of Loaf'],
-  'pavement':['Guided by Voices','Sebadoh','Silver Jews','Built to Spill','Neutral Milk Hotel','Yo La Tengo'],
-  'neutral milk hotel':['The Microphones','Bright Eyes','Mount Eerie','Okkervil River','Sufjan Stevens','Songs: Ohia'],
-  'mount eerie':['The Microphones','Phil Elverum','Sun Kil Moon','Grouper','Marissa Nadler','Bonnie Prince Billy'],
-  'built to spill':['Guided by Voices','Pavement','Dinosaur Jr.','Sebadoh','Modest Mouse','Archers of Loaf'],
-  'modest mouse':['Built to Spill','Pavement','The Shins','Iron & Wine','Death Cab for Cutie','Ugly Casanova'],
-  'the shins':['Modest Mouse','Death Cab for Cutie','Iron & Wine','Bright Eyes','Sufjan Stevens','Rilo Kiley'],
-  'death cab for cutie':['The Shins','Iron & Wire','Bright Eyes','Rilo Kiley','Pedro the Lion','The Postal Service'],
-  'bright eyes':['Conor Oberst','Neutral Milk Hotel','Pedro the Lion','The Mountain Goats','Death Cab for Cutie','Jason Molina'],
-  'the mountain goats':['John Darnielle','Bright Eyes','Okkervil River','Songs: Ohia','Will Oldham','Silver Jews'],
-  'yo la tengo':['Guided by Voices','Pavement','The Velvet Underground','Galaxie 500','Mazzy Star','Low'],
-  'low':['Codeine','Galaxie 500','Microphones','Grouper','Bedhead','Songs: Ohia'],
-  'slowdive':['Cocteau Twins','My Bloody Valentine','Ride','Lush','Pale Saints','Chapterhouse'],
-  'my bloody valentine':['Slowdive','Ride','Lush','Swervedriver','Pale Saints','A Place to Bury Strangers'],
-  'cocteau twins':['This Mortal Coil','Dead Can Dance','Slowdive','Beach House','Mazzy Star','Grouper'],
-  'mazzy star':['Cocteau Twins','Beach House','Hope Sandoval','Cigarettes After Sex','Galaxie 500','Low'],
-  'nick cave':['The Bad Seeds','Mark Lanegan','Tom Waits','Leonard Cohen','Crime & the City Solution','Rowland S. Howard'],
-  'tom waits':['Nick Cave','Captain Beefheart','Leonard Cohen','Scott Walker','Mark Lanegan','Waits'],
-  'leonard cohen':['Nick Cave','Tom Waits','Bob Dylan','John Cale','Scott Walker','Mark Lanegan'],
-  'the velvet underground':['Lou Reed','John Cale','Nico','Television','Patti Smith','Iggy Pop'],
-  'wire':['Gang of Four','The Fall','Mission of Burma','Public Image Ltd.','Swell Maps','Essential Logic'],
-  'gang of four':['Wire','Public Image Ltd.','The Fall','Magazine','The Pop Group','Pere Ubu'],
-  'television':['Talking Heads','Patti Smith','The Velvet Underground','Pere Ubu','Wire','The Feelies'],
-  'sonic youth':['Dinosaur Jr.','Pixies','Sebadoh','Pavement','Guided by Voices','Shellac'],
-  'dinosaur jr.':['Sebadoh','Sonic Youth','Pixies','Guided by Voices','Superchunk','Lemonheads'],
-  'the church':['Echo & the Bunnymen','The Chameleons','Felt','The Sound','The Verlaines','The Go-Betweens'],
-  'echo & the bunnymen':['The Teardrop Explodes','The Church','The Chameleons','The Sound','Felt','Comsat Angels'],
-  'the jesus and mary chain':['My Bloody Valentine','Slowdive','Lush','Ride','The Cure','Swervedriver'],
-  'spiritualized':['Spacemen 3','The Brian Jonestown Massacre','Primal Scream','Bark Psychosis','Mogwai','Godspeed You! Black Emperor'],
-  'mogwai':['Godspeed You! Black Emperor','Explosions in the Sky','Sigur Rós','65daysofstatic','Russian Circles','Tortoise'],
-  'godspeed you! black emperor':['Mogwai','Explosions in the Sky','Sigur Rós','Silver Mt. Zion','This Will Destroy You','Mono'],
-  'explosions in the sky':['Godspeed You! Black Emperor','Mogwai','Sigur Rós','This Will Destroy You','Hammock','Caspian'],
-  'sigur rós':['Explosions in the Sky','Mogwai','Ólafur Arnalds','Nils Frahm','Johann Johannsson','Jóhann Jóhannsson'],
-  'radiohead':['Portishead','Thom Yorke','Sigur Rós','The National','Mogwai','Boards of Canada'],
-  'portishead':['Massive Attack','Tricky','Björk','Radiohead','Archive','Lamb'],
-  'massive attack':['Portishead','Tricky','Björk','Goldie','Lamb','Archive'],
-  'nick drake':['John Martyn','Sandy Denny','Tim Buckley','Fred Neil','Judee Sill','Vashti Bunyan'],
-  'john martyn':['Nick Drake','Sandy Denny','Richard Thompson','Bert Jansch','Tim Buckley','Fairport Convention'],
-  'vashti bunyan':['Nick Drake','Judee Sill','Sandy Denny','Sibylle Baier','Linda Perhacs','Karen Dalton'],
-  // ── FOLK / AMERICANA / COUNTRY ──
-  'iron & wine':['Fleet Foxes','Bon Iver','Sufjan Stevens','Death Cab for Cutie','The Shins','Calexico'],
-  'joanna newsom':['Vashti Bunyan','Devendra Banhart','Sufjan Stevens','Weyes Blood','Julia Holter','CocoRosie'],
-  'devendra banhart':['Joanna Newsom','Sufjan Stevens','Cate Le Bon','Vetiver','Feathers','José González'],
-  'jason isbell':['Drive-By Truckers','Americana','Sturgill Simpson','John Prine','Lucinda Williams','Ryan Adams'],
-  'sturgill simpson':['Jason Isbell','Colter Wall','Whitey Morgan','Chris Stapleton','Tyler Childers','Margo Price'],
-  'tyler childers':['Colter Wall','Jason Isbell','Sturgill Simpson','Whitey Morgan','Sierra Ferrell','Charley Crockett'],
-  'colter wall':['Tyler Childers','Jason Isbell','Sturgill Simpson','Chris Stapleton','Charley Crockett','Ian Noe'],
-  'the mountain goats':['John Darnielle','Bright Eyes','Okkervil River','Songs: Ohia','Will Oldham','Silver Jews'],
-  'bonnie prince billy':['Will Oldham','Silver Jews','Songs: Ohia','Smog','Mount Eerie','Magnolia Electric Co.'],
-  'neko case':['Waxahatchee','Calexico','New Pornographers','Neko Case','Gillian Welch','Iris DeMent'],
-  'gillian welch':['David Rawlings','Iris DeMent','Lucinda Williams','Emmylou Harris','Alison Krauss','Townes Van Zandt'],
-  // ── JAZZ / SOUL CROSSOVER ──
-  'bill evans':['Keith Jarrett','Brad Mehldau','Herbie Hancock','Paul Desmond','Miles Davis','Chick Corea'],
-  'miles davis':['John Coltrane','Herbie Hancock','Bill Evans','Wayne Shorter','Thelonious Monk','Charles Mingus'],
-  'john coltrane':['Miles Davis','Pharoah Sanders','Albert Ayler','Wayne Shorter','McCoy Tyner','Archie Shepp'],
-  'esperanza spalding':['Norah Jones','José James','Gregory Porter','Lianne La Havas','Cécile McLorin Salvant','Malia'],
-  'lianne la havas':['Laura Mvula','Esperanza Spalding','Sault','Celeste','Noname','Jamila Woods'],
-  'sault':['Lianne La Havas','Blood Orange','Solange','Cleo Sol','Celeste','Little Simz'],
-  'little simz':['Sault','Noname','Saba','Kojey Radical','Dave','Loyle Carner'],
-  // ── POP ──
-  'harry styles':['Niall Horan','Louis Tomlinson','Shawn Mendes','Conan Gray','Rex Orange County','Dominic Fike'],
-  'taylor swift':['Gracie Abrams','Olivia Rodrigo','Sabrina Carpenter','Lorde','Haim','Kacey Musgraves'],
-  'kacey musgraves':['Orville Peck','Lana Del Rey','Weyes Blood','Angel Olsen','Brandi Carlile','Maren Morris'],
-  'haim':['Fleetwood Mac','Jenny Lewis','Best Coast','Waxahatchee','Lucius','First Aid Kit'],
-  'first aid kit':['Haim','Fleet Foxes','Emmylou Harris','The Staves','Laura Marling','Lucius'],
-  'laura marling':['First Aid Kit','Aldous Harding','Joanna Newsom','Richard Thompson','Joni Mitchell','Marissa Nadler'],
-  'joni mitchell':['Carole King','Laura Nyro','Judee Sill','Carly Simon','Nick Drake','Laura Marling'],
-  'fleetwood mac':['Haim','Stevie Nicks','Eagles','Tom Petty','Crosby Stills Nash Young','Lindsey Buckingham'],
-  'madison beer':['Olivia Rodrigo','Lana Del Rey','Gracie Abrams','Conan Gray','Lennon Stella','Bea Miller'],
-  'balu brigada':['Omar Apollo','Still Woozy','Rex Orange County','Remi Wolf','beabadoobee','Dominic Fike'],
-  'omar apollo':['Remi Wolf','Still Woozy','Dominic Fike','Steve Lacy','Rex Orange County','Brockhampton'],
-};
+const SIMILAR_ARTISTS = {'radiohead':['Portishead','Thom Yorke','Sigur Rós','The National','Mogwai','Boards of Canada'],'the national':['Frightened Rabbit','Bon Iver','Iron & Wine','Sufjan Stevens','Villagers','The War on Drugs'],'bon iver':['The National','Fleet Foxes','Sufjan Stevens','Elbow','Gregory Alan Isakov','S. Carey'],'tame impala':['MGMT','Unknown Mortal Orchestra','Pond','Flaming Lips','Allah-Las','Mac DeMarco'],'arctic monkeys':['The Last Shadow Puppets','Miles Kane','Interpol','The Strokes','Humbug-era Black Keys','Richard Hawley'],'the strokes':['Arctic Monkeys','Interpol','Yeah Yeah Yeahs','LCD Soundsystem','Clap Your Hands Say Yeah','The Walkmen'],'interpol':['The Strokes','Editors','Doves','The National','White Lies','She Wants Revenge'],'lcd soundsystem':['Hot Chip','Caribou','Four Tet','!!! (Chk Chk Chk)','New Order','Daft Punk'],'mgmt':['Tame Impala','Of Montreal','Animal Collective','Flaming Lips','Ariel Pink','Neon Indian'],'vampire weekend':['Rostam','Paul Simon','Ezra Koenig','Ra Ra Riot','Dirty Projectors','Grizzly Bear'],'grizzly bear':['Fleet Foxes','Dirty Projectors','Animal Collective','Beach House','Department of Eagles','Deerhunter'],'fleet foxes':['Grizzly Bear','Iron & Wine','Bon Iver','My Morning Jacket','Father John Misty','Joanna Newsom'],'beach house':['Mazzy Star','Cocteau Twins','Grouper','Slowdive','Cigarettes After Sex','Still Woozy'],'car seat headrest':['Alex G','Girlpool','Palehound','Snail Mail','illuminati hotties','Julien Baker'],'the war on drugs':['Kurt Vile','Real Estate','Phosphorescent','Sun Kil Moon','Jason Isbell','Wilco'],'kurt vile':['The War on Drugs','Real Estate','Steve Gunn','Woods','Angel Olsen','Courtney Barnett'],'courtney barnett':['Kurt Vile','Palehound','Snail Mail','Waxahatchee','Julien Baker','Lucy Dacus'],'snail mail':['Soccer Mommy','Girlpool','Palehound','Jay Som','Julien Baker','Hovvdy'],'soccer mommy':['Snail Mail','Jay Som','Frankie Cosmos','Hovvdy','Julia Jacklin','Palehound'],'big thief':['Adrianne Lenker','Waxahatchee','Tiny Ruins','Hand Habits','Faye Webster','Indigo De Souza'],'waxahatchee':['Big Thief','Hurray for the Riff Raff','Mountain Goats','Julien Baker','Angel Olsen','Neko Case'],'angel olsen':['Sharon Van Etten','Waxahatchee','Marissa Nadler','Hand Habits','Julia Jacklin','Aldous Harding'],'sharon van etten':['Angel Olsen','Julien Baker','Phoebe Bridgers','Adrianne Lenker','Hand Habits','Weyes Blood'],'weyes blood':['Father John Misty','Judee Sill','Joni Mitchell','Karen Dalton','Aldous Harding','Julia Holter'],'father john misty':['Fleet Foxes','Weyes Blood','Kevin Morby','Jonathan Wilson','Unknown Mortal Orchestra','Perfume Genius'],'perfume genius':['Sufjan Stevens','Weyes Blood','Bon Iver','Julia Holter','How to Dress Well','Aldous Harding'],'sufjan stevens':['Bon Iver','Joanna Newsom','Fleet Foxes','Perfume Genius','Weyes Blood','Owen Pallett'],'phoebe bridgers':['Julien Baker','Lucy Dacus','boygenius','Angel Olsen','Soccer Mommy','Snail Mail'],'julien baker':['Phoebe Bridgers','Lucy Dacus','boygenius','Hop Along','Palehound','Hand Habits'],'boygenius':['Phoebe Bridgers','Julien Baker','Lucy Dacus','Angel Olsen','Sharon Van Etten','Big Thief'],'deerhunter':['Atlas Sound','Real Estate','Grizzly Bear','Beach House','Wild Nothing','Ducktails'],'real estate':['Deerhunter','Wild Nothing','Beach Fossils','Woods','Ducktails','The Clientele'],'mac demarco':['Alex G','Homeshake','Mild High Club','Drugdealer','Men I Trust','Whitney'],'alex g':['Car Seat Headrest','Hand Habits','Hovvdy','Florist','Tomberlin','Snail Mail'],'mitski':['Japanese Breakfast','Hand Habits','Palehound','Soccer Mommy','Advance Base','Florist'],'japanese breakfast':['Mitski','illuminati hotties','Alex G','Snail Mail','Hand Habits','Caroline Rose'],'faye webster':['Big Thief','Hand Habits','Charlotte Day Wilson','Beabadoobee','Men I Trust','Hovvdy'],'men i trust':['Beach House','Wild Nothing','Mac DeMarco','Whitney','Homeshake','Still Woozy'],'whitney':['Shintaro Sakamoto','Men I Trust','Hovvdy','Hand Habits','Mild High Club','Whitney Rose'],'wilco':['Uncle Tupelo','Son Volt','Jay Farrar','Tweedy','The War on Drugs','Silver Jews'],'kate bush':['Björk','Florence + The Machine','Tori Amos','Bat for Lashes','Anna Calvi','St. Vincent'],'björk':['Kate Bush','Sigur Rós','Fever Ray','Múm','Arca','Holly Herndon'],'florence + the machine':['Kate Bush','Bat for Lashes','Lykke Li','Anna Calvi','Daughter','Oh Wonder'],'st. vincent':['Talking Heads','David Byrne','Annie Clark','Cate Le Bon','Rostam','Sufjan Stevens'],'lorde':['Ella Yelich-O\'Connor','Lana Del Rey','Halsey','Banks','Billie Eilish','Sza'],'lana del rey':['Lorde','Weyes Blood','Mazzy Star','Hope Sandoval','Beach House','Cigarettes After Sex'],'cigarettes after sex':['Beach House','Mazzy Star','Lana Del Rey','Her','Wild Nothing','Chelsea Wolfe'],'billie eilish':['Lorde','Olivia Rodrigo','Clairo','Remi Wolf','girl in red','Role Model'],'clairo':['Beabadoobee','Soccer Mommy','Rex Orange County','Still Woozy','Men I Trust','Snail Mail'],'beabadoobee':['Clairo','Soccer Mommy','Snail Mail','Remi Wolf','girl in red','Spacey Jane'],'olivia rodrigo':['Billie Eilish','Lorde','Gracie Abrams','Sabrina Carpenter','Girl in Red','Maisie Peters'],'rex orange county':['Still Woozy','Dominic Fike','Clairo','Men I Trust','Homeshake','boy pablo'],'still woozy':['Rex Orange County','Dominic Fike','Clairo','Remi Wolf','Role Model','Jake Wesley Rogers'],'remi wolf':['Still Woozy','Dominic Fike','Clairo','Brockhampton','Rex Orange County','Steve Lacy'],'dominic fike':['Rex Orange County','Still Woozy','Omar Apollo','Remi Wolf','Steve Lacy','Brockhampton'],'frank ocean':['Syd','Steve Lacy','Brent Faiyaz','Daniel Caesar','Sampha','James Blake'],'james blake':['Bon Iver','Sampha','Moses Sumney','How to Dress Well','Sohn','Banks'],'sampha':['James Blake','Sohn','Kwabs','Moses Sumney','Frank Ocean','Kojey Radical'],'daniel caesar':['Frank Ocean','H.E.R.','Lucky Daye','Brent Faiyaz','Syd','Charlotte Day Wilson'],'brent faiyaz':['Frank Ocean','Daniel Caesar','Syd','Steve Lacy','Ari Lennox','Lucky Daye'],'syd':['Frank Ocean','Steve Lacy','Brent Faiyaz','Ravyn Lenae','Charlotte Day Wilson','H.E.R.'],'steve lacy':['Frank Ocean','Syd','Brent Faiyaz','Rex Orange County','Remi Wolf','Ravyn Lenae'],'h.e.r.':['Jhené Aiko','Kehlani','Sza','Ari Lennox','Summer Walker','Alicia Keys'],'sza':['H.E.R.','Jhené Aiko','Summer Walker','Kehlani','Ari Lennox','Ravyn Lenae'],'jhené aiko':['Sza','H.E.R.','Kehlani','Summer Walker','Banks','Snoh Aalegra'],'summer walker':['Sza','H.E.R.','Kehlani','Jhené Aiko','Ari Lennox','Lucky Daye'],'kehlani':['Sza','H.E.R.','Jhené Aiko','Summer Walker','Tinashe','Ravyn Lenae'],'moses sumney':['Sampha','James Blake','Perfume Genius','Bon Iver','How to Dress Well','Anohni'],'blood orange':['Frank Ocean','Solange','Kelela','Arca','How to Dress Well','Kindness'],'solange':['Blood Orange','Kelela','Sza','Frank Ocean','Erykah Badu','Janelle Monáe'],'janelle monáe':['Solange','Prince','Erykah Badu','Cindi Mayweather','St. Vincent','Lianne La Havas'],'erykah badu':['D\'Angelo','Lauryn Hill','Bilal','Jill Scott','Common','Mos Def'],'d\'angelo':['Erykah Badu','Maxwell','Lauryn Hill','Bilal','Prince','Anthony Hamilton'],'kendrick lamar':['J. Cole','Isaiah Rashad','ScHoolboy Q','Jay Rock','Ab-Soul','SZA'],'j. cole':['Kendrick Lamar','Drake','Big K.R.I.T.','Wale','Dreamville','Bas'],'earl sweatshirt':['MF DOOM','Mach-Hommy','MIKE','billy woods','Armand Hammer','Boldly'],'tyler the creator':['Frank Ocean','Odd Future','Vince Staples','BROCKHAMPTON','Kali Uchis','Rex Orange County'],'vince staples':['Tyler the Creator','Earl Sweatshirt','Danny Brown','Saba','Buddy','Freddie Gibbs'],'danny brown':['Vince Staples','JPEGMAFIA','Death Grips','clipping.','Open Mike Eagle','aesop rock'],'jpegmafia':['Danny Brown','Death Grips','clipping.','serpentwithfeet','Injury Reserve','Show Me The Body'],'death grips':['JPEGMAFIA','clipping.','Show Me The Body','Daughters','Merzbow','Ho99o9'],'childish gambino':['Frank Ocean','Tyler the Creator','Chance the Rapper','Donald Glover','Janelle Monáe','Blood Orange'],'chance the rapper':['Childish Gambino','Noname','Saba','Mick Jenkins','Joey Purp','Knox Fortune'],'noname':['Saba','Chance the Rapper','Mick Jenkins','Tierra Whack','Lianne La Havas','Jamila Woods'],'saba':['Noname','Chance the Rapper','Mick Jenkins','Femdot','Ravyn Lenae','Smino'],'freddie gibbs':['Madlib','Pusha T','Boldy James','Benny the Butcher','Ransom','Vince Staples'],'mf doom':['Madlib','Ghostface Killah','Czarface','Danger Doom','Captain Murphy','Billy Woods'],'outkast':['Goodie Mob','Erykah Badu','Janelle Monáe','UGK','Dungeon Family','Cee-Lo Green'],'kanye west':['Kid Cudi','Chance the Rapper','Pusha T','Common','Jay-Z','Childish Gambino'],'kid cudi':['Kanye West','Travis Scott','Pusha T','Chip tha Ripper','Don Broco','The Neighbourhood'],'travis scott':['Kid Cudi','Young Thug','Drake','Future','Nav','Don Toliver'],'drake':['J. Cole','Travis Scott','Future','PartyNextDoor','dvsn','Majid Jordan'],'mac miller':['Chance the Rapper','J. Cole','Tyler the Creator','Joey Bada$$','Logic','Vince Staples'],'four tet':['Caribou','Bonobo','Jon Hopkins','Floating Points','Nicolas Jaar','Burial'],'caribou':['Four Tet','Bonobo','Jon Hopkins','Floating Points','Nils Frahm','Com Truise'],'bonobo':['Caribou','Four Tet','Tycho','Emancipator','Catching Flies','Maribou State'],'burial':['Four Tet','The Caretaker','Actress','Boards of Canada','Andy Stott','Demdike Stare'],'boards of canada':['Burial','Aphex Twin','Autechre','Plaid','Bibio','Tycho'],'aphex twin':['Boards of Canada','Autechre','Squarepusher','Plaid','Luke Vibert','Orbital'],'nicolas jaar':['Actress','Four Tet','Burial','The Field','Ben Frost','Objekt'],'jon hopkins':['Nils Frahm','Olafur Arnalds','Rival Consoles','Max Richter','Peter Broderick','Floating Points'],'floating points':['Four Tet','Caribou','Jon Hopkins','Sohn','Matthew Halsall','Yussef Kamaal'],'daft punk':['LCD Soundsystem','Justice','Kavinsky','Moderat','Phoenix','Air'],'justice':['Daft Punk','Boys Noize','Kavinsky','SebastiAn','Gesaffelstein','Chromatics'],'tycho':['Bonobo','Washed Out','Emancipator','Catching Flies','Maribou State','S U R V I V E'],'washed out':['Tycho','Toro y Moi','Neon Indian','Small Black','How to Dress Well','Ducktails'],'toro y moi':['Washed Out','Neon Indian','Tycho','Small Black','How to Dress Well','Com Truise'],'moderat':['Modeselektor','Apparat','Nils Frahm','Jon Hopkins','Rival Consoles','Sohn'],'bicep':['Four Tet','Floating Points','Caribou','Jon Hopkins','Peggy Gou','Mall Grab'],'disclosure':['AlunaGeorge','Tourist','Duke Dumont','George FitzGerald','Julio Bashmore','Shadow Child'],'david bowie':['Iggy Pop','Lou Reed','Brian Eno','Roxy Music','T. Rex','Nick Cave'],'the cure':['Siouxsie and the Banshees','Bauhaus','The Smiths','Joy Division','Cocteau Twins','Wire'],'the smiths':['Morrissey','Johnny Marr','The Cure','New Order','Aztec Camera','Lloyd Cole'],'joy division':['New Order','The Cure','Bauhaus','Siouxsie and the Banshees','Wire','The Fall'],'new order':['Joy Division','The Cure','The Smiths','Depeche Mode','Electronic','Pet Shop Boys'],'depeche mode':['New Order','Tears for Fears','Pet Shop Boys','Soft Cell','The Cure','Ultravox'],'talking heads':['David Byrne','Brian Eno','Television','Pere Ubu','XTC','Devo'],'pixies':['Dinosaur Jr.','Husker Du','Sebadoh','Guided by Voices','Pavement','Archers of Loaf'],'pavement':['Guided by Voices','Sebadoh','Silver Jews','Built to Spill','Neutral Milk Hotel','Yo La Tengo'],'neutral milk hotel':['The Microphones','Bright Eyes','Mount Eerie','Okkervil River','Sufjan Stevens','Songs: Ohia'],'mount eerie':['The Microphones','Phil Elverum','Sun Kil Moon','Grouper','Marissa Nadler','Bonnie Prince Billy'],'built to spill':['Guided by Voices','Pavement','Dinosaur Jr.','Sebadoh','Modest Mouse','Archers of Loaf'],'modest mouse':['Built to Spill','Pavement','The Shins','Iron & Wine','Death Cab for Cutie','Ugly Casanova'],'the shins':['Modest Mouse','Death Cab for Cutie','Iron & Wine','Bright Eyes','Sufjan Stevens','Rilo Kiley'],'death cab for cutie':['The Shins','Iron & Wire','Bright Eyes','Rilo Kiley','Pedro the Lion','The Postal Service'],'bright eyes':['Conor Oberst','Neutral Milk Hotel','Pedro the Lion','The Mountain Goats','Death Cab for Cutie','Jason Molina'],'the mountain goats':['John Darnielle','Bright Eyes','Okkervil River','Songs: Ohia','Will Oldham','Silver Jews'],'yo la tengo':['Guided by Voices','Pavement','The Velvet Underground','Galaxie 500','Mazzy Star','Low'],'low':['Codeine','Galaxie 500','Microphones','Grouper','Bedhead','Songs: Ohia'],'slowdive':['Cocteau Twins','My Bloody Valentine','Ride','Lush','Pale Saints','Chapterhouse'],'my bloody valentine':['Slowdive','Ride','Lush','Swervedriver','Pale Saints','A Place to Bury Strangers'],'cocteau twins':['This Mortal Coil','Dead Can Dance','Slowdive','Beach House','Mazzy Star','Grouper'],'mazzy star':['Cocteau Twins','Beach House','Hope Sandoval','Cigarettes After Sex','Galaxie 500','Low'],'nick cave':['The Bad Seeds','Mark Lanegan','Tom Waits','Leonard Cohen','Crime & the City Solution','Rowland S. Howard'],'tom waits':['Nick Cave','Captain Beefheart','Leonard Cohen','Scott Walker','Mark Lanegan','Waits'],'leonard cohen':['Nick Cave','Tom Waits','Bob Dylan','John Cale','Scott Walker','Mark Lanegan'],'the velvet underground':['Lou Reed','John Cale','Nico','Television','Patti Smith','Iggy Pop'],'wire':['Gang of Four','The Fall','Mission of Burma','Public Image Ltd.','Swell Maps','Essential Logic'],'gang of four':['Wire','Public Image Ltd.','The Fall','Magazine','The Pop Group','Pere Ubu'],'television':['Talking Heads','Patti Smith','The Velvet Underground','Pere Ubu','Wire','The Feelies'],'sonic youth':['Dinosaur Jr.','Pixies','Sebadoh','Pavement','Guided by Voices','Shellac'],'dinosaur jr.':['Sebadoh','Sonic Youth','Pixies','Guided by Voices','Superchunk','Lemonheads'],'the church':['Echo & the Bunnymen','The Chameleons','Felt','The Sound','The Verlaines','The Go-Betweens'],'echo & the bunnymen':['The Teardrop Explodes','The Church','The Chameleons','The Sound','Felt','Comsat Angels'],'the jesus and mary chain':['My Bloody Valentine','Slowdive','Lush','Ride','The Cure','Swervedriver'],'spiritualized':['Spacemen 3','The Brian Jonestown Massacre','Primal Scream','Bark Psychosis','Mogwai','Godspeed You! Black Emperor'],'mogwai':['Godspeed You! Black Emperor','Explosions in the Sky','Sigur Rós','65daysofstatic','Russian Circles','Tortoise'],'godspeed you! black emperor':['Mogwai','Explosions in the Sky','Sigur Rós','Silver Mt. Zion','This Will Destroy You','Mono'],'explosions in the sky':['Godspeed You! Black Emperor','Mogwai','Sigur Rós','This Will Destroy You','Hammock','Caspian'],'sigur rós':['Explosions in the Sky','Mogwai','Ólafur Arnalds','Nils Frahm','Johann Johannsson','Jóhann Jóhannsson'],'portishead':['Massive Attack','Tricky','Björk','Radiohead','Archive','Lamb'],'massive attack':['Portishead','Tricky','Björk','Goldie','Lamb','Archive'],'nick drake':['John Martyn','Sandy Denny','Tim Buckley','Fred Neil','Judee Sill','Vashti Bunyan'],'john martyn':['Nick Drake','Sandy Denny','Richard Thompson','Bert Jansch','Tim Buckley','Fairport Convention'],'vashti bunyan':['Nick Drake','Judee Sill','Sandy Denny','Sibylle Baier','Linda Perhacs','Karen Dalton'],'iron & wine':['Fleet Foxes','Bon Iver','Sufjan Stevens','Death Cab for Cutie','The Shins','Calexico'],'joanna newsom':['Vashti Bunyan','Devendra Banhart','Sufjan Stevens','Weyes Blood','Julia Holter','CocoRosie'],'devendra banhart':['Joanna Newsom','Sufjan Stevens','Cate Le Bon','Vetiver','Feathers','José González'],'jason isbell':['Drive-By Truckers','Americana','Sturgill Simpson','John Prine','Lucinda Williams','Ryan Adams'],'sturgill simpson':['Jason Isbell','Colter Wall','Whitey Morgan','Chris Stapleton','Tyler Childers','Margo Price'],'tyler childers':['Colter Wall','Jason Isbell','Sturgill Simpson','Whitey Morgan','Sierra Ferrell','Charley Crockett'],'colter wall':['Tyler Childers','Jason Isbell','Sturgill Simpson','Chris Stapleton','Charley Crockett','Ian Noe'],'bonnie prince billy':['Will Oldham','Silver Jews','Songs: Ohia','Smog','Mount Eerie','Magnolia Electric Co.'],'neko case':['Waxahatchee','Calexico','New Pornographers','Neko Case','Gillian Welch','Iris DeMent'],'gillian welch':['David Rawlings','Iris DeMent','Lucinda Williams','Emmylou Harris','Alison Krauss','Townes Van Zandt'],'bill evans':['Keith Jarrett','Brad Mehldau','Herbie Hancock','Paul Desmond','Miles Davis','Chick Corea'],'miles davis':['John Coltrane','Herbie Hancock','Bill Evans','Wayne Shorter','Thelonious Monk','Charles Mingus'],'john coltrane':['Miles Davis','Pharoah Sanders','Albert Ayler','Wayne Shorter','McCoy Tyner','Archie Shepp'],'esperanza spalding':['Norah Jones','José James','Gregory Porter','Lianne La Havas','Cécile McLorin Salvant','Malia'],'lianne la havas':['Laura Mvula','Esperanza Spalding','Sault','Celeste','Noname','Jamila Woods'],'sault':['Lianne La Havas','Blood Orange','Solange','Cleo Sol','Celeste','Little Simz'],'little simz':['Sault','Noname','Saba','Kojey Radical','Dave','Loyle Carner'],'harry styles':['Niall Horan','Louis Tomlinson','Shawn Mendes','Conan Gray','Rex Orange County','Dominic Fike'],'taylor swift':['Gracie Abrams','Olivia Rodrigo','Sabrina Carpenter','Lorde','Haim','Kacey Musgraves'],'kacey musgraves':['Orville Peck','Lana Del Rey','Weyes Blood','Angel Olsen','Brandi Carlile','Maren Morris'],'haim':['Fleetwood Mac','Jenny Lewis','Best Coast','Waxahatchee','Lucius','First Aid Kit'],'first aid kit':['Haim','Fleet Foxes','Emmylou Harris','The Staves','Laura Marling','Lucius'],'laura marling':['First Aid Kit','Aldous Harding','Joanna Newsom','Richard Thompson','Joni Mitchell','Marissa Nadler'],'joni mitchell':['Carole King','Laura Nyro','Judee Sill','Carly Simon','Nick Drake','Laura Marling'],'fleetwood mac':['Haim','Stevie Nicks','Eagles','Tom Petty','Crosby Stills Nash Young','Lindsey Buckingham'],'madison beer':['Olivia Rodrigo','Lana Del Rey','Gracie Abrams','Conan Gray','Lennon Stella','Bea Miller'],'balu brigada':['Omar Apollo','Still Woozy','Rex Orange County','Remi Wolf','beabadoobee','Dominic Fike'],'omar apollo':['Remi Wolf','Still Woozy','Dominic Fike','Steve Lacy','Rex Orange County','Brockhampton'],'mumford & sons':['The Lumineers','Of Monsters and Men','Fleet Foxes','The Avett Brothers','Iron & Wine','Bear\'s Den'],'the lumineers':['Mumford & Sons','Of Monsters and Men','Fleet Foxes','The Head and the Heart','Gregory Alan Isakov','Caamp'],'of monsters and men':['Mumford & Sons','The Lumineers','Fleet Foxes','Of Monsters and Men','Daughter','Lord Huron']};
+
 function findSimilar(artist,db){
   const a=(artist||'').toLowerCase();
-  // Try exact match first, then partial
-  const key=Object.keys(db).find(k=>a===k) || Object.keys(db).find(k=>a.includes(k)||k.includes(a));
+  const key=Object.keys(db).find(k=>a===k)||Object.keys(db).find(k=>a.includes(k)||k.includes(a));
   return key?db[key]:null;
 }
-function getRelatedArtistsFromDB(artist, genres){
-  const fromDB = findSimilar(artist, SIMILAR_ARTISTS);
-  if(fromDB) return fromDB;
-  // Genre-based fallback
-  const g = (genres||[]).join(' ').toLowerCase();
-  if(g.includes('indie rock')||g.includes('indie pop')) return ['Vampire Weekend','The National','Bon Iver','Tame Impala','Fleet Foxes','Phoebe Bridgers'];
-  if(g.includes('dream pop')||g.includes('shoegaze')) return ['Beach House','Slowdive','Cocteau Twins','Mazzy Star','My Bloody Valentine','Cigarettes After Sex'];
-  if(g.includes('hip hop')||g.includes('rap')) return ['Kendrick Lamar','Frank Ocean','Tyler the Creator','J. Cole','Earl Sweatshirt','Noname'];
-  if(g.includes('r&b')||g.includes('soul')) return ['Frank Ocean','SZA','James Blake','Daniel Caesar','Sampha','Solange'];
-  if(g.includes('folk')||g.includes('americana')) return ['Fleet Foxes','Bon Iver','Iron & Wine','Sufjan Stevens','Phoebe Bridgers','Big Thief'];
-  if(g.includes('electronic')||g.includes('ambient')) return ['Four Tet','Caribou','Jon Hopkins','Bonobo','Burial','Boards of Canada'];
-  if(g.includes('post-punk')||g.includes('punk')) return ['Interpol','The Strokes','Wire','Gang of Four','LCD Soundsystem','Talking Heads'];
-  if(g.includes('jazz')) return ['Bill Evans','Miles Davis','John Coltrane','Floating Points','Yussef Kamaal','Nubya Garcia'];
-  if(g.includes('country')) return ['Sturgill Simpson','Tyler Childers','Jason Isbell','Kacey Musgraves','Colter Wall','Sierra Ferrell'];
-  if(g.includes('pop')) return ['Lorde','Lana Del Rey','St. Vincent','Janelle Monáe','Haim','Kacey Musgraves'];
+function getRelatedArtistsFromDB(artist,genres){
+  const fromDB=findSimilar(artist,SIMILAR_ARTISTS);
+  if(fromDB)return fromDB;
+  const g=(genres||[]).join(' ').toLowerCase();
+  if(g.includes('indie rock')||g.includes('indie pop'))return['Vampire Weekend','The National','Bon Iver','Tame Impala','Fleet Foxes','Phoebe Bridgers'];
+  if(g.includes('dream pop')||g.includes('shoegaze'))return['Beach House','Slowdive','Cocteau Twins','Mazzy Star','My Bloody Valentine','Cigarettes After Sex'];
+  if(g.includes('hip hop')||g.includes('rap'))return['Kendrick Lamar','Frank Ocean','Tyler the Creator','J. Cole','Earl Sweatshirt','Noname'];
+  if(g.includes('r&b')||g.includes('soul'))return['Frank Ocean','SZA','James Blake','Daniel Caesar','Sampha','Solange'];
+  if(g.includes('folk')||g.includes('americana'))return['Fleet Foxes','Bon Iver','Iron & Wine','Sufjan Stevens','Phoebe Bridgers','Big Thief'];
+  if(g.includes('electronic')||g.includes('ambient'))return['Four Tet','Caribou','Jon Hopkins','Bonobo','Burial','Boards of Canada'];
+  if(g.includes('post-punk')||g.includes('punk'))return['Interpol','The Strokes','Wire','Gang of Four','LCD Soundsystem','Talking Heads'];
+  if(g.includes('jazz'))return['Bill Evans','Miles Davis','John Coltrane','Floating Points','Yussef Kamaal','Nubya Garcia'];
+  if(g.includes('country'))return['Sturgill Simpson','Tyler Childers','Jason Isbell','Kacey Musgraves','Colter Wall','Sierra Ferrell'];
+  if(g.includes('pop'))return['Lorde','Lana Del Rey','St. Vincent','Janelle Monáe','Haim','Kacey Musgraves'];
+  if(g.includes('chamber folk')||g.includes('folk rock'))return['Mumford & Sons','The Lumineers','Fleet Foxes','Of Monsters and Men','Iron & Wine','The Avett Brothers'];
   return null;
 }
 
-// ── INSTRUMENTS ──
-const INSTRUMENTS = ['🎸','🎹','🥁','🎺','🎷','🎻','🎤','🎧','🎵','🎶','📻','🎼','🪗','🪘','🎙️','🪈'];
-function buildInstrumentPicker(id, sel){
-  const el=document.getElementById(id); el.innerHTML='';
+const INSTRUMENTS=['🎸','🎹','🥁','🎺','🎷','🎻','🎤','🎧','🎵','🎶','📻','🎼','🪗','🪘','🎙️','🪈'];
+function buildInstrumentPicker(id,sel){
+  const el=document.getElementById(id);el.innerHTML='';
   INSTRUMENTS.forEach((inst,i)=>{
     const btn=document.createElement('div');
     btn.className='instrument-btn'+((sel?inst===sel:i===0)?' selected':'');
-    btn.textContent=inst; btn.dataset.instrument=inst;
+    btn.textContent=inst;btn.dataset.instrument=inst;
     btn.onclick=()=>{el.querySelectorAll('.instrument-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');};
     el.appendChild(btn);
   });
@@ -980,8 +747,7 @@ function buildInstrumentPicker(id, sel){
 function getInstrument(id){const b=document.getElementById(id).querySelector('.selected');return b?b.dataset.instrument:INSTRUMENTS[0];}
 function getAvatar(profile){return profile.instrument||profile.display_name[0];}
 
-// ── COLORS ──
-const COLORS = ['#cc1111','#ff4444','#ff9090','#ffffff','#cccccc','#8b0000','#ff6b6b','#660000'];
+const COLORS=['#cc1111','#ff4444','#ff9090','#ffffff','#cccccc','#8b0000','#ff6b6b','#660000'];
 function buildColorPicker(id,sel){
   const el=document.getElementById(id);el.innerHTML='';
   COLORS.forEach((c,i)=>{
@@ -996,13 +762,8 @@ function buildColorPicker(id,sel){
 }
 function getColor(id){const s=document.getElementById(id).querySelector('.selected');return s?s.dataset.color:COLORS[0];}
 
-function toggleNavDropdown(){
-  document.getElementById('nav-dropdown-menu').classList.toggle('open');
-}
-function closeNavDropdown(){
-  document.getElementById('nav-dropdown-menu').classList.remove('open');
-}
-// Close dropdown when clicking outside
+function toggleNavDropdown(){document.getElementById('nav-dropdown-menu').classList.toggle('open');}
+function closeNavDropdown(){document.getElementById('nav-dropdown-menu').classList.remove('open');}
 document.addEventListener('click',function(e){
   const dd=document.getElementById('nav-dropdown');
   if(dd&&!dd.contains(e.target))closeNavDropdown();
@@ -1010,29 +771,24 @@ document.addEventListener('click',function(e){
   if(nb&&!nb.contains(e.target))closeNotifPanel();
 });
 
-// ── GUEST MODE ──
-let isGuest = false;
+let isGuest=false;
 
 function browseAsGuest(){
   isGuest=true;
   document.getElementById('mainNav').style.display='flex';
   document.getElementById('mobileNav').style.display='block';
-  // Show guest-specific nav elements, hide member-only ones
   document.getElementById('nav-myprofile').style.display='none';
   document.getElementById('nav-settings-btn').style.display='none';
   document.getElementById('nav-signout-btn').style.display='none';
   document.getElementById('nav-pick-btn').style.display='none';
   document.getElementById('nav-join-btn').style.display='inline-flex';
-  document.getElementById('nav-join-btn').style.display='inline-flex';
   document.getElementById('nav-user').textContent='Guest';
   document.getElementById('guest-banner').style.display='block';
-  // Update mobile nav — hide pick button, show join instead
   const mnavProfile=document.getElementById('mnav-myprofile');
   if(mnavProfile)mnavProfile.style.display='none';
   showView('feed');
 }
 
-// ── AUTH ──
 function switchTab(tab){
   document.getElementById('auth-signin').style.display=tab==='signin'?'block':'none';
   document.getElementById('auth-signup').style.display=tab==='signup'?'block':'none';
@@ -1067,13 +823,8 @@ async function signUp(){
   const {data,error}=await sb.auth.signUp({email,password:pass});
   btn.disabled=false;btn.textContent='Create Account';
   if(error){err.textContent=error.message;return;}
-  if(data.session){
-    currentUser=data.user;
-    await loadProfileAndContinue();
-  } else {
-    err.style.color='#6bffb8';
-    err.textContent='Check your email to confirm your account, then sign in.';
-  }
+  if(data.session){currentUser=data.user;await loadProfileAndContinue();}
+  else{err.style.color='#6bffb8';err.textContent='Check your email to confirm your account, then sign in.';}
 }
 
 async function signOut(){
@@ -1086,7 +837,6 @@ async function signOut(){
 
 async function loadProfileAndContinue(){
   isGuest=false;
-  // Reset any guest-mode UI changes
   document.getElementById('nav-myprofile').style.display='';
   document.getElementById('nav-settings-btn').style.display='';
   document.getElementById('nav-signout-btn').style.display='';
@@ -1131,7 +881,6 @@ async function createProfile(){
   showToast('Welcome to Wavelength! 🎵');
 }
 
-// ── VIEWS ──
 function showView(name,opts){
   opts=opts||{};
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
@@ -1150,58 +899,36 @@ function showView(name,opts){
   if(name==='settings')renderSettings();
 }
 
-// ── WEEK UTILS ──
-// Weeks run Sun–Sat. Week 1 = Jan 1 through the first Saturday.
-// Week 2 starts on the first Sunday of the year, etc.
 function getFirstSunday(year){
-  // The first Sunday ON OR AFTER Jan 1 that starts week 2.
-  // Week 1 is always Jan 1 → first Saturday (may be just 1–6 days).
-  const jan1 = new Date(year,0,1);
-  const dayOfWeek = jan1.getDay(); // 0=Sun,1=Mon,...,6=Sat
-  if(dayOfWeek===0) return jan1; // Jan 1 is Sunday — week 1 starts and ends same day, week 2 starts Jan 1
-  // First Sunday after Jan 1
-  const firstSun = new Date(year,0,1+(7-dayOfWeek));
-  return firstSun;
+  const jan1=new Date(year,0,1);
+  const dayOfWeek=jan1.getDay();
+  if(dayOfWeek===0)return jan1;
+  return new Date(year,0,1+(7-dayOfWeek));
 }
 function getCurrentWeek(){
-  const now = new Date();
-  const year = now.getFullYear();
-  const jan1 = new Date(year,0,1);
-  const dayOfWeek = jan1.getDay();
-  // If Jan 1 is Sunday, no short week — just count full weeks from Jan 1
-  if(dayOfWeek===0){
-    return Math.min(52,Math.max(1,Math.ceil((now-jan1)/(7*24*60*60*1000))));
-  }
-  // Week 1 ends on the first Saturday
-  const firstSun = new Date(year,0,1+(7-dayOfWeek));
-  if(now < firstSun) return 1;
-  const msFromFirstSun = now - firstSun;
+  const now=new Date();
+  const year=now.getFullYear();
+  const jan1=new Date(year,0,1);
+  const dayOfWeek=jan1.getDay();
+  if(dayOfWeek===0){return Math.min(52,Math.max(1,Math.ceil((now-jan1)/(7*24*60*60*1000))));}
+  const firstSun=new Date(year,0,1+(7-dayOfWeek));
+  if(now<firstSun)return 1;
+  const msFromFirstSun=now-firstSun;
   return Math.min(52,Math.max(2,2+Math.floor(msFromFirstSun/(7*24*60*60*1000))));
 }
 function getWeekRange(w,year){
-  year = year||new Date().getFullYear();
-  const jan1 = new Date(year,0,1);
-  const dayOfWeek = jan1.getDay();
-  const f = d=>d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
-  if(dayOfWeek===0){
-    // Jan 1 is Sunday — all weeks are clean Sun–Sat
-    const s = new Date(year,0,1+(w-1)*7);
-    const e = new Date(s.getTime()+6*24*60*60*1000);
-    return f(s)+' \u2013 '+f(e);
-  }
-  if(w===1){
-    // Short opening week: Jan 1 → first Saturday
-    const e = new Date(year,0,7-dayOfWeek); // first Saturday
-    return f(jan1)+' \u2013 '+f(e);
-  }
-  // Week 2+ start on a Sunday
-  const firstSun = new Date(year,0,1+(7-dayOfWeek));
-  const s = new Date(firstSun.getTime()+(w-2)*7*24*60*60*1000);
-  const e = new Date(s.getTime()+6*24*60*60*1000);
+  year=year||new Date().getFullYear();
+  const jan1=new Date(year,0,1);
+  const dayOfWeek=jan1.getDay();
+  const f=d=>d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  if(dayOfWeek===0){const s=new Date(year,0,1+(w-1)*7);const e=new Date(s.getTime()+6*24*60*60*1000);return f(s)+' \u2013 '+f(e);}
+  if(w===1){const e=new Date(year,0,7-dayOfWeek);return f(jan1)+' \u2013 '+f(e);}
+  const firstSun=new Date(year,0,1+(7-dayOfWeek));
+  const s=new Date(firstSun.getTime()+(w-2)*7*24*60*60*1000);
+  const e=new Date(s.getTime()+6*24*60*60*1000);
   return f(s)+' \u2013 '+f(e);
 }
 
-// ── FEED ──
 async function renderFeed(){
   const week=getCurrentWeek();
   const year=new Date().getFullYear();
@@ -1209,16 +936,9 @@ async function renderFeed(){
   document.getElementById('feed-range').textContent=getWeekRange(week,year);
   const grid=document.getElementById('friends-grid');
   grid.innerHTML='<div class="loading-center" style="grid-column:1/-1"><div class="spinner"></div></div>';
-
   let ids=[];
-  if(isGuest){
-    // Guests see everyone
-    const {data:everyone}=await sb.from('profiles').select('id');
-    ids=(everyone||[]).map(p=>p.id);
-  } else {
-    const {data:follows}=await sb.from('follows').select('following_id').eq('follower_id',currentUser.id);
-    ids=[currentUser.id,...(follows||[]).map(f=>f.following_id)];
-  }
+  if(isGuest){const {data:everyone}=await sb.from('profiles').select('id');ids=(everyone||[]).map(p=>p.id);}
+  else{const {data:follows}=await sb.from('follows').select('following_id').eq('follower_id',currentUser.id);ids=[currentUser.id,...(follows||[]).map(f=>f.following_id)];}
   const {data:profiles}=await sb.from('profiles').select('*').in('id',ids);
   const {data:picks}=await sb.from('picks').select('*').in('user_id',ids).eq('week_number',week).eq('year',year);
   const pickMap=Object.fromEntries((picks||[]).map(p=>[p.user_id,p]));
@@ -1232,8 +952,7 @@ async function renderFeed(){
       ?'<img class="friend-card-art" src="'+esc(pick.art_url)+'" alt="Album art" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="friend-card-art-ph" style="display:none">🎵</div>'
       :'<div class="friend-card-art-ph">'+(pick?'🎵':'🎸')+'</div>';
     return '<div class="friend-card" onclick="showView(\'profile\',{userId:\''+p.id+'\'})">'
-      +artHtml
-      +'<div class="friend-card-body">'
+      +artHtml+'<div class="friend-card-body">'
       +'<div class="f-avatar" style="background:'+p.color+'22;color:'+p.color+'">'+getAvatar(p)+'</div>'
       +'<div class="f-name">'+(me?'⭐ You':'@'+esc(p.username))+'</div>'
       +(pick?'<div class="f-song">'+esc(pick.song)+'</div><div class="f-artist">'+esc(pick.artist)+'</div>':'<div class="no-pick">No pick yet this week</div>')
@@ -1241,43 +960,26 @@ async function renderFeed(){
   }).join('');
 }
 
-// ── MEMBERS ──
 async function renderMembers(){
   const grid=document.getElementById('members-grid');
   grid.innerHTML='<div class="loading-center" style="grid-column:1/-1"><div class="spinner"></div></div>';
   const {data:profiles}=await sb.from('profiles').select('*').order('created_at',{ascending:false});
   const {data:allPicks}=await sb.from('picks').select('user_id');
   const counts={};(allPicks||[]).forEach(p=>{counts[p.user_id]=(counts[p.user_id]||0)+1;});
-
   let followSet=new Set();
-  if(!isGuest){
-    const {data:follows}=await sb.from('follows').select('following_id').eq('follower_id',currentUser.id);
-    followSet=new Set((follows||[]).map(f=>f.following_id));
-  }
-
-  if(!profiles||profiles.length===0){
-    grid.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="icon">🎷</div><p>No members yet.</p></div>';return;
-  }
+  if(!isGuest){const {data:follows}=await sb.from('follows').select('following_id').eq('follower_id',currentUser.id);followSet=new Set((follows||[]).map(f=>f.following_id));}
+  if(!profiles||profiles.length===0){grid.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="icon">🎷</div><p>No members yet.</p></div>';return;}
   grid.innerHTML=profiles.map(p=>{
-    const n=counts[p.id]||0;
-    const me=!isGuest&&p.id===currentUser.id;
-    const following=followSet.has(p.id);
+    const n=counts[p.id]||0;const me=!isGuest&&p.id===currentUser.id;const following=followSet.has(p.id);
     let followBtn='';
-    if(!isGuest&&!me){
-      followBtn=following
-        ?'<button class="member-follow-btn following" onclick="event.stopPropagation();toggleMemberFollow(\''+p.id+'\',true,this)">✓ Following</button>'
-        :'<button class="member-follow-btn" onclick="event.stopPropagation();toggleMemberFollow(\''+p.id+'\',false,this)">+ Follow</button>';
-    }
-    if(isGuest){
-      followBtn='<button class="member-follow-btn guest-follow" onclick="event.stopPropagation();showView(\'auth\')">+ Follow</button>';
-    }
+    if(!isGuest&&!me){followBtn=following?'<button class="member-follow-btn following" onclick="event.stopPropagation();toggleMemberFollow(\''+p.id+'\',true,this)">✓ Following</button>':'<button class="member-follow-btn" onclick="event.stopPropagation();toggleMemberFollow(\''+p.id+'\',false,this)">+ Follow</button>';}
+    if(isGuest){followBtn='<button class="member-follow-btn guest-follow" onclick="event.stopPropagation();showView(\'auth\')">+ Follow</button>';}
     return '<div class="member-card" onclick="showView(\'profile\',{userId:\''+p.id+'\'})">'
       +'<div class="member-avatar" style="background:'+p.color+'22;color:'+p.color+'">'+getAvatar(p)+'</div>'
       +'<div class="member-name">'+esc(p.display_name)+(me?' ⭐':'')+'</div>'
       +'<div class="member-username">@'+esc(p.username)+'</div>'
       +'<div class="member-picks">'+n+' pick'+(n!==1?'s':'')+'</div>'
-      +followBtn
-      +'</div>';
+      +followBtn+'</div>';
   }).join('');
 }
 
@@ -1285,20 +987,17 @@ async function toggleMemberFollow(userId,isFollowing,btn){
   btn.disabled=true;
   if(isFollowing){
     await sb.from('follows').delete().eq('follower_id',currentUser.id).eq('following_id',userId);
-    btn.textContent='+ Follow';
-    btn.classList.remove('following');
+    btn.textContent='+ Follow';btn.classList.remove('following');
     btn.onclick=function(e){e.stopPropagation();toggleMemberFollow(userId,false,btn);};
   } else {
     await sb.from('follows').insert({follower_id:currentUser.id,following_id:userId});
-    btn.textContent='✓ Following';
-    btn.classList.add('following');
+    btn.textContent='✓ Following';btn.classList.add('following');
     btn.onclick=function(e){e.stopPropagation();toggleMemberFollow(userId,true,btn);};
     showToast('Following!');
   }
   btn.disabled=false;
 }
 
-// ── PROFILE ──
 async function renderProfile(userId){
   if(!userId)return;
   const isMe=!isGuest&&userId===currentUser.id;
@@ -1311,20 +1010,16 @@ async function renderProfile(userId){
   if(!profile)return;
   const {data:picks}=await sb.from('picks').select('*').eq('user_id',userId).eq('year',year).order('week_number',{ascending:false});
   const pickMap=Object.fromEntries((picks||[]).map(p=>[p.week_number,p]));
-  // Fetch reaction counts and current user's reactions for this profile's picks
   const pickIds=(picks||[]).map(p=>p.id);
   let reactionCounts={};let myReactions=new Set();
   if(pickIds.length){
     const {data:reactions}=await sb.from('reactions').select('pick_id,user_id').in('pick_id',pickIds);
-    (reactions||[]).forEach(r=>{
-      reactionCounts[r.pick_id]=(reactionCounts[r.pick_id]||0)+1;
-      if(!isGuest&&r.user_id===currentUser.id)myReactions.add(r.pick_id);
-    });
+    (reactions||[]).forEach(r=>{reactionCounts[r.pick_id]=(reactionCounts[r.pick_id]||0)+1;if(!isGuest&&r.user_id===currentUser.id)myReactions.add(r.pick_id);});
   }
   document.getElementById('profile-hero').innerHTML=
     '<div class="profile-hero-deco">🎸</div>'
     +'<div class="p-avatar-lg" style="background:'+profile.color+'22;color:'+profile.color+'">'+getAvatar(profile)+'</div>'
-    +'<div class="p-meta"><h2>'+esc(profile.display_name)+'</h2><p>@'+esc(profile.username)+' &middot; '+((picks||[]).length)+' picks in '+year+'</p></div>';
+    +'<div class="p-meta"><h2>'+esc(profile.display_name)+'</h2><p>@'+esc(profile.username)+' \u00b7 '+((picks||[]).length)+' picks in '+year+'</p></div>';
   let html='';
   for(let w=week;w>=1;w--){
     const pick=pickMap[w];const cur=w===week;
@@ -1338,11 +1033,7 @@ async function renderProfile(userId){
     html+='<div class="week-row '+(cur?'is-current':'')+'" onclick="'+click+'">'
       +artHtml
       +'<div><div class="wk-label">'+(cur?'&#9733; This week':'Week '+w)+'</div><div class="wk-date">'+getWeekRange(w,year)+'</div></div>'
-      +(pick
-        ?'<div class="wk-song"><strong>'+esc(pick.song)+'</strong><span>'+esc(pick.artist)+'</span></div>'
-        :isMe
-          ?'<div class="wk-song"><strong style="font-family:\'IBM Plex Mono\',monospace;font-size:0.7rem;font-weight:400;color:var(--text-muted)">+ Add your pick</strong></div>'
-          :'<div class="wk-song"><strong style="font-family:\'IBM Plex Mono\',monospace;font-size:0.7rem;font-weight:400;color:var(--text-dim)">No pick</strong></div>')
+      +(pick?'<div class="wk-song"><strong>'+esc(pick.song)+'</strong><span>'+esc(pick.artist)+'</span></div>':isMe?'<div class="wk-song"><strong style="font-family:\'IBM Plex Mono\',monospace;font-size:0.7rem;font-weight:400;color:var(--text-muted)">+ Add your pick</strong></div>':'<div class="wk-song"><strong style="font-family:\'IBM Plex Mono\',monospace;font-size:0.7rem;font-weight:400;color:var(--text-dim)">No pick</strong></div>')
       +(pick?'<div>'+thumbHtml+'</div>':'<div></div>')
       +'<div class="wk-arrow">'+(pick?'&#8594;':'')+'</div>'
       +'</div>';
@@ -1350,9 +1041,8 @@ async function renderProfile(userId){
   document.getElementById('weeks-list').innerHTML=html;
 }
 
-// ── SONG DETAIL ──
 async function renderSongDetail(opts){
-  const userId=opts.userId; const week=opts.week; const year=opts.year||new Date().getFullYear();
+  const userId=opts.userId;const week=opts.week;const year=opts.year||new Date().getFullYear();
   document.getElementById('song-back').onclick=function(){showView('profile',{userId:userId});};
   document.getElementById('song-content').innerHTML='<div class="loading-center"><div class="spinner"></div></div>';
   const {data:pick}=await sb.from('picks').select('*').eq('user_id',userId).eq('week_number',week).eq('year',year).single();
@@ -1360,25 +1050,23 @@ async function renderSongDetail(opts){
   if(!pick||!profile)return;
   currentPick=pick;
 
-  // Log listen
   if(!isGuest&&currentUser.id!==userId){
     const alreadyLogged=sessionStorage.getItem('listen_'+pick.id);
     if(!alreadyLogged){
       sessionStorage.setItem('listen_'+pick.id,'1');
       await sb.from('listens').upsert({pick_id:pick.id,listener_id:currentUser.id,pick_owner_id:userId},{onConflict:'pick_id,listener_id',ignoreDuplicates:true});
       const {data:existing}=await sb.from('notifications').select('id').eq('user_id',userId).eq('type','listen').eq('actor_id',currentUser.id).eq('pick_id',pick.id).maybeSingle();
-      if(!existing) await sb.from('notifications').insert({user_id:userId,type:'listen',actor_id:currentUser.id,pick_id:pick.id,read:false});
+      if(!existing)await sb.from('notifications').insert({user_id:userId,type:'listen',actor_id:currentUser.id,pick_id:pick.id,read:false});
     }
   }
 
-  // Reactions
+  let reactionCount=0,myReaction=false;
   if(!isGuest){
     const {data:reactions}=await sb.from('reactions').select('user_id').eq('pick_id',pick.id);
     reactionCount=(reactions||[]).length;
     myReaction=(reactions||[]).some(r=>r.user_id===currentUser.id);
   }
 
-  // Parse saved data
   const rawTags=pick.tags||[];
   const tags=Array.isArray(rawTags)?rawTags:(typeof rawTags==='string'?rawTags.split(',').map(t=>t.trim()).filter(Boolean):[]);
   const relatedArtists=pick.related_artists
@@ -1386,13 +1074,11 @@ async function renderSongDetail(opts){
     :(getRelatedArtistsFromDB(pick.artist,tags)||null);
   const simSongs=findSimilar(pick.artist,SIMILAR_SONGS);
 
-  // Album art
   const artHtml=pick.art_url
     ?'<img class="song-hero-art" src="'+esc(pick.art_url)+'" alt="Album art" onerror="this.outerHTML=\'<div class=\\\'song-hero-art-ph\\\'>🎵</div>\'">'
     :'<div class="song-hero-art-ph">🎵</div>';
 
-  // Player
-  let playerHtml=''; let fullSongLinks='';
+  let playerHtml='';let fullSongLinks='';
   if(pick.spotify_url){
     const trackId=pick.spotify_url.split('/track/').pop().split('?')[0];
     const isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -1400,66 +1086,44 @@ async function renderSongDetail(opts){
     fullSongLinks+='<a class="play-on-spotify-btn" href="'+spotifyHref+'" target="_blank" rel="noopener"><svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>Full Song on Spotify</a>';
   }
   if(pick.youtube_url){
-    let ytId=''; const m2=pick.youtube_url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/); if(m2)ytId=m2[1];
-    if(ytId) fullSongLinks+='<a class="play-on-youtube-btn" href="'+pick.youtube_url+'" target="_blank" rel="noopener">▶ Full Song on YouTube</a>';
+    let ytId='';const m2=pick.youtube_url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);if(m2)ytId=m2[1];
+    if(ytId)fullSongLinks+='<a class="play-on-youtube-btn" href="'+pick.youtube_url+'" target="_blank" rel="noopener">▶ Full Song on YouTube</a>';
   }
   if(pick.spotify_url){
     const sid=pick.spotify_url.split('/track/').pop().split('?')[0];
-    if(sid) playerHtml='<div class="detail-sec"><h3>🎵 Listen</h3><iframe style="border-radius:8px;border:none;width:100%;margin-top:0.5rem" src="https://open.spotify.com/embed/track/'+sid+'?utm_source=generator&theme=0" height="152" allowfullscreen allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>'+(fullSongLinks?'<div style="margin-top:0.9rem;display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center"><span style="font-family:\'IBM Plex Mono\',monospace;font-size:0.6rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em">Want the full song?</span>'+fullSongLinks+'</div>':'')+'</div>';
+    if(sid)playerHtml='<div class="detail-sec"><h3>🎵 Listen</h3><iframe style="border-radius:8px;border:none;width:100%;margin-top:0.5rem" src="https://open.spotify.com/embed/track/'+sid+'?utm_source=generator&theme=0" height="152" allowfullscreen allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>'+(fullSongLinks?'<div style="margin-top:0.9rem;display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center"><span style="font-family:\'IBM Plex Mono\',monospace;font-size:0.6rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em">Want the full song?</span>'+fullSongLinks+'</div>':'')+'</div>';
   } else if(pick.youtube_url){
-    let ytId=''; const m=pick.youtube_url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/); if(m)ytId=m[1];
-    if(ytId) playerHtml='<div class="detail-sec"><h3>🎵 Listen</h3><div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin-top:0.5rem"><iframe style="position:absolute;top:0;left:0;width:100%;height:100%;border:none" src="https://www.youtube.com/embed/'+ytId+'" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" loading="lazy"></iframe></div>'+(fullSongLinks?'<div style="margin-top:0.9rem;display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center">'+fullSongLinks+'</div>':'')+'</div>';
+    let ytId='';const m=pick.youtube_url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);if(m)ytId=m[1];
+    if(ytId)playerHtml='<div class="detail-sec"><h3>🎵 Listen</h3><div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin-top:0.5rem"><iframe style="position:absolute;top:0;left:0;width:100%;height:100%;border:none" src="https://www.youtube.com/embed/'+ytId+'" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" loading="lazy"></iframe></div>'+(fullSongLinks?'<div style="margin-top:0.9rem;display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center">'+fullSongLinks+'</div>':'')+'</div>';
   }
 
-  // About section — parse stored band_info
-  function buildAboutHtml(bi){
-    if(!bi||!bi.trim()) return '<div class="detail-sec" id="about-section" style="display:none"></div>';
-    const lines=bi.split(' · ');
-    const pills=lines.filter(l=>l.includes('followers')||l.includes('Popularity score'));
-    const desc=lines.filter(l=>!l.includes('followers')&&!l.includes('Popularity score')).filter(l=>l.trim());
-    const pillsHtml=pills.map(l=>'<span class="artist-stat-pill">'+esc(l)+'</span>').join('');
-    const descHtml=desc.map(l=>'<p>'+esc(l)+'</p>').join('');
-    if(!pillsHtml&&!descHtml) return '<div class="detail-sec" id="about-section" style="display:none"></div>';
-    return '<div class="detail-sec" id="about-section"><h3>About '+esc(pick.artist)+'</h3>'+(pillsHtml?'<div class="artist-stats">'+pillsHtml+'</div>':'')+descHtml+'</div>';
-  }
-
-  // Render page
+  // Render page — About and Vibes start hidden, autoEnrich always fills them in
   document.getElementById('song-content').innerHTML=
     '<div class="song-hero">'+artHtml
-    +'<div><div class="song-badge">Week '+week+' &middot; '+getWeekRange(week,year)+' &middot; '+esc(profile.display_name)+'\'s Pick</div>'
+    +'<div><div class="song-badge">Week '+week+' \u00b7 '+getWeekRange(week,year)+' \u00b7 '+esc(profile.display_name)+'\'s Pick</div>'
     +'<div class="song-title">'+esc(pick.song)+'</div>'
-    +'<div class="song-artist">'+esc(pick.artist)+(pick.release_year?' &middot; '+pick.release_year:'')+'</div>'
+    +'<div class="song-artist">'+esc(pick.artist)+(pick.release_year?' \u00b7 '+pick.release_year:'')+'</div>'
     +(pick.note?'<p style="margin-top:1rem;font-size:0.95rem;line-height:1.75;color:var(--text-muted);border-left:2px solid var(--red-dim);padding-left:1rem;font-style:italic">"'+esc(pick.note)+'"</p>':'')
-    +(userId===currentUser.id?'<button class="btn btn-ghost" style="margin-top:1.25rem;font-size:0.62rem" onclick="openPickModal()">✏ Edit This Pick</button>':'')
+    +(!isGuest&&userId===currentUser.id?'<button class="btn btn-ghost" style="margin-top:1.25rem;font-size:0.62rem" onclick="openPickModal()">✏ Edit This Pick</button>':'')
     +(!isGuest&&userId!==currentUser.id
       ?'<div style="margin-top:1.25rem"><button class="reaction-btn'+(myReaction?' reacted':'')+'" id="detail-reaction-btn" onclick="toggleReaction(\''+pick.id+'\',\''+userId+'\',this)">👍 <span class="reaction-count">'+reactionCount+'</span> '+(myReaction?'Liked':'Like this pick')+'</button></div>'
       :reactionCount?'<div style="margin-top:1rem;font-family:\'IBM Plex Mono\',monospace;font-size:0.65rem;color:var(--text-muted)">'+reactionCount+' 👍</div>':'')
     +'</div></div>'
     +playerHtml
-    +buildAboutHtml(pick.band_info)
-    +(tags.length
-      ?'<div class="detail-sec" id="vibes-section"><h3>🎧 Vibes</h3><div class="tags">'+tags.map(t=>'<div class="tag">'+esc(t)+'</div>').join('')+'</div></div>'
-      :'<div class="detail-sec" id="vibes-section" style="display:none"></div>')
-    +'<div class="detail-sec"><h3>Song Info</h3>'
-    +'<div class="stat-row"><span class="lbl">Title</span><span>'+esc(pick.song)+'</span></div>'
-    +'<div class="stat-row"><span class="lbl">Artist</span><span>'+esc(pick.artist)+'</span></div>'
-    +(pick.release_year?'<div class="stat-row"><span class="lbl">Year</span><span>'+pick.release_year+'</span></div>':'')
-    +'</div>'
+    +'<div class="detail-sec" id="about-section" style="display:none"></div>'
+    +'<div class="detail-sec" id="vibes-section" style="display:none"></div>'
     +(simSongs?'<div class="detail-sec"><h3>🎵 Similar Songs</h3><div class="similar-grid">'+simSongs.map(s=>{const p=s.split('\u2014');return'<div class="sim-item"><strong>'+esc(p[0].trim())+'</strong><span>'+esc((p[1]||'').trim())+'</span></div>';}).join('')+'</div></div>':'')
     +(relatedArtists
       ?'<div class="detail-sec" id="related-section"><h3>🎸 If You Like This, Try</h3><div class="similar-grid">'+relatedArtists.map(a=>'<div class="sim-item"><strong>'+esc(a)+'</strong><span>Similar artist</span></div>').join('')+'</div></div>'
       :'<div class="detail-sec" id="related-section" style="display:none"></div>');
 
-  // Silently fetch and fill in missing data — no button needed
+  // Always enrich — fills About + Vibes from Spotify (no skipping)
   autoEnrichSongDetail(pick);
 }
 
-// Auto-fetches genres from Spotify (+ local fallback) and injects About + Vibes
+// ── ENRICHMENT — always runs, always overwrites About + Vibes ──
 async function autoEnrichSongDetail(pick){
   if(!pick.spotify_url) return;
-
-  const rawTags = pick.tags||[];
-  const savedTags = Array.isArray(rawTags)?rawTags:(typeof rawTags==='string'?rawTags.split(',').map(t=>t.trim()).filter(Boolean):[]);
 
   try {
     const token = await getSpotifyToken();
@@ -1472,26 +1136,20 @@ async function autoEnrichSongDetail(pick){
 
     // Genres: Spotify first, local map fallback
     const spotifyGenres = (artistData.genres||[]).slice(0,5);
-    const localGenres = inferGenres(pick.artist);
-    const genres = spotifyGenres.length ? spotifyGenres : localGenres;
-
-    // Use saved tags if we have them, otherwise freshly fetched genres
-    const displayTags = savedTags.length ? savedTags : genres;
+    const genres = spotifyGenres.length ? spotifyGenres : inferGenres(pick.artist);
 
     const followers = artistData.followers ? artistData.followers.total.toLocaleString() : null;
     const popularity = artistData.popularity || null;
 
-    // Save to DB if owner
+    // Save to DB only if owner
     const isOwner = !isGuest && currentUser && currentUser.id === pick.user_id;
     if(isOwner){
       const updates = {};
-      if(!savedTags.length && genres.length) updates.tags = genres;
-      if(!pick.band_info && (followers||popularity)){
-        const parts = [];
-        if(followers) parts.push(followers+' followers on Spotify');
-        if(popularity) parts.push('Popularity score: '+popularity+'/100');
-        updates.band_info = parts.join(' \u00b7 ');
-      }
+      if(genres.length) updates.tags = genres;
+      const parts = [];
+      if(followers) parts.push(followers+' followers on Spotify');
+      if(popularity) parts.push('Popularity score: '+popularity+'/100');
+      if(parts.length) updates.band_info = parts.join(' \u00b7 ');
       if(!pick.release_year && trackData.album && trackData.album.release_date)
         updates.release_year = trackData.album.release_date.split('-')[0];
       if(Object.keys(updates).length) sb.from('picks').update(updates).eq('id',pick.id);
@@ -1499,28 +1157,28 @@ async function autoEnrichSongDetail(pick){
 
     if(!document.getElementById('about-section')) return;
 
-    // Inject About — followers + popularity pills only, no text bio
+    // Always inject About — Spotify stat pills
     const pills = [];
     if(followers) pills.push(followers+' followers on Spotify');
     if(popularity) pills.push('Popularity score: '+popularity+'/100');
-    const pillsHtml = pills.map(l=>'<span class="artist-stat-pill">'+esc(l)+'</span>').join('');
     const aboutEl = document.getElementById('about-section');
-    if(aboutEl && pillsHtml){
+    if(aboutEl && pills.length){
+      const pillsHtml = pills.map(l=>'<span class="artist-stat-pill">'+esc(l)+'</span>').join('');
       aboutEl.innerHTML='<h3>About '+esc(pick.artist)+'</h3><div class="artist-stats">'+pillsHtml+'</div>';
       aboutEl.style.display='';
     }
 
-    // Inject Vibes — always show if we have any genres at all
+    // Always inject Vibes — Spotify genres or local map
     const vibesEl = document.getElementById('vibes-section');
-    if(vibesEl && displayTags.length){
-      vibesEl.innerHTML='<h3>\uD83C\uDFA7 Vibes</h3><div class="tags">'+displayTags.map(t=>'<div class="tag">'+esc(t)+'</div>').join('')+'</div>';
+    if(vibesEl && genres.length){
+      vibesEl.innerHTML='<h3>\uD83C\uDFA7 Vibes</h3><div class="tags">'+genres.map(t=>'<div class="tag">'+esc(t)+'</div>').join('')+'</div>';
       vibesEl.style.display='';
     }
 
   } catch(e){}
 }
 
-// Infer genres from our local artist database when Spotify has none
+// Infer genres from local map when Spotify has none
 function inferGenres(artist){
   const a = artist.toLowerCase();
   const genreMap = {
@@ -1529,24 +1187,24 @@ function inferGenres(artist){
     'the lumineers':'indie folk, folk rock, americana',
     'of monsters and men':'indie folk, indie pop',
     'fleet foxes':'indie folk, baroque pop',
-    'marcus mumford':'folk rock, indie folk',
-    'imagine dragons':'pop rock, indie rock, alternative rock',
+    'the avett brothers':'folk rock, americana, indie folk',
+    'iron & wine':'indie folk, folk pop',
+    'lord huron':'indie folk, indie pop',
+    'bear\'s den':'indie folk, folk rock',
+    'the head and the heart':'indie folk, folk rock',
+    'gregory alan isakov':'indie folk, singer-songwriter',
+    'caamp':'indie folk, folk rock',
+    'hozier':'blues rock, indie rock, folk rock',
+    'bon iver':'indie folk, chamber pop',
+    'sufjan stevens':'indie folk, chamber pop',
+    'the national':'indie rock, chamber pop',
     'arcade fire':'indie rock, baroque pop, art rock',
     'vampire weekend':'indie pop, indie rock, chamber pop',
-    'foals':'indie rock, math rock, post-punk',
-    'alt-j':'indie rock, art rock, psychedelic pop',
-    'glass animals':'psychedelic pop, indie pop',
-    'hozier':'blues rock, indie rock, folk rock',
-    'birdy':'indie pop, folk pop',
-    'ben howard':'indie folk, folk pop',
-    'damien rice':'indie folk, singer-songwriter',
-    'iron & wine':'indie folk, folk pop',
-    'jose gonzalez':'indie folk, acoustic',
-    'james vincent mcmorrow':'indie folk, indie pop',
-    'bon iver':'indie folk, chamber pop',
-    'the national':'indie rock, chamber pop',
-    'the war on drugs':'indie rock, heartland rock',
-    'LCD soundsystem':'dance punk, indie electronic',
+    'tame impala':'psychedelic rock, indie pop',
+    'arctic monkeys':'indie rock, garage rock',
+    'the strokes':'indie rock, garage rock',
+    'interpol':'post-punk revival, indie rock',
+    'radiohead':'alternative rock, art rock',
     'the church':'post-punk, dream pop, jangle pop',
     'echo & the bunnymen':'post-punk, new wave',
     'joy division':'post-punk, gothic rock',
@@ -1555,52 +1213,40 @@ function inferGenres(artist){
     'new order':'synth-pop, post-punk',
     'depeche mode':'synth-pop, new wave',
     'talking heads':'new wave, art rock',
-    'radiohead':'alternative rock, art rock',
-    'portishead':'trip-hop, electronic',
-    'massive attack':'trip-hop, electronic',
     'slowdive':'shoegaze, dream pop',
     'my bloody valentine':'shoegaze, noise pop',
     'cocteau twins':'dream pop, ethereal wave',
     'mazzy star':'dream pop, slowcore',
+    'beach house':'dream pop, indie pop',
     'sigur ros':'post-rock, ambient',
     'mogwai':'post-rock, instrumental',
-    'godspeed you':'post-rock, experimental',
     'explosions in the sky':'post-rock, instrumental',
-    'beach house':'dream pop, indie pop',
-    'tame impala':'psychedelic rock, indie pop',
-    'arctic monkeys':'indie rock, garage rock',
-    'the strokes':'indie rock, garage rock',
-    'interpol':'post-punk revival, indie rock',
-    'lcd soundsystem':'dance punk, indie electronic',
-    'vampire weekend':'indie pop, indie rock',
-    'fleet foxes':'indie folk, baroque pop',
-    'bon iver':'indie folk, chamber pop',
-    'sufjan stevens':'indie folk, chamber pop',
+    'portishead':'trip-hop, electronic',
+    'massive attack':'trip-hop, electronic',
+    'four tet':'electronic, ambient',
+    'boards of canada':'electronic, ambient',
+    'burial':'uk garage, ambient',
     'frank ocean':'r&b, alternative r&b',
     'james blake':'indie r&b, electronic',
     'kendrick lamar':'hip hop, conscious rap',
     'tyler the creator':'alternative hip hop, rap',
-    'four tet':'electronic, ambient',
-    'boards of canada':'electronic, ambient',
-    'burial':'uk garage, ambient',
-    'nick drake':'folk, acoustic',
-    'nick cave':'post-punk, gothic rock',
-    'iron & wine':'indie folk, folk pop',
-    'big thief':'indie folk, indie rock',
     'phoebe bridgers':'indie folk, indie pop',
-    'the national':'indie rock, chamber pop',
+    'big thief':'indie folk, indie rock',
+    'fleet foxes':'indie folk, baroque pop',
     'pixies':'alternative rock, indie rock',
-    'sonic youth':'noise rock, alternative rock',
     'pavement':'indie rock, lo-fi',
     'neutral milk hotel':'indie folk, lo-fi',
-    'built to spill':'indie rock, alternative rock',
-    'modest mouse':'indie rock, alternative rock',
+    'nick drake':'folk, acoustic',
+    'nick cave':'post-punk, gothic rock',
+    'joni mitchell':'folk, singer-songwriter',
+    'fleetwood mac':'classic rock, soft rock',
+    'david bowie':'art rock, glam rock',
+    'kate bush':'art pop, progressive pop',
   };
   const key = Object.keys(genreMap).find(k => a.includes(k) || k.includes(a));
   return key ? genreMap[key].split(', ') : [];
 }
 
-// ── SETTINGS ──
 function renderSettings(){
   if(!currentProfile)return;
   document.getElementById('s-name').value=currentProfile.display_name;
@@ -1657,19 +1303,13 @@ async function toggleFollow(userId,isFollowing,btn){
   btn.disabled=false;
 }
 
-// ── PICK MODAL ──
 async function openPickModal(){
-  if(isGuest){
-    showToast('Sign up to make your own picks! 🎵');
-    setTimeout(()=>showView('auth'),1200);
-    return;
-  }
+  if(isGuest){showToast('Sign up to make your own picks! 🎵');setTimeout(()=>showView('auth'),1200);return;}
   const week=getCurrentWeek();
   const year=new Date().getFullYear();
   document.getElementById('pick-week-label').textContent='Week '+week+' \u00b7 '+getWeekRange(week,year);
   document.getElementById('pick-error').textContent='';
   const {data}=await sb.from('picks').select('*').eq('user_id',currentUser.id).eq('week_number',week).eq('year',year).single();
-  // Reset / pre-fill search UI
   closeSpotifyResults();
   document.getElementById('p-song').value=(data&&data.song)||'';
   document.getElementById('p-artist').value=(data&&data.artist)||'';
@@ -1681,7 +1321,7 @@ async function openPickModal(){
   document.getElementById('p-tags').value=(data&&data.tags&&data.tags.join(', '))||'';
   document.getElementById('p-bandinfo').value=(data&&data.band_info)||'';
   if(data&&data.song){
-    document.getElementById('p-search').value=data.song+' — '+data.artist;
+    document.getElementById('p-search').value=data.song+' \u2014 '+data.artist;
     document.getElementById('p-clear-btn').style.display='inline-flex';
     document.getElementById('pick-preview-art').src=data.art_url||'';
     document.getElementById('pick-preview-song').textContent=data.song;
@@ -1747,12 +1387,7 @@ async function changePassword(){
   setTimeout(function(){msg.textContent='';},3000);
 }
 
-// ── FORGOT / RESET PASSWORD ──
-function showForgotPassword(){
-  showView('forgot');
-  document.getElementById('forgot-email').value='';
-  document.getElementById('forgot-msg').textContent='';
-}
+function showForgotPassword(){showView('forgot');document.getElementById('forgot-email').value='';document.getElementById('forgot-msg').textContent='';}
 
 async function sendPasswordReset(){
   const email=document.getElementById('forgot-email').value.trim();
@@ -1761,9 +1396,7 @@ async function sendPasswordReset(){
   msg.textContent='';msg.style.color='#ff7070';
   if(!email){msg.textContent='Please enter your email.';return;}
   btn.disabled=true;btn.textContent='Sending...';
-  const {error}=await sb.auth.resetPasswordForEmail(email,{
-    redirectTo: window.location.origin+window.location.pathname
-  });
+  const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+window.location.pathname});
   btn.disabled=false;btn.textContent='Send Reset Link';
   if(error){msg.textContent=error.message;return;}
   msg.style.color='#6bffb8';
@@ -1785,30 +1418,19 @@ async function saveNewPassword(){
   if(error){msg.textContent=error.message;return;}
   msg.style.color='#6bffb8';
   msg.textContent='Password saved! Taking you in...';
-  setTimeout(async function(){
-    await loadProfileAndContinue();
-  },1500);
+  setTimeout(async function(){await loadProfileAndContinue();},1500);
 }
 
-// ── NOTIFICATIONS ──
 async function loadNotifications(){
   if(isGuest||!currentUser)return;
-  const {data:notifs}=await sb.from('notifications')
-    .select('*')
-    .eq('user_id',currentUser.id)
-    .order('created_at',{ascending:false})
-    .limit(30);
+  const {data:notifs}=await sb.from('notifications').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(30);
   const unread=(notifs||[]).filter(n=>!n.read).length;
   const badge=document.getElementById('notif-badge');
   if(unread>0){badge.textContent=unread>9?'9+':unread;badge.style.display='flex';}
   else{badge.style.display='none';}
-  // Fetch actor profiles
   const actorIds=[...new Set((notifs||[]).map(n=>n.actor_id).filter(Boolean))];
   let actorMap={};
-  if(actorIds.length){
-    const {data:actors}=await sb.from('profiles').select('id,display_name,username').in('id',actorIds);
-    actorMap=Object.fromEntries((actors||[]).map(a=>[a.id,a]));
-  }
+  if(actorIds.length){const {data:actors}=await sb.from('profiles').select('id,display_name,username').in('id',actorIds);actorMap=Object.fromEntries((actors||[]).map(a=>[a.id,a]));}
   const list=document.getElementById('notif-list');
   if(!notifs||notifs.length===0){list.innerHTML='<div class="notif-empty">No notifications yet</div>';return;}
   list.innerHTML=notifs.map(n=>{
@@ -1826,7 +1448,6 @@ async function loadNotifications(){
 }
 
 async function openNotifPick(notifId){
-  // Mark as read then navigate to the pick
   await sb.from('notifications').update({read:true}).eq('id',notifId);
   const {data:n}=await sb.from('notifications').select('*').eq('id',notifId).single();
   if(!n||!n.pick_id)return;
@@ -1848,11 +1469,8 @@ function toggleNotifPanel(){
   if(panel.classList.contains('open'))loadNotifications();
   closeNavDropdown();
 }
-function closeNotifPanel(){
-  document.getElementById('notif-panel').classList.remove('open');
-}
+function closeNotifPanel(){document.getElementById('notif-panel').classList.remove('open');}
 
-// ── REACTIONS ──
 async function toggleReaction(pickId,pickOwnerId,btn){
   if(isGuest){showView('auth');return;}
   const reacted=btn.classList.contains('reacted');
@@ -1861,7 +1479,6 @@ async function toggleReaction(pickId,pickOwnerId,btn){
   if(reacted){
     btn.classList.remove('reacted');
     if(countEl)countEl.textContent=Math.max(0,cur-1);
-    // Update label if on detail page
     if(btn.id==='detail-reaction-btn')btn.lastChild.textContent=' Like this pick';
     await sb.from('reactions').delete().eq('pick_id',pickId).eq('user_id',currentUser.id);
   } else {
@@ -1869,9 +1486,7 @@ async function toggleReaction(pickId,pickOwnerId,btn){
     if(countEl)countEl.textContent=cur+1;
     if(btn.id==='detail-reaction-btn')btn.lastChild.textContent=' Liked';
     await sb.from('reactions').insert({pick_id:pickId,user_id:currentUser.id,pick_owner_id:pickOwnerId});
-    if(pickOwnerId!==currentUser.id){
-      await sb.from('notifications').insert({user_id:pickOwnerId,type:'reaction',actor_id:currentUser.id,pick_id:pickId,read:false});
-    }
+    if(pickOwnerId!==currentUser.id){await sb.from('notifications').insert({user_id:pickOwnerId,type:'reaction',actor_id:currentUser.id,pick_id:pickId,read:false});}
     loadNotifications();
   }
 }
@@ -1882,139 +1497,109 @@ function timeAgo(ts){
   if(d>0)return d+'d ago';if(h>0)return h+'h ago';if(m>0)return m+'m ago';return'just now';
 }
 
-// ── SPOTIFY SEARCH ──
-const SPOTIFY_CLIENT_ID = 'a2775113b5b24216b96e1985633a4cc1';
-const SPOTIFY_CLIENT_SECRET = 'cc6c43ee3d024b3b8cedcc28dd2ec905';
-let spotifyAccessToken = null;
-let spotifyTokenExpiry = 0;
-let searchDebounceTimer = null;
+const SPOTIFY_CLIENT_ID='a2775113b5b24216b96e1985633a4cc1';
+const SPOTIFY_CLIENT_SECRET='cc6c43ee3d024b3b8cedcc28dd2ec905';
+let searchDebounceTimer=null;
 
 async function getSpotifyToken(){
-  // Check localStorage first — token lasts 1 hour
-  const cached = localStorage.getItem('sp_token');
-  const expiry = parseInt(localStorage.getItem('sp_token_expiry')||'0');
-  if(cached && Date.now() < expiry) return cached;
-  // Prevent parallel fetches
-  if(getSpotifyToken._pending) return getSpotifyToken._pending;
-  getSpotifyToken._pending = fetch('https://accounts.spotify.com/api/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: 'grant_type=client_credentials&client_id='+SPOTIFY_CLIENT_ID+'&client_secret='+SPOTIFY_CLIENT_SECRET
+  const cached=localStorage.getItem('sp_token');
+  const expiry=parseInt(localStorage.getItem('sp_token_expiry')||'0');
+  if(cached&&Date.now()<expiry)return cached;
+  if(getSpotifyToken._pending)return getSpotifyToken._pending;
+  getSpotifyToken._pending=fetch('https://accounts.spotify.com/api/token',{
+    method:'POST',
+    headers:{'Content-Type':'application/x-www-form-urlencoded'},
+    body:'grant_type=client_credentials&client_id='+SPOTIFY_CLIENT_ID+'&client_secret='+SPOTIFY_CLIENT_SECRET
   }).then(async r=>{
-    const text = await r.text();
-    let data;
-    try { data = JSON.parse(text); } catch(e){ throw new Error('Spotify rate limited — try again later'); }
-    console.log('Spotify token response:', data);
-    if(!data.access_token) throw new Error('Spotify error: '+(data.error_description||data.error||JSON.stringify(data)));
-    localStorage.setItem('sp_token', data.access_token);
-    localStorage.setItem('sp_token_expiry', Date.now() + (data.expires_in - 120) * 1000);
-    spotifyAccessToken = data.access_token;
-    spotifyTokenExpiry = Date.now() + (data.expires_in - 120) * 1000;
-    getSpotifyToken._pending = null;
+    const text=await r.text();
+    let data;try{data=JSON.parse(text);}catch(e){throw new Error('Spotify rate limited');}
+    if(!data.access_token)throw new Error('Spotify error: '+(data.error_description||data.error||JSON.stringify(data)));
+    localStorage.setItem('sp_token',data.access_token);
+    localStorage.setItem('sp_token_expiry',Date.now()+(data.expires_in-120)*1000);
+    getSpotifyToken._pending=null;
     return data.access_token;
-  }).catch(e=>{ console.error('Spotify token error:', e); getSpotifyToken._pending=null; throw e; });
+  }).catch(e=>{getSpotifyToken._pending=null;throw e;});
   return getSpotifyToken._pending;
 }
 
-async function spotifyFetch(url, token){
-  const r = await fetch(url, {headers:{'Authorization':'Bearer '+token}});
-  const text = await r.text();
-  try { return JSON.parse(text); }
-  catch(e){ throw new Error('Spotify rate limited — try again later'); }
+async function spotifyFetch(url,token){
+  const r=await fetch(url,{headers:{'Authorization':'Bearer '+token}});
+  const text=await r.text();
+  try{return JSON.parse(text);}catch(e){throw new Error('Spotify rate limited');}
 }
+
 function debounceSpotifySearch(){
   clearTimeout(searchDebounceTimer);
-  const q = document.getElementById('p-search').value.trim();
-  if(!q){ closeSpotifyResults(); return; }
-  searchDebounceTimer = setTimeout(()=>doSpotifySearch(q), 350);
+  const q=document.getElementById('p-search').value.trim();
+  if(!q){closeSpotifyResults();return;}
+  searchDebounceTimer=setTimeout(()=>doSpotifySearch(q),350);
 }
 
 async function doSpotifySearch(q){
-  const resultsEl = document.getElementById('spotify-search-results');
-  resultsEl.innerHTML = '<div class="spotify-result-searching">Searching...</div>';
+  const resultsEl=document.getElementById('spotify-search-results');
+  resultsEl.innerHTML='<div class="spotify-result-searching">Searching...</div>';
   resultsEl.classList.add('open');
-  try {
-    const token = await getSpotifyToken();
-    const data = await spotifyFetch('https://api.spotify.com/v1/search?q='+encodeURIComponent(q)+'&type=track&limit=8', token);
-    const tracks = (data.tracks && data.tracks.items) || [];
-    if(!tracks.length){ resultsEl.innerHTML='<div class="spotify-result-searching">No results found</div>'; return; }
-    resultsEl.innerHTML = tracks.map((t,i)=>{
-      const art = t.album.images[2]||t.album.images[0];
-      const artUrl = art ? art.url : '';
-      const year = t.album.release_date ? t.album.release_date.split('-')[0] : '';
-      const artists = t.artists.map(a=>a.name).join(', ');
+  try{
+    const token=await getSpotifyToken();
+    const data=await spotifyFetch('https://api.spotify.com/v1/search?q='+encodeURIComponent(q)+'&type=track&limit=8',token);
+    const tracks=(data.tracks&&data.tracks.items)||[];
+    if(!tracks.length){resultsEl.innerHTML='<div class="spotify-result-searching">No results found</div>';return;}
+    resultsEl.innerHTML=tracks.map((t,i)=>{
+      const art=t.album.images[2]||t.album.images[0];
+      const artUrl=art?art.url:'';
+      const year=t.album.release_date?t.album.release_date.split('-')[0]:'';
+      const artists=t.artists.map(a=>a.name).join(', ');
       return '<div class="spotify-result" onclick="selectSpotifyTrack('+i+')">'
         +'<img class="spotify-result-art" src="'+esc(artUrl)+'" alt="" />'
         +'<div class="spotify-result-info">'
         +'<div class="spotify-result-song">'+esc(t.name)+'</div>'
-        +'<div class="spotify-result-artist">'+esc(artists)+' · '+year+'</div>'
+        +'<div class="spotify-result-artist">'+esc(artists)+' \u00b7 '+year+'</div>'
         +'</div></div>';
     }).join('');
-    // Store results for selection
-    resultsEl._tracks = tracks;
-  } catch(e){ resultsEl.innerHTML='<div class="spotify-result-searching">Search failed — check connection</div>'; }
+    resultsEl._tracks=tracks;
+  }catch(e){resultsEl.innerHTML='<div class="spotify-result-searching">Search failed — check connection</div>';}
 }
 
 async function selectSpotifyTrack(idx){
-  const resultsEl = document.getElementById('spotify-search-results');
-  const track = resultsEl._tracks[idx];
+  const resultsEl=document.getElementById('spotify-search-results');
+  const track=resultsEl._tracks[idx];
   if(!track)return;
-  const art = track.album.images[0];
-  const artUrl = art ? art.url : '';
-  const year = track.album.release_date ? track.album.release_date.split('-')[0] : '';
-  const artists = track.artists.map(a=>a.name).join(', ');
-  const primaryArtistId = track.artists[0].id;
-
-  // Fill basic hidden fields immediately
-  document.getElementById('p-song').value = track.name;
-  document.getElementById('p-artist').value = artists;
-  document.getElementById('p-art').value = artUrl;
-  document.getElementById('p-spotify').value = track.external_urls.spotify;
-  document.getElementById('p-year').value = year;
-
-  // Show preview right away
-  document.getElementById('p-search').value = track.name + ' — ' + artists;
-  document.getElementById('p-clear-btn').style.display = 'inline-flex';
-  document.getElementById('pick-preview-art').src = artUrl;
-  document.getElementById('pick-preview-song').textContent = track.name;
-  document.getElementById('pick-preview-artist').textContent = artists;
-  document.getElementById('pick-preview-year').textContent = year ? year + ' · ' + track.album.name : track.album.name;
-  document.getElementById('pick-selected-preview').style.display = 'block';
+  const art=track.album.images[0];
+  const artUrl=art?art.url:'';
+  const year=track.album.release_date?track.album.release_date.split('-')[0]:'';
+  const artists=track.artists.map(a=>a.name).join(', ');
+  const primaryArtistId=track.artists[0].id;
+  document.getElementById('p-song').value=track.name;
+  document.getElementById('p-artist').value=artists;
+  document.getElementById('p-art').value=artUrl;
+  document.getElementById('p-spotify').value=track.external_urls.spotify;
+  document.getElementById('p-year').value=year;
+  document.getElementById('p-search').value=track.name+' \u2014 '+artists;
+  document.getElementById('p-clear-btn').style.display='inline-flex';
+  document.getElementById('pick-preview-art').src=artUrl;
+  document.getElementById('pick-preview-song').textContent=track.name;
+  document.getElementById('pick-preview-artist').textContent=artists;
+  document.getElementById('pick-preview-year').textContent=year?year+' \u00b7 '+track.album.name:track.album.name;
+  document.getElementById('pick-selected-preview').style.display='block';
   closeSpotifyResults();
-
-  // Show loading state on enriched fields
-  document.getElementById('p-tags').value = 'Loading genres...';
-  document.getElementById('p-bandinfo').value = 'Loading artist info...';
-
-  try {
-    const token = await getSpotifyToken();
-    const [artistData] = await Promise.all([
-      spotifyFetch('https://api.spotify.com/v1/artists/'+primaryArtistId, token)
-    ]);
-    const relatedNames = getRelatedArtistsFromDB(track.artists[0].name, artistData.genres||[]) || [];
-
-    // Auto-fill genre tags from Spotify
-    const genres = (artistData.genres||[]).slice(0,5);
-    document.getElementById('p-tags').value = genres.join(', ');
-
-    // Build artist info paragraph
-    const followers = artistData.followers ? artistData.followers.total.toLocaleString() : null;
-    const popularity = artistData.popularity || null;
-
-    let bioLines = [];
-    if(genres.length) bioLines.push(genres.slice(0,3).join(', ')+(genres.length>3?' and more':'')+' artist');
-    if(followers) bioLines.push(followers+' followers on Spotify');
-    if(popularity) bioLines.push('Popularity score: '+popularity+'/100');
-
-    document.getElementById('p-bandinfo').value = bioLines.join(' · ');
-
-    // Store related artists for similar music section
-    document.getElementById('p-song').dataset.relatedArtists = relatedNames.join(',');
-    document.getElementById('p-song').dataset.genres = genres.join(',');
-
-  } catch(e){
-    document.getElementById('p-tags').value = '';
-    document.getElementById('p-bandinfo').value = '';
+  try{
+    const token=await getSpotifyToken();
+    const artistData=await spotifyFetch('https://api.spotify.com/v1/artists/'+primaryArtistId,token);
+    const relatedNames=getRelatedArtistsFromDB(track.artists[0].name,artistData.genres||[])||[];
+    const genres=(artistData.genres||[]).slice(0,5);
+    document.getElementById('p-tags').value=genres.join(', ');
+    const followers=artistData.followers?artistData.followers.total.toLocaleString():null;
+    const popularity=artistData.popularity||null;
+    let bioLines=[];
+    if(genres.length)bioLines.push(genres.slice(0,3).join(', ')+(genres.length>3?' and more':'')+' artist');
+    if(followers)bioLines.push(followers+' followers on Spotify');
+    if(popularity)bioLines.push('Popularity score: '+popularity+'/100');
+    document.getElementById('p-bandinfo').value=bioLines.join(' \u00b7 ');
+    document.getElementById('p-song').dataset.relatedArtists=relatedNames.join(',');
+    document.getElementById('p-song').dataset.genres=genres.join(',');
+  }catch(e){
+    document.getElementById('p-tags').value='';
+    document.getElementById('p-bandinfo').value='';
   }
 }
 
@@ -2033,14 +1618,11 @@ function clearPickSelection(){
 
 function closeSpotifyResults(){
   const el=document.getElementById('spotify-search-results');
-  el.classList.remove('open');
-  el.innerHTML='';
+  el.classList.remove('open');el.innerHTML='';
 }
 
-let currentPick = null; // holds pick for enrichment
+let currentPick=null;
 
-
-// ── HELPERS ──
 function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function showToast(msg,isErr){
   const t=document.getElementById('toast');t.textContent=msg;
@@ -2049,7 +1631,6 @@ function showToast(msg,isErr){
 }
 document.getElementById('pick-modal').addEventListener('click',function(e){if(e.target.id==='pick-modal')closePickModal();});
 
-// ── BOOT — goes straight to auth, no setup screen ──
 (async function init(){
   const {data:{session}}=await sb.auth.getSession();
   if(session){currentUser=session.user;await loadProfileAndContinue();}
