@@ -694,16 +694,9 @@
       <label>Why this song? <span style="color:var(--text-dim)">(optional)</span></label>
       <textarea id="p-note" placeholder="What makes this your pick this week?"></textarea>
     </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Vibe Tags <span style="color:var(--text-dim)">(comma-separated)</span></label>
-        <input type="text" id="p-tags" placeholder="e.g. alt-rock, melancholic" />
-      </div>
-    </div>
-    <div class="form-group">
-      <label>About the Artist <span style="color:var(--text-dim)">(optional)</span></label>
-      <textarea id="p-bandinfo" placeholder="A little background on the artist..."></textarea>
-    </div>
+    <!-- tags and band_info auto-populated from Spotify, not user-editable -->
+    <input type="hidden" id="p-tags" />
+    <input type="hidden" id="p-bandinfo" />
     <button class="btn btn-primary btn-wide" id="pick-save-btn" onclick="savePick()">Save Pick</button>
     <div id="pick-error" class="form-error" style="margin-top:0.5rem"></div>
   </div>
@@ -1461,14 +1454,12 @@ async function renderSongDetail(opts){
   autoEnrichSongDetail(pick);
 }
 
-// Fetches artist info from Spotify + Wikipedia, always injects both About and Vibes
+// Auto-fetches genres from Spotify (+ local fallback) and injects About + Vibes
 async function autoEnrichSongDetail(pick){
   if(!pick.spotify_url) return;
 
   const rawTags = pick.tags||[];
   const savedTags = Array.isArray(rawTags)?rawTags:(typeof rawTags==='string'?rawTags.split(',').map(t=>t.trim()).filter(Boolean):[]);
-  const bioText = (pick.band_info||'').trim();
-  const isStaleBio = !bioText || /artist(\s|$)/.test(bioText.split(' \u00b7 ')[0].trim().slice(-8)) || (/followers on Spotify/.test(bioText) && bioText.length < 120);
 
   try {
     const token = await getSpotifyToken();
@@ -1479,41 +1470,28 @@ async function autoEnrichSongDetail(pick){
     const artistData = await spotifyFetch('https://api.spotify.com/v1/artists/'+artistId, token);
     if(!artistData) return;
 
-    let genres = (artistData.genres||[]).slice(0,5);
-    if(!genres.length) genres = inferGenres(pick.artist);
+    // Genres: Spotify first, local map fallback
+    const spotifyGenres = (artistData.genres||[]).slice(0,5);
+    const localGenres = inferGenres(pick.artist);
+    const genres = spotifyGenres.length ? spotifyGenres : localGenres;
+
+    // Use saved tags if we have them, otherwise freshly fetched genres
     const displayTags = savedTags.length ? savedTags : genres;
+
     const followers = artistData.followers ? artistData.followers.total.toLocaleString() : null;
     const popularity = artistData.popularity || null;
 
-    // Wikipedia bio — use search API first to find the right article title
-    let wikiSummary = '';
-    try {
-      // Step 1: search for the artist to get the correct page title
-      const searchRes = await fetch('https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch='+encodeURIComponent(pick.artist+' band OR musician OR singer')+'&srlimit=1&format=json&origin=*');
-      const searchData = await searchRes.json();
-      const pageTitle = searchData.query&&searchData.query.search&&searchData.query.search[0]&&searchData.query.search[0].title;
-      if(pageTitle){
-        // Step 2: fetch the summary for that exact title
-        const summaryRes = await fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(pageTitle));
-        if(summaryRes.ok){
-          const summaryData = await summaryRes.json();
-          if(summaryData.extract && summaryData.type!=='disambiguation'){
-            const sentences = summaryData.extract.match(/[^.!?]+[.!?]+/g)||[];
-            wikiSummary = sentences.slice(0,2).join(' ').trim();
-          }
-        }
-      }
-    } catch(e){}
-
-    // Save to DB if owner and data has improved
+    // Save to DB if owner
     const isOwner = !isGuest && currentUser && currentUser.id === pick.user_id;
     if(isOwner){
       const updates = {};
-      const statPills = [followers?followers+' followers on Spotify':'', popularity?'Popularity score: '+popularity+'/100':''].filter(Boolean);
-      if(isStaleBio && (wikiSummary||statPills.length)){
-        updates.band_info = (wikiSummary?wikiSummary+' · ':'')+statPills.join(' · ');
-      }
       if(!savedTags.length && genres.length) updates.tags = genres;
+      if(!pick.band_info && (followers||popularity)){
+        const parts = [];
+        if(followers) parts.push(followers+' followers on Spotify');
+        if(popularity) parts.push('Popularity score: '+popularity+'/100');
+        updates.band_info = parts.join(' \u00b7 ');
+      }
       if(!pick.release_year && trackData.album && trackData.album.release_date)
         updates.release_year = trackData.album.release_date.split('-')[0];
       if(Object.keys(updates).length) sb.from('picks').update(updates).eq('id',pick.id);
@@ -1521,20 +1499,21 @@ async function autoEnrichSongDetail(pick){
 
     if(!document.getElementById('about-section')) return;
 
-    // Always inject About — wiki bio only, never genre text (that's what Vibes is for)
-    const pills = [followers?followers+' followers on Spotify':'', popularity?'Popularity score: '+popularity+'/100':''].filter(Boolean);
+    // Inject About — followers + popularity pills only, no text bio
+    const pills = [];
+    if(followers) pills.push(followers+' followers on Spotify');
+    if(popularity) pills.push('Popularity score: '+popularity+'/100');
     const pillsHtml = pills.map(l=>'<span class="artist-stat-pill">'+esc(l)+'</span>').join('');
-    const bioHtml = wikiSummary ? '<p>'+esc(wikiSummary)+'</p>' : '';
     const aboutEl = document.getElementById('about-section');
-    if(aboutEl && (bioHtml||pillsHtml)){
-      aboutEl.innerHTML='<h3>About '+esc(pick.artist)+'</h3>'+(pillsHtml?'<div class="artist-stats">'+pillsHtml+'</div>':'')+bioHtml;
+    if(aboutEl && pillsHtml){
+      aboutEl.innerHTML='<h3>About '+esc(pick.artist)+'</h3><div class="artist-stats">'+pillsHtml+'</div>';
       aboutEl.style.display='';
     }
 
-    // Always inject Vibes
+    // Inject Vibes — always show if we have any genres at all
     const vibesEl = document.getElementById('vibes-section');
     if(vibesEl && displayTags.length){
-      vibesEl.innerHTML='<h3>\u{1F3A7} Vibes</h3><div class="tags">'+displayTags.map(t=>'<div class="tag">'+esc(t)+'</div>').join('')+'</div>';
+      vibesEl.innerHTML='<h3>\uD83C\uDFA7 Vibes</h3><div class="tags">'+displayTags.map(t=>'<div class="tag">'+esc(t)+'</div>').join('')+'</div>';
       vibesEl.style.display='';
     }
 
