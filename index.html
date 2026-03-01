@@ -341,6 +341,30 @@
   .play-on-spotify-btn:hover { background: #1ed760; transform: translateY(-1px); }
   .play-on-youtube-btn { display: inline-flex; align-items: center; gap: 0.5rem; background: #ff0000; color: white; border: none; border-radius: 6px; font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; padding: 0.55rem 1rem; cursor: pointer; transition: all 0.15s; text-decoration: none; white-space: nowrap; }
   .play-on-youtube-btn:hover { background: #cc0000; transform: translateY(-1px); }
+
+  /* Week navigator */
+  .week-nav { display: flex; align-items: center; gap: 0.75rem; margin-top: 0.75rem; }
+  .week-nav-btn { background: none; border: 1px solid var(--border); border-radius: 3px; color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; padding: 0.3rem 0.7rem; cursor: pointer; transition: all 0.15s; }
+  .week-nav-btn:hover:not(:disabled) { border-color: var(--red-dim); color: var(--white); }
+  .week-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .week-nav-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--text-muted); min-width: 110px; text-align: center; }
+  .week-nav-current { color: var(--red); font-weight: 500; cursor: pointer; font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; background: none; border: none; padding: 0; }
+  .week-nav-current:hover { color: var(--red-bright); }
+
+  /* Comment count badge on feed cards */
+  .f-card-footer { display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 1.2rem 0.7rem; border-top: 1px solid var(--border); }
+  .f-comment-count { font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; color: var(--text-dim); display: flex; align-items: center; gap: 0.3rem; }
+  .f-comment-count.has-comments { color: var(--text-muted); }
+  .f-reaction-count { font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; color: var(--text-dim); }
+
+  /* Profile stats */
+  .profile-stats { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+  .profile-stat-pill { font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.06em; padding: 0.28rem 0.7rem; border-radius: 20px; background: var(--surface2); border: 1px solid var(--border); color: var(--text-muted); }
+  .profile-stat-pill.highlight { border-color: var(--red-dim); color: var(--red); background: rgba(204,17,17,0.08); }
+
+  /* No-pick ghost card */
+  .f-last-pick { font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; color: var(--text-dim); font-style: italic; margin-top: 0.3rem; }
+  .f-add-pick-cta { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--red); margin-top: 0.4rem; }
 </style>
 </head>
 <body>
@@ -564,8 +588,13 @@
   <div class="feed-header">
     <div class="feed-header-deco">🎸</div>
     <div class="week-pill" id="feed-pill">Week 1</div>
-    <h1>This Week's <span>Picks</span></h1>
+    <h1 id="feed-title">This Week's <span>Picks</span></h1>
     <p class="feed-meta" id="feed-range"></p>
+    <div class="week-nav">
+      <button class="week-nav-btn" id="feed-prev-btn" onclick="feedNavWeek(-1)">&#8592; Prev</button>
+      <span class="week-nav-label" id="feed-nav-label"></span>
+      <button class="week-nav-btn" id="feed-next-btn" onclick="feedNavWeek(1)">Next &#8594;</button>
+    </div>
   </div>
   <div class="friends-grid" id="friends-grid">
     <div class="loading-center" style="grid-column:1/-1"><div class="spinner"></div></div>
@@ -981,11 +1010,48 @@ function getWeekRange(w,year){
   return f(s)+' \u2013 '+f(e);
 }
 
+let feedViewWeek = null;
+let feedViewYear = null;
+
+function feedNavWeek(delta){
+  const curWeek=getCurrentWeek();
+  const curYear=new Date().getFullYear();
+  let w=feedViewWeek+delta;
+  let y=feedViewYear;
+  if(w<1){w=1;}
+  if(w>curWeek&&y>=curYear){return;}
+  feedViewWeek=w;
+  feedViewYear=y;
+  renderFeed();
+}
+
 async function renderFeed(){
-  const week=getCurrentWeek();
-  const year=new Date().getFullYear();
+  const curWeek=getCurrentWeek();
+  const curYear=new Date().getFullYear();
+  if(!feedViewWeek){feedViewWeek=curWeek;feedViewYear=curYear;}
+  const week=feedViewWeek;
+  const year=feedViewYear;
+  const isCurrentWeek=(week===curWeek&&year===curYear);
+
   document.getElementById('feed-pill').textContent='Week '+week+' \u00b7 '+year;
   document.getElementById('feed-range').textContent=getWeekRange(week,year);
+  const titleEl=document.getElementById('feed-title');
+  if(titleEl)titleEl.innerHTML=isCurrentWeek?'This Week\'s <span>Picks</span>':'Week '+week+' <span>Picks</span>';
+
+  // Update nav buttons and label
+  const prevBtn=document.getElementById('feed-prev-btn');
+  const nextBtn=document.getElementById('feed-next-btn');
+  const navLabel=document.getElementById('feed-nav-label');
+  if(prevBtn)prevBtn.disabled=(week<=1);
+  if(nextBtn)nextBtn.disabled=isCurrentWeek;
+  if(navLabel){
+    if(isCurrentWeek){
+      navLabel.innerHTML='<button class="week-nav-current" style="cursor:default;color:var(--text-dim)">Current Week</button>';
+    } else {
+      navLabel.innerHTML='<button class="week-nav-current" onclick="feedViewWeek='+curWeek+';feedViewYear='+curYear+';renderFeed()">Back to Now</button>';
+    }
+  }
+
   const grid=document.getElementById('friends-grid');
   grid.innerHTML='<div class="loading-center" style="grid-column:1/-1"><div class="spinner"></div></div>';
   let ids=[];
@@ -994,21 +1060,71 @@ async function renderFeed(){
   const {data:profiles}=await sb.from('profiles').select('*').in('id',ids);
   const {data:picks}=await sb.from('picks').select('*').in('user_id',ids).eq('week_number',week).eq('year',year);
   const pickMap=Object.fromEntries((picks||[]).map(p=>[p.user_id,p]));
+
   if(!profiles||profiles.length===0){
     grid.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="icon">🎸</div><p>'+(isGuest?'No members yet. Be the first — sign up!':'Your feed is empty.<br>Go to Members to find people to follow!')+'</p>'+(isGuest?'<button class="btn btn-primary" onclick="showView(\'auth\')">Join Wavelength</button>':'')+'</div>';return;
   }
+
+  // Fetch comment counts for all picks this week
+  const pickIds=(picks||[]).map(p=>p.id);
+  let commentCounts={};
+  if(pickIds.length){
+    const {data:comments}=await sb.from('comments').select('pick_id').in('pick_id',pickIds);
+    (comments||[]).forEach(c=>{commentCounts[c.pick_id]=(commentCounts[c.pick_id]||0)+1;});
+  }
+
+  // For users with no pick this week, fetch their most recent pick for the ghost card
+  const missingIds=profiles.filter(p=>!pickMap[p.id]).map(p=>p.id);
+  let lastPickMap={};
+  if(missingIds.length){
+    const {data:lastPicks}=await sb.from('picks').select('user_id,song,artist,week_number').in('user_id',missingIds).eq('year',year).order('week_number',{ascending:false});
+    if(lastPicks){
+      // Keep only most recent per user
+      lastPicks.forEach(lp=>{if(!lastPickMap[lp.user_id])lastPickMap[lp.user_id]=lp;});
+    }
+  }
+
   const sorted=isGuest?profiles:[profiles.find(p=>p.id===currentUser.id),...profiles.filter(p=>p.id!==currentUser.id)].filter(Boolean);
   grid.innerHTML=sorted.map(p=>{
     const pick=pickMap[p.id];const me=!isGuest&&p.id===currentUser.id;
+    const commentCount=pick?commentCounts[pick.id]||0:0;
+    const lastPick=!pick?lastPickMap[p.id]:null;
+
     const artHtml=pick&&pick.art_url
       ?'<img class="friend-card-art" src="'+esc(pick.art_url)+'" alt="Album art" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="friend-card-art-ph" style="display:none">🎵</div>'
-      :'<div class="friend-card-art-ph">'+(pick?'🎵':'🎸')+'</div>';
-    return '<div class="friend-card" onclick="showView(\'profile\',{userId:\''+p.id+'\'})">'
-      +artHtml+'<div class="friend-card-body">'
-      +'<div class="f-avatar" style="background:'+p.color+'22;color:'+p.color+'">'+getAvatar(p)+'</div>'
-      +'<div class="f-name">'+(me?'⭐ You':'@'+esc(p.username))+'</div>'
-      +(pick?'<div class="f-song">'+esc(pick.song)+'</div><div class="f-artist">'+esc(pick.artist)+'</div>':'<div class="no-pick">No pick yet this week</div>')
-      +'</div><div class="card-arrow">&#8599;</div></div>';
+      :'<div class="friend-card-art-ph" style="'+(pick?'':'opacity:0.05')+'">'+(pick?'🎵':'🎸')+'</div>';
+
+    let bodyContent='';
+    bodyContent+='<div class="f-avatar" style="background:'+p.color+'22;color:'+p.color+'">'+getAvatar(p)+'</div>';
+    bodyContent+='<div class="f-name">'+(me?'&#9733; You':'@'+esc(p.username))+'</div>';
+    if(pick){
+      bodyContent+='<div class="f-song">'+esc(pick.song)+'</div><div class="f-artist">'+esc(pick.artist)+'</div>';
+    } else if(me&&isCurrentWeek){
+      bodyContent+='<div class="f-add-pick-cta">+ Add your pick for this week</div>';
+    } else if(lastPick){
+      bodyContent+='<div class="no-pick">No pick this week</div>';
+      bodyContent+='<div class="f-last-pick">Last: '+esc(lastPick.song)+' (Wk '+lastPick.week_number+')</div>';
+    } else {
+      bodyContent+='<div class="no-pick">No pick yet this week</div>';
+    }
+
+    const footer=pick
+      ?'<div class="f-card-footer">'
+        +'<span class="f-comment-count'+(commentCount?' has-comments':'')+'">&#128172; '+(commentCount||'0')+'</span>'
+        +'<span class="card-arrow" style="position:static;font-size:0.8rem">&#8599;</span>'
+        +'</div>'
+      :'';
+
+    const clickTarget=pick
+      ?'showView(\'songdetail\',{userId:\''+p.id+'\',week:'+week+',year:'+year+'})'
+      :me&&isCurrentWeek?'openPickModal()':'showView(\'profile\',{userId:\''+p.id+'\'})';
+
+    return '<div class="friend-card" onclick="'+clickTarget+'">'
+      +artHtml
+      +'<div class="friend-card-body">'+bodyContent+'</div>'
+      +footer
+      +(pick?'':'<div class="card-arrow">&#8599;</div>')
+      +'</div>';
   }).join('');
 }
 
@@ -1071,7 +1187,9 @@ async function renderProfile(userId){
   document.getElementById('profile-hero').innerHTML=
     '<div class="profile-hero-deco">🎸</div>'
     +'<div class="p-avatar-lg" style="background:'+profile.color+'22;color:'+profile.color+'">'+getAvatar(profile)+'</div>'
-    +'<div class="p-meta"><h2>'+esc(profile.display_name)+'</h2><p>@'+esc(profile.username)+' \u00b7 '+((picks||[]).length)+' picks in '+year+'</p></div>';
+    +'<div class="p-meta"><h2>'+esc(profile.display_name)+'</h2><p>@'+esc(profile.username)+' \u00b7 '+((picks||[]).length)+' picks in '+year+'</p>'
+    +buildProfileStats(picks||[])
+    +'</div>';
   let html='';
   for(let w=week;w>=1;w--){
     const pick=pickMap[w];const cur=w===week;
@@ -1091,6 +1209,40 @@ async function renderProfile(userId){
       +'</div>';
   }
   document.getElementById('weeks-list').innerHTML=html;
+}
+
+function buildProfileStats(picks){
+  if(!picks||picks.length===0) return '';
+  const pills=[];
+  const curWeek=getCurrentWeek();
+
+  // Pick count context
+  if(picks.length>=curWeek){
+    pills.push({text:'Every week so far &#10003;',highlight:true});
+  } else {
+    const pct=Math.round(picks.length/curWeek*100);
+    pills.push({text:pct+'% consistency',highlight:pct>=70});
+  }
+
+  // Current streak
+  let streak=0;
+  for(let w=curWeek;w>=1;w--){
+    if(picks.find(p=>p.week_number===w)) streak++;
+    else break;
+  }
+  if(streak>=2) pills.push({text:streak+' week streak &#128293;',highlight:streak>=4});
+
+  // Top genres from tags
+  const genreCount={};
+  picks.forEach(p=>{
+    const tags=Array.isArray(p.tags)?p.tags:(p.tags?p.tags.split(',').map(t=>t.trim()).filter(Boolean):[]);
+    tags.forEach(t=>{if(t)genreCount[t]=(genreCount[t]||0)+1;});
+  });
+  const topGenres=Object.entries(genreCount).sort((a,b)=>b[1]-a[1]).slice(0,2).map(e=>e[0]);
+  if(topGenres.length) pills.push({text:topGenres.join(' / '),highlight:false});
+
+  if(!pills.length) return '';
+  return '<div class="profile-stats">'+pills.map(p=>'<span class="profile-stat-pill'+(p.highlight?' highlight':'')+'">'+(p.text)+'</span>').join('')+'</div>';
 }
 
 async function renderSongDetail(opts){
