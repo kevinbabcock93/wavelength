@@ -1666,15 +1666,15 @@ function applyEnrichment(pick, data){
   }
 }
 
-// ── SIMILAR ARTISTS — live AI lookup with web search ──
+// ── SIMILAR ARTISTS — Spotify related artists ──
 async function fetchSimilarArtistsAI(pick){
-  const cacheKey = 'similar2_' + (pick.artist||'').toLowerCase().replace(/\s+/g,'_');
+  const cacheKey = 'similar3_' + (pick.artist||'').toLowerCase().replace(/\s+/g,'_');
   const cached = sessionStorage.getItem(cacheKey);
   if(cached){
     try{ applySimilarArtists(pick, JSON.parse(cached)); return; } catch(e){}
   }
 
-  // Show loading state in the section
+  // Show loading state
   const el = document.getElementById('related-section');
   if(el){
     el.style.display = '';
@@ -1683,26 +1683,27 @@ async function fetchSimilarArtistsAI(pick){
   }
 
   try{
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 300,
-        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-        system: 'You find similar music artists. Always respond with ONLY a JSON array of exactly 6 artist name strings. No other text, no markdown, no explanation. Example: ["Artist One","Artist Two","Artist Three","Artist Four","Artist Five","Artist Six"]',
-        messages: [{
-          role: 'user',
-          content: 'What are 6 artists similar to ' + pick.artist + '? Return only a JSON array of artist names.'
-        }]
-      })
-    });
-    const data = await response.json();
-    const text = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
-    const match = text.match(/\[[\s\S]*?\]/);
-    if(!match) throw new Error('No array in response');
-    const artists = JSON.parse(match[0]);
-    if(!Array.isArray(artists)||artists.length===0) throw new Error('Empty array');
+    const token = await getSpotifyToken();
+
+    // Get artist ID — from the pick's spotify_url track if available, else search by name
+    let artistId = null;
+    if(pick.spotify_url){
+      const trackId = pick.spotify_url.split('/track/').pop().split('?')[0];
+      const trackData = await spotifyFetch('https://api.spotify.com/v1/tracks/'+trackId, token);
+      if(trackData && trackData.artists && trackData.artists[0]) artistId = trackData.artists[0].id;
+    }
+    if(!artistId){
+      const searchData = await spotifyFetch(
+        'https://api.spotify.com/v1/search?q='+encodeURIComponent(pick.artist)+'&type=artist&limit=1', token
+      );
+      const items = searchData && searchData.artists && searchData.artists.items;
+      if(items && items[0]) artistId = items[0].id;
+    }
+    if(!artistId) throw new Error('Artist not found');
+
+    const relData = await spotifyFetch('https://api.spotify.com/v1/artists/'+artistId+'/related-artists', token);
+    const artists = (relData.artists||[]).slice(0,6).map(a=>a.name);
+    if(!artists.length) throw new Error('No related artists');
 
     sessionStorage.setItem(cacheKey, JSON.stringify(artists));
     applySimilarArtists(pick, artists);
@@ -1712,7 +1713,6 @@ async function fetchSimilarArtistsAI(pick){
       await sb.from('picks').update({related_artists: artists.join(',')}).eq('id', pick.id);
     }
   } catch(e){
-    // On failure, hide the section rather than show garbage
     const el2 = document.getElementById('related-section');
     if(el2) el2.style.display = 'none';
   }
