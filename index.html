@@ -580,6 +580,7 @@
     </div>
     <button class="nav-link" id="nav-settings-btn" onclick="showView('settings')">Settings</button>
     <button class="nav-link" id="nav-signout-btn" onclick="signOut()" style="color:var(--red-dim)">Sign Out</button>
+    <button class="nav-link" id="dev-toggle-btn" onclick="toggleDevMode()" style="display:none;font-size:0.55rem;opacity:0.5">⚙ Dev: OFF</button>
   </div>
 </nav>
 
@@ -770,22 +771,32 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
 let currentUser = null, currentProfile = null;
 
 // ── DEV MODE ──
-// Toggle from the browser console: devOn() / devOff()
-// Requires passphrase — change DEV_PASS to something only you know
-const DEV_PASS = 'KB';
 function devMode(){ return localStorage.getItem('wl_dev')==='1'; }
-function devOn(pass){
-  if(pass !== DEV_PASS){ console.log('%c[Wavelength] Wrong passphrase','color:#ff4444'); return; }
+function devOn(){
   localStorage.setItem('wl_dev','1');
   document.getElementById('dev-badge').style.display='block';
-  console.log('%c[Wavelength] Dev mode ON — notifications and listen tracking suppressed','color:#ffc800');
+  const btn=document.getElementById('dev-toggle-btn');
+  if(btn){btn.textContent='⚙ Dev: ON';btn.style.color='rgba(255,200,0,0.9)';}
+  console.log('%c[Wavelength] Dev mode ON','color:#ffc800');
 }
 function devOff(){
   localStorage.removeItem('wl_dev');
   document.getElementById('dev-badge').style.display='none';
+  const btn=document.getElementById('dev-toggle-btn');
+  if(btn){btn.textContent='⚙ Dev: OFF';btn.style.color='';}
   console.log('%c[Wavelength] Dev mode OFF','color:#aaa');
 }
-// Auto-restore badge on load
+function toggleDevMode(){ devMode()?devOff():devOn(); }
+function maybeShowDevButton(){
+  if(currentProfile&&currentProfile.username==='kevinbab7'){
+    const btn=document.getElementById('dev-toggle-btn');
+    if(btn){
+      btn.style.display='inline-flex';
+      btn.textContent=devMode()?'⚙ Dev: ON':'⚙ Dev: OFF';
+      if(devMode())btn.style.color='rgba(255,200,0,0.9)';
+    }
+  }
+}
 document.addEventListener('DOMContentLoaded',function(){
   if(devMode()) document.getElementById('dev-badge').style.display='block';
 });
@@ -955,6 +966,7 @@ async function loadProfileAndContinue(){
     document.getElementById('mainNav').style.display='flex';
     document.getElementById('mobileNav').style.display='block';
     document.getElementById('notif-bell-wrap').style.display='block';
+    maybeShowDevButton();
     loadNotifications();
     showView('feed');
   } else {
