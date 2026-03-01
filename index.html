@@ -1177,7 +1177,7 @@ async function renderSongDetail(opts){
 
 // ── ENRICHMENT — tries every source until something is found ──
 async function autoEnrichSongDetail(pick){
-  const cacheKey = 'enrich5_' + (pick.artist||'').toLowerCase().replace(/\s+/g,'_');
+  const cacheKey = 'enrich6_' + (pick.artist||'').toLowerCase().replace(/\s+/g,'_');
   const cached = sessionStorage.getItem(cacheKey);
   if(cached){
     try{ applyEnrichment(pick, JSON.parse(cached)); return; } catch(e){}
@@ -1247,30 +1247,46 @@ async function autoEnrichSongDetail(pick){
   // ── SOURCE 2b: Last.fm bio — great coverage of niche/indie artists ──
   if(!result.bio){
     try{
+      // autocorrect=1 handles name variants (e.g. "Ghost Woman" vs "Ghostwoman")
       const lfResp = await fetch(
         'https://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist='
         +encodeURIComponent(pick.artist)
-        +'&api_key=43b1d08cf8fa2d6b2e945289bf7be98d&format=json'
+        +'&autocorrect=1&api_key=43b1d08cf8fa2d6b2e945289bf7be98d&format=json'
       );
       if(lfResp.ok){
         const lfData = await lfResp.json();
-        // Last.fm returns error code 6 for unknown artists
         if(!lfData.error){
-          const bio = lfData.artist && lfData.artist.bio && lfData.artist.bio.content;
-          const summary = lfData.artist && lfData.artist.bio && lfData.artist.bio.summary;
-          const rawBio = (bio && bio.length > summary.length) ? bio : summary;
-          if(rawBio && rawBio.length > 30){
-            // Strip HTML tags and "Read more on Last.fm" link
-            const clean = rawBio.replace(/<a[^>]*>.*?<\/a>/gi,'').replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
-            // Require minimum length — reject placeholder bios
+          const bioContent = lfData.artist && lfData.artist.bio && lfData.artist.bio.content;
+          const bioSummary = lfData.artist && lfData.artist.bio && lfData.artist.bio.summary;
+          // Prefer full content over summary
+          const rawBio = (bioContent && bioContent.trim().length > 80) ? bioContent : bioSummary;
+          if(rawBio && rawBio.trim().length > 60){
+            // Strip all HTML including <a> tags and "Read more on Last.fm"
+            const clean = rawBio
+              .replace(/<a[^>]*href[^>]*>.*?<\/a>/gi, '')
+              .replace(/<[^>]+>/g, '')
+              .replace(/\s+/g, ' ')
+              .trim();
             if(clean.length > 60){
-              const sentences = clean.match(/[^.!?]+[.!?]+/g)||[];
-              result.bio = sentences.slice(0,3).join(' ').trim();
+              const sentences = clean.match(/[^.!?]+[.!?]+/g) || [];
+              result.bio = sentences.slice(0, 3).join(' ').trim();
             }
           }
         }
       }
     } catch(e){}
+  }
+
+  // ── SOURCE 2c: Local bio map — hardcoded for artists that defeat all APIs ──
+  if(!result.bio){
+    const localBios = {
+      'ghostwoman': "Ghostwoman is the solo project of Canadian musician Evan Uschenko, previously known as Ghost Woman. Based in Montreal, Uschenko crafts hazy, psychedelic rock with a vintage feel — dusty guitar tones, reverb-soaked vocals, and a timeless lo-fi aesthetic that draws comparisons to classic blues and 60s rock.",
+      'ghost woman': "Ghost Woman is the solo project of Canadian musician Evan Uschenko, now recording as Ghostwoman. His music blends psychedelic rock, blues, and lo-fi bedroom pop with hazy guitar work and reverb-drenched vocals.",
+      'emeline': "EMELINE (Emeline Easton Herreid) is an American singer-songwriter and actress from Providence, Rhode Island. Known for her dark-pop sound with biting lyrics and a stylish aesthetic, she rose to prominence through TikTok and has released acclaimed singles including 'cinderella\'s dead' and 'this is how i learn to say no.'",
+      'no vacation': "No Vacation is a dream pop band from San Francisco, California, known for their hazy, sun-soaked sound blending shoegaze textures with indie pop melodies. Their music is characterized by layered guitars, lush production, and introspective lyrics.",
+    };
+    const key = pick.artist.toLowerCase().trim();
+    if(localBios[key]) result.bio = localBios[key];
   }
 
   // ── SOURCE 3: MusicBrainz — genres for artists Wikipedia missed ──
