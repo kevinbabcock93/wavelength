@@ -1104,7 +1104,7 @@ async function renderFeed(){
 
     let bodyContent='';
     bodyContent+='<div class="f-avatar" style="background:'+p.color+'22;color:'+p.color+'">'+getAvatar(p)+'</div>';
-    bodyContent+='<div class="f-name">'+(me?'&#9733; You':'@'+esc(p.username))+'</div>';
+    bodyContent+='<div class="f-name">'+(me?'&#9733; You':esc(p.display_name))+'</div>';
     if(pick){
       bodyContent+='<div class="f-song">'+esc(pick.song)+'</div><div class="f-artist">'+esc(pick.artist)+'</div>';
     } else if(me&&isCurrentWeek){
