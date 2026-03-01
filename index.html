@@ -365,6 +365,11 @@
   /* No-pick ghost card */
   .f-last-pick { font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; color: var(--text-dim); font-style: italic; margin-top: 0.3rem; }
   .f-add-pick-cta { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--red); margin-top: 0.4rem; }
+
+  /* Pick of the week crown */
+  .potw-badge { position: absolute; top: 0.6rem; right: 0.6rem; background: rgba(13,0,0,0.75); border: 1px solid rgba(255,200,0,0.4); border-radius: 4px; font-size: 0.75rem; padding: 0.2rem 0.4rem; line-height: 1; backdrop-filter: blur(4px); z-index: 2; }
+  .friend-card.potw { outline: 1px solid rgba(255,200,0,0.3); }
+  .friend-card.potw .friend-card-art { filter: brightness(1.05); }
 </style>
 </head>
 <body>
@@ -569,13 +574,8 @@
         <div class="notif-list" id="notif-list"><div class="notif-empty">No notifications yet</div></div>
       </div>
     </div>
-    <div class="nav-dropdown" id="nav-dropdown">
-      <button class="nav-dropdown-toggle" onclick="toggleNavDropdown()">Menu ▾</button>
-      <div class="nav-dropdown-menu" id="nav-dropdown-menu">
-        <button class="nav-dropdown-item" id="nav-settings-btn" onclick="closeNavDropdown();showView('settings')">⚙ Settings</button>
-        <button class="nav-dropdown-item danger" id="nav-signout-btn" onclick="closeNavDropdown();signOut()">Sign Out</button>
-      </div>
-    </div>
+    <button class="nav-link" id="nav-settings-btn" onclick="showView('settings')">Settings</button>
+    <button class="nav-link" id="nav-signout-btn" onclick="signOut()" style="color:var(--red-dim)">Sign Out</button>
   </div>
 </nav>
 
@@ -843,11 +843,7 @@ function buildColorPicker(id,sel){
 }
 function getColor(id){const s=document.getElementById(id).querySelector('.selected');return s?s.dataset.color:COLORS[0];}
 
-function toggleNavDropdown(){document.getElementById('nav-dropdown-menu').classList.toggle('open');}
-function closeNavDropdown(){document.getElementById('nav-dropdown-menu').classList.remove('open');}
 document.addEventListener('click',function(e){
-  const dd=document.getElementById('nav-dropdown');
-  if(dd&&!dd.contains(e.target))closeNavDropdown();
   const nb=document.getElementById('notif-bell-wrap');
   if(nb&&!nb.contains(e.target))closeNotifPanel();
 });
@@ -1073,6 +1069,24 @@ async function renderFeed(){
     (comments||[]).forEach(c=>{commentCounts[c.pick_id]=(commentCounts[c.pick_id]||0)+1;});
   }
 
+  // Fetch reaction counts for pick of the week
+  let reactionCounts={};
+  if(pickIds.length){
+    const {data:reactions}=await sb.from('reactions').select('pick_id').in('pick_id',pickIds);
+    (reactions||[]).forEach(r=>{reactionCounts[r.pick_id]=(reactionCounts[r.pick_id]||0)+1;});
+  }
+
+  // Pick of the week = most reactions + comments (only if score > 0)
+  let potwId=null;
+  if(pickIds.length){
+    let best=0;
+    pickIds.forEach(id=>{
+      const score=(reactionCounts[id]||0)+(commentCounts[id]||0);
+      if(score>best){best=score;potwId=id;}
+    });
+    if(best===0) potwId=null;
+  }
+
   // For users with no pick this week, fetch their most recent pick for the ghost card
   const missingIds=profiles.filter(p=>!pickMap[p.id]).map(p=>p.id);
   let lastPickMap={};
@@ -1097,6 +1111,9 @@ async function renderFeed(){
     const pick=pickMap[p.id];const me=!isGuest&&p.id===currentUser.id;
     const commentCount=pick?commentCounts[pick.id]||0:0;
     const lastPick=!pick?lastPickMap[p.id]:null;
+
+    const isPotw=pick&&pick.id===potwId;
+    const crownHtml=isPotw?'<div class="potw-badge" title="Pick of the week">👑</div>':'';
 
     const artHtml=pick&&pick.art_url
       ?'<img class="friend-card-art" src="'+esc(pick.art_url)+'" alt="Album art" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="friend-card-art-ph" style="display:none">🎵</div>'
@@ -1127,7 +1144,8 @@ async function renderFeed(){
       ?'showView(\'songdetail\',{userId:\''+p.id+'\',week:'+week+',year:'+year+'})'
       :me&&isCurrentWeek?'openPickModal()':'showView(\'profile\',{userId:\''+p.id+'\'})';
 
-    return '<div class="friend-card" onclick="'+clickTarget+'">'
+    return '<div class="friend-card'+(isPotw?' potw':'')+'" onclick="'+clickTarget+'">'
+      +crownHtml
       +artHtml
       +'<div class="friend-card-body">'+bodyContent+'</div>'
       +footer
@@ -1691,6 +1709,16 @@ async function postComment(pickId){
   ta.disabled = false;
   if(error){showToast('Error posting comment',true);return;}
   ta.value = '';
+  // Notify the pick owner if it's not their own comment
+  if(currentPick && currentPick.user_id !== currentUser.id){
+    await sb.from('notifications').insert({
+      user_id: currentPick.user_id,
+      type: 'comment',
+      actor_id: currentUser.id,
+      pick_id: pickId,
+      read: false
+    });
+  }
   loadComments(pickId);
 }
 
@@ -1704,6 +1732,16 @@ async function postReply(parentId){
   ta.disabled = false;
   if(error){showToast('Error posting reply',true);return;}
   ta.value = '';
+  // Notify the pick owner if it's not their own reply
+  if(pick.user_id !== currentUser.id){
+    await sb.from('notifications').insert({
+      user_id: pick.user_id,
+      type: 'comment',
+      actor_id: currentUser.id,
+      pick_id: pick.id,
+      read: false
+    });
+  }
   toggleReplyInput(parentId);
   loadComments(pick.id);
 }
@@ -1930,8 +1968,8 @@ async function loadNotifications(){
   list.innerHTML=notifs.map(n=>{
     const actor=actorMap[n.actor_id];
     const name=actor?('<strong>'+esc(actor.display_name)+'</strong>'):'Someone';
-    const icon=n.type==='listen'?'👀':'👍';
-    const text=n.type==='listen'?name+' checked out your pick':name+' liked your pick';
+    const icon=n.type==='listen'?'👀':n.type==='comment'?'💬':'👍';
+    const text=n.type==='listen'?name+' checked out your pick':n.type==='comment'?name+' commented on your pick':name+' liked your pick';
     const time=timeAgo(n.created_at);
     const dest=n.pick_id?'onclick="closeNotifPanel();openNotifPick(\''+n.id+'\')"':'';
     return '<div class="notif-item'+(n.read?'':' unread')+'" '+dest+'>'
