@@ -1543,9 +1543,9 @@ async function autoEnrichSongDetail(pick){
 
   sessionStorage.setItem(cacheKey, JSON.stringify(result));
 
-  // Save to DB if owner
-  const isOwner = !isGuest && currentUser && currentUser.id === pick.user_id;
-  if(isOwner){
+  // Save to DB whenever data is missing — not just for the owner
+  // This ensures any viewer can populate missing enrichment data
+  if(!isGuest && currentUser){
     const updates = {};
     if((!pick.tags||!pick.tags.length) && result.genres.length) updates.tags = result.genres;
     if(!pick.band_info && result.bio) updates.band_info = result.bio;
@@ -1707,8 +1707,8 @@ async function fetchSimilarArtistsAI(pick){
     sessionStorage.setItem(cacheKey, JSON.stringify(artists));
     applySimilarArtists(pick, artists);
 
-    // Save to DB if viewer is the pick owner so it loads instantly next time
-    if(!isGuest && currentUser && currentUser.id === pick.user_id){
+    // Save to DB whenever missing — any logged-in viewer can populate it
+    if(!isGuest && currentUser && !pick.related_artists){
       await sb.from('picks').update({related_artists: artists.join(',')}).eq('id', pick.id);
     }
   } catch(e){
