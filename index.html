@@ -1150,7 +1150,7 @@ async function renderSongDetail(opts){
     +'<div class="song-title">'+esc(pick.song)+'</div>'
     +'<div class="song-artist">'+esc(pick.artist)+(pick.release_year?' \u00b7 '+pick.release_year:'')+'</div>'
     +(pick.note?'<p style="margin-top:1rem;font-size:0.95rem;line-height:1.75;color:var(--text-muted);border-left:2px solid var(--red-dim);padding-left:1rem;font-style:italic">"'+esc(pick.note)+'"</p>':'')
-    +(!isGuest&&userId===currentUser.id?'<button class="btn btn-ghost" style="margin-top:1.25rem;font-size:0.62rem" onclick="openPickModal()">✏ Edit This Pick</button>':'')
+    +(!isGuest&&userId===currentUser.id?'<button class="btn btn-ghost" style="margin-top:1.25rem;font-size:0.62rem" onclick="openPickModal('+week+','+year+')">✏ Edit This Pick</button>':'')
     +(!isGuest&&userId!==currentUser.id
       ?'<div style="margin-top:1.25rem"><button class="reaction-btn'+(myReaction?' reacted':'')+'" id="detail-reaction-btn" onclick="toggleReaction(\''+pick.id+'\',\''+userId+'\',this)">👍 <span class="reaction-count">'+reactionCount+'</span> '+(myReaction?'Liked':'Like this pick')+'</button></div>'
       :reactionCount?'<div style="margin-top:1rem;font-family:\'IBM Plex Mono\',monospace;font-size:0.65rem;color:var(--text-muted)">'+reactionCount+' 👍</div>':'')
@@ -1177,7 +1177,7 @@ async function renderSongDetail(opts){
 
 // ── ENRICHMENT — tries every source until something is found ──
 async function autoEnrichSongDetail(pick){
-  const cacheKey = 'enrich_' + (pick.artist||'').toLowerCase().replace(/\s+/g,'_');
+  const cacheKey = 'enrich2_' + (pick.artist||'').toLowerCase().replace(/\s+/g,'_');
   const cached = sessionStorage.getItem(cacheKey);
   if(cached){
     try{ applyEnrichment(pick, JSON.parse(cached)); return; } catch(e){}
@@ -1224,11 +1224,16 @@ async function autoEnrichSongDetail(pick){
         const pageData = await pageResp.json();
         const page = Object.values(pageData.query.pages)[0];
         if(page && !page.missing && page.extract){
-          const sentences = page.extract.replace(/\n/g,' ').match(/[^.!?]+[.!?]+/g)||[];
-          result.bio = sentences.slice(0,2).join(' ').trim();
-          // Also grab genres from categories if Spotify didn't give us any
-          // Skip Wikipedia categories for genres - they produce person/occupation tags
-          // Genres come from Spotify and MusicBrainz only
+          // Validate the page is actually about this artist — check extract mentions the name
+          const extractLower = page.extract.toLowerCase();
+          const artistWords = pick.artist.toLowerCase().replace(/[^a-z0-9 ]/g,' ').split(' ').filter(w=>w.length>2);
+          const artistMentioned = artistWords.length===0 || artistWords.some(w=>extractLower.includes(w));
+          // Also reject if it's clearly a label/company page (common false positive)
+          const isLabel = /record label|music label|recording label|publishing company|talent agency/i.test(page.extract);
+          if(artistMentioned && !isLabel){
+            const sentences = page.extract.replace(/\n/g,' ').match(/[^.!?]+[.!?]+/g)||[];
+            result.bio = sentences.slice(0,2).join(' ').trim();
+          }
         }
       }
     } catch(e){}
