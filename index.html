@@ -1177,7 +1177,7 @@ async function renderSongDetail(opts){
 
 // ── ENRICHMENT — tries every source until something is found ──
 async function autoEnrichSongDetail(pick){
-  const cacheKey = 'enrich4_' + (pick.artist||'').toLowerCase().replace(/\s+/g,'_');
+  const cacheKey = 'enrich5_' + (pick.artist||'').toLowerCase().replace(/\s+/g,'_');
   const cached = sessionStorage.getItem(cacheKey);
   if(cached){
     try{ applyEnrichment(pick, JSON.parse(cached)); return; } catch(e){}
@@ -1254,38 +1254,20 @@ async function autoEnrichSongDetail(pick){
       );
       if(lfResp.ok){
         const lfData = await lfResp.json();
-        const bio = lfData.artist && lfData.artist.bio && lfData.artist.bio.summary;
-        if(bio && bio.length > 30){
-          // Last.fm bios end with " <a href=...>Read more on Last.fm</a>." — strip that
-          const clean = bio.replace(/<a[^>]*>.*?<\/a>/gi,'').replace(/\s+/g,' ').trim().replace(/\.?\s*$/, '.');
-          // Validate it's actually about this artist — name should appear in bio
-          const artistLower = pick.artist.toLowerCase();
-          const bioLower = clean.toLowerCase();
-          const artistWords = artistLower.replace(/[^a-z0-9 ]/g,' ').split(' ').filter(w=>w.length>2);
-          const mentioned = artistWords.length===0 || artistWords.filter(w=>bioLower.includes(w)).length >= Math.ceil(artistWords.length*0.6);
-          if(mentioned && clean.length > 40){
-            // Take first 2 sentences
-            const sentences = clean.match(/[^.!?]+[.!?]+/g)||[];
-            result.bio = sentences.slice(0,2).join(' ').trim();
+        // Last.fm returns error code 6 for unknown artists
+        if(!lfData.error){
+          const bio = lfData.artist && lfData.artist.bio && lfData.artist.bio.content;
+          const summary = lfData.artist && lfData.artist.bio && lfData.artist.bio.summary;
+          const rawBio = (bio && bio.length > summary.length) ? bio : summary;
+          if(rawBio && rawBio.length > 30){
+            // Strip HTML tags and "Read more on Last.fm" link
+            const clean = rawBio.replace(/<a[^>]*>.*?<\/a>/gi,'').replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
+            // Require minimum length — reject placeholder bios
+            if(clean.length > 60){
+              const sentences = clean.match(/[^.!?]+[.!?]+/g)||[];
+              result.bio = sentences.slice(0,3).join(' ').trim();
+            }
           }
-        }
-      }
-    } catch(e){}
-  }
-
-  // ── SOURCE 2c: MusicBrainz disambiguation — last resort for bio ──
-  if(!result.bio){
-    try{
-      const mbResp = await fetch(
-        'https://musicbrainz.org/ws/2/artist/?query=artist:'+encodeURIComponent(pick.artist)+'&fmt=json&limit=3',
-        {headers:{'User-Agent':'Wavelength/1.0'}}
-      );
-      if(mbResp.ok){
-        const mbData = await mbResp.json();
-        const artists = mbData.artists||[];
-        const match = artists.find(a=>(a.name||'').toLowerCase().trim()===pick.artist.toLowerCase().trim());
-        if(match && match.disambiguation){
-          result.bio = pick.artist+' is '+match.disambiguation+'.';
         }
       }
     } catch(e){}
