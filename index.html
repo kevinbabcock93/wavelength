@@ -1084,7 +1084,15 @@ async function renderFeed(){
     }
   }
 
-  const sorted=isGuest?profiles:[profiles.find(p=>p.id===currentUser.id),...profiles.filter(p=>p.id!==currentUser.id)].filter(Boolean);
+  const sortProfiles=(list)=>{
+    const me=!isGuest?list.find(p=>p.id===currentUser.id):null;
+    const others=list.filter(p=>isGuest||p.id!==currentUser.id);
+    const withPick=others.filter(p=>pickMap[p.id]);
+    const withoutPick=others.filter(p=>!pickMap[p.id]);
+    if(isGuest){return[...withPick,...withoutPick];}
+    return[...(me?[me]:[]),...withPick,...withoutPick];
+  };
+  const sorted=sortProfiles(profiles||[]);
   grid.innerHTML=sorted.map(p=>{
     const pick=pickMap[p.id];const me=!isGuest&&p.id===currentUser.id;
     const commentCount=pick?commentCounts[pick.id]||0:0;
