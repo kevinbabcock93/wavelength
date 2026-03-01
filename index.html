@@ -1684,25 +1684,33 @@ async function fetchSimilarArtistsAI(pick){
 
   try{
     const token = await getSpotifyToken();
+    console.log('[similar] got token', token ? 'OK' : 'MISSING');
 
     // Get artist ID — from the pick's spotify_url track if available, else search by name
     let artistId = null;
     if(pick.spotify_url){
       const trackId = pick.spotify_url.split('/track/').pop().split('?')[0];
+      console.log('[similar] trackId', trackId);
       const trackData = await spotifyFetch('https://api.spotify.com/v1/tracks/'+trackId, token);
+      console.log('[similar] trackData artists', trackData && trackData.artists);
       if(trackData && trackData.artists && trackData.artists[0]) artistId = trackData.artists[0].id;
     }
     if(!artistId){
+      console.log('[similar] no artistId from track, searching by name:', pick.artist);
       const searchData = await spotifyFetch(
         'https://api.spotify.com/v1/search?q='+encodeURIComponent(pick.artist)+'&type=artist&limit=1', token
       );
       const items = searchData && searchData.artists && searchData.artists.items;
+      console.log('[similar] search result', items && items[0] && items[0].name);
       if(items && items[0]) artistId = items[0].id;
     }
+    console.log('[similar] artistId', artistId);
     if(!artistId) throw new Error('Artist not found');
 
     const relData = await spotifyFetch('https://api.spotify.com/v1/artists/'+artistId+'/related-artists', token);
+    console.log('[similar] related artists raw', relData);
     const artists = (relData.artists||[]).slice(0,6).map(a=>a.name);
+    console.log('[similar] final artists', artists);
     if(!artists.length) throw new Error('No related artists');
 
     sessionStorage.setItem(cacheKey, JSON.stringify(artists));
@@ -1713,6 +1721,7 @@ async function fetchSimilarArtistsAI(pick){
       await sb.from('picks').update({related_artists: artists.join(',')}).eq('id', pick.id);
     }
   } catch(e){
+    console.error('[similar] FAILED:', e.message, e);
     const el2 = document.getElementById('related-section');
     if(el2) el2.style.display = 'none';
   }
