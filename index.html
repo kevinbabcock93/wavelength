@@ -371,7 +371,23 @@
   .friend-card.potw { outline: 1px solid rgba(255,200,0,0.3); }
   .friend-card.potw .friend-card-art { filter: brightness(1.05); }
 
-  /* Dev mode indicator */
+  /* Similar artists — Wavelength native design */
+  .similar-artists-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); margin-top: 1rem; }
+  .sim-artist-card { background: var(--surface); display: flex; flex-direction: column; cursor: pointer; text-decoration: none; color: inherit; position: relative; overflow: hidden; transition: background 0.15s; }
+  .sim-artist-card:hover { background: var(--surface2); }
+  .sim-artist-card:hover .sim-artist-img { filter: brightness(0.7) saturate(0.4); }
+  .sim-artist-card:hover .sim-artist-overlay { opacity: 1; }
+  .sim-artist-card:hover .sim-artist-arrow { opacity: 1; transform: translate(0,0); }
+  .sim-artist-img-wrap { position: relative; width: 100%; aspect-ratio: 1; overflow: hidden; background: var(--bg); }
+  .sim-artist-img { width: 100%; height: 100%; object-fit: cover; display: block; filter: brightness(0.85) saturate(0.6) contrast(1.1); transition: filter 0.3s; }
+  .sim-artist-ph { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; opacity: 0.06; background: var(--bg); }
+  .sim-artist-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(13,0,0,0.95) 0%, rgba(13,0,0,0.3) 60%, transparent 100%); opacity: 0.6; transition: opacity 0.3s; }
+  .sim-artist-arrow { position: absolute; top: 0.6rem; right: 0.6rem; color: var(--red); font-size: 0.8rem; opacity: 0; transform: translate(-4px, 4px); transition: all 0.2s; }
+  .sim-artist-info { padding: 0.75rem 0.85rem 0.8rem; border-top: 1px solid var(--border); }
+  .sim-artist-name { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.05em; line-height: 1.1; color: var(--white); margin-bottom: 0.2rem; }
+  .sim-artist-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--red-dim); }
+  @media (max-width: 650px) { .similar-artists-grid { grid-template-columns: repeat(2, 1fr); } }
+</style>
   .dev-badge { position: fixed; bottom: 1rem; left: 1rem; background: rgba(255,200,0,0.15); border: 1px solid rgba(255,200,0,0.4); color: rgba(255,200,0,0.8); font-family: 'IBM Plex Mono', monospace; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.1em; padding: 0.25rem 0.6rem; border-radius: 3px; z-index: 9998; pointer-events: none; }
   @media (max-width: 650px) { .dev-badge { bottom: 5.5rem; } }
 </style>
@@ -1677,7 +1693,7 @@ async function fetchSimilarArtistsAI(pick){
   const el = document.getElementById('related-section');
   if(el){
     el.style.display = '';
-    el.innerHTML = '<h3>🎸 If You Like This, Try These Similar Artists</h3>'
+    el.innerHTML = '<h3>🎸 If You Like This, Try These</h3>'
       +'<div style="font-family:\'IBM Plex Mono\',monospace;font-size:0.65rem;color:var(--text-dim);padding:0.5rem 0">Finding similar artists...</div>';
   }
 
@@ -1704,15 +1720,49 @@ async function fetchSimilarArtistsAI(pick){
   }
 }
 
-function applySimilarArtists(pick, artists){
+async function applySimilarArtists(pick, artists){
   const el = document.getElementById('related-section');
   if(!el) return;
   el.style.display = '';
-  el.innerHTML = '<h3>🎸 If You Like This, Try These Similar Artists</h3>'
-    +'<div class="similar-grid">'+artists.map(a=>{
-      const spotifyUrl = 'https://open.spotify.com/search/'+encodeURIComponent(a)+'/artists';
-      return '<div class="sim-item"><a href="'+spotifyUrl+'" target="_blank" rel="noopener" style="color:inherit;text-decoration:none"><strong style="border-bottom:1px solid var(--border);padding-bottom:1px;transition:border-color 0.15s" onmouseover="this.style.borderColor=\'#1db954\'" onmouseout="this.style.borderColor=\'var(--border)\'">'+esc(a)+'</strong></a></div>';
-    }).join('')+'</div>';
+
+  // Render names immediately while images load
+  const renderGrid = (artistData) => {
+    el.innerHTML = '<h3>🎸 If You Like This, Try These</h3>'
+      +'<div class="similar-artists-grid">'+artistData.map(a=>{
+        const spotifyUrl = 'https://open.spotify.com/search/'+encodeURIComponent(a.name)+'/artists';
+        const imgHtml = a.img
+          ? '<img class="sim-artist-img" src="'+esc(a.img)+'" alt="'+esc(a.name)+'" loading="lazy">'
+          : '<div class="sim-artist-ph">🎵</div>';
+        return '<a class="sim-artist-card" href="'+spotifyUrl+'" target="_blank" rel="noopener">'
+          +'<div class="sim-artist-img-wrap">'+imgHtml+'<div class="sim-artist-overlay"></div><span class="sim-artist-arrow">&#8599;</span></div>'
+          +'<div class="sim-artist-info"><div class="sim-artist-name">'+esc(a.name)+'</div><div class="sim-artist-label">Similar Artist</div></div>'
+          +'</a>';
+      }).join('')+'</div>';
+  };
+
+  // Show names first with placeholders
+  renderGrid(artists.map(name=>({name, img:null})));
+
+  // Fetch artist images from Spotify in parallel
+  try{
+    const token = await getSpotifyToken();
+    if(!token) return;
+    const enriched = await Promise.all(artists.map(async name => {
+      try{
+        const data = await spotifyFetch(
+          'https://api.spotify.com/v1/search?q='+encodeURIComponent(name)+'&type=artist&limit=1', token
+        );
+        const artist = data && data.artists && data.artists.items && data.artists.items[0];
+        const img = artist && artist.images && artist.images[1] && artist.images[1].url
+          || artist && artist.images && artist.images[0] && artist.images[0].url
+          || null;
+        return {name, img};
+      } catch(e){ return {name, img:null}; }
+    }));
+    renderGrid(enriched);
+  } catch(e){
+    // Images failed but names are already showing — that's fine
+  }
 }
 
 // ── COMMENTS ──
