@@ -1480,7 +1480,7 @@ async function autoEnrichSongDetail(pick){
       const lfResp = await fetch(
         'https://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist='
         +encodeURIComponent(pick.artist)
-        +'&autocorrect=1&api_key=43b1d08cf8fa2d6b2e945289bf7be98d&format=json'
+        +'&autocorrect=1&api_key=02b5ad42f283d9894d50571ff65f01a8&format=json'
       );
       if(lfResp.ok){
         const lfData = await lfResp.json();
@@ -1685,7 +1685,7 @@ async function fetchSimilarArtistsAI(pick){
     const resp = await fetch(
       'https://ws.audioscrobbler.com/2.0/?method=artist.getSimilar&artist='
       + encodeURIComponent(pick.artist)
-      + '&autocorrect=1&limit=6&api_key=43b1d08cf8fa2d6b2e945289bf7be98d&format=json'
+      + '&autocorrect=1&limit=6&api_key=02b5ad42f283d9894d50571ff65f01a8&format=json'
     );
     const data = await resp.json();
     const similar = data.similarartists && data.similarartists.artist;
