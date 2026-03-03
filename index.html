@@ -1686,10 +1686,10 @@ function applyEnrichment(pick, data){
 // ── SIMILAR ARTISTS — Last.fm artist.getSimilar ──
 async function forceRefreshSimilarArtists(){
   if(!currentPick) return;
-  // Clear session cache
-  const cacheKey = 'similar5_' + (currentPick.artist||'').toLowerCase().replace(/\s+/g,'_');
-  sessionStorage.removeItem(cacheKey);
-  // Clear DB so it re-saves fresh data
+  // Clear all possible session cache variants
+  const artistKey = (currentPick.artist||'').toLowerCase().replace(/\s+/g,'_');
+  ['similar3_','similar4_','similar5_'].forEach(prefix => sessionStorage.removeItem(prefix+artistKey));
+  // Clear DB so fresh data gets saved
   await sb.from('picks').update({related_artists: null}).eq('id', currentPick.id);
   currentPick.related_artists = null;
   showToast('Refreshing similar artists...');
@@ -1724,8 +1724,10 @@ async function fetchSimilarArtistsAI(pick){
     sessionStorage.setItem(cacheKey, JSON.stringify(artists));
     applySimilarArtists(pick, artists);
 
-    if(!isGuest && currentUser && !pick.related_artists){
+    // Always save to DB — overwrites stale data on refresh
+    if(!isGuest && currentUser){
       await sb.from('picks').update({related_artists: artists.join(',')}).eq('id', pick.id);
+      pick.related_artists = artists.join(',');
     }
   } catch(e){
     const el2 = document.getElementById('related-section');
