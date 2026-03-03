@@ -668,21 +668,24 @@
   #view-profile.has-scene .p-meta h2 { text-shadow: 0 2px 16px rgba(0,0,0,0.9); }
   #view-profile.has-scene .wk-song strong { text-shadow: 0 1px 12px rgba(0,0,0,0.9); }
   #view-profile.has-scene .wk-song span { text-shadow: 0 1px 8px rgba(0,0,0,0.8); }
-  /* Scene skin — spaced cards with gaps showing background */
-  #view-profile.has-scene .weeks-list { padding-top: 0.75rem; }
+  /* Scene skin — spaced floating cards with generous gaps */
+  #view-profile.has-scene .weeks-list { padding-top: 2rem; padding-bottom: 8rem; }
   #view-profile.has-scene .week-row {
     border-bottom: none !important;
-    border-radius: 6px !important;
-    margin: 0 0 0.6rem 0 !important;
-    border: 1px solid var(--skin-border, rgba(255,255,255,0.1)) !important;
+    border-radius: 8px !important;
+    margin: 0 0 2.2rem 0 !important;
+    border: 1px solid var(--skin-border, rgba(255,255,255,0.12)) !important;
   }
   #view-profile.has-scene .week-row.is-current {
     border-left: 3px solid var(--skin-accent-solid, #fff) !important;
   }
   #view-profile.has-scene .profile-hero {
-    border-radius: 0 0 6px 6px !important;
-    margin-bottom: 0.6rem !important;
+    border-radius: 0 0 8px 8px !important;
+    margin-bottom: 2.2rem !important;
+    margin-top: 0 !important;
   }
+  /* Push entire profile content down so scene is visible at top */
+  #view-profile.has-scene #profile-skin-bar { margin-top: 38vh; }
   .skin-dino .wk-song span, .skin-weather .wk-song span, .skin-alien .wk-song span,
   .skin-cowboy .wk-song span, .skin-jazz .wk-song span,
   .skin-n64 .wk-song span, .skin-ps1 .wk-song span,
@@ -1749,7 +1752,7 @@ async function selectSkin(skinId){
 
 function drawSceneWeather(ctx, W, H, t, py){
   const bg=ctx.createLinearGradient(0,0,0,H);
-  bg.addColorStop(0,'#050e28'); bg.addColorStop(1,'#040a1e');
+  bg.addColorStop(0,'#0e2860'); bg.addColorStop(1,'#0a1a4a');
   ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
   // Grid
   ctx.strokeStyle='rgba(40,80,180,0.12)'; ctx.lineWidth=1;
@@ -1825,7 +1828,7 @@ function drawSceneAlien(ctx, W, H, t, py) {
   // ── Alien planet surface, looking out across terrain ──
   // Deep space sky — teal-black with nebula
   const sky = ctx.createLinearGradient(0, 0, 0, H * 0.65);
-  sky.addColorStop(0, '#010608'); sky.addColorStop(0.4, '#020c10'); sky.addColorStop(1, '#041418');
+  sky.addColorStop(0, '#041830'); sky.addColorStop(0.4, '#062840'); sky.addColorStop(1, '#083448');
   ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H * 0.65);
 
   // Nebula cloud — sweeping color wash
@@ -1942,12 +1945,12 @@ function drawSceneAlien(ctx, W, H, t, py) {
 
   // Alien terrain — foreground ground
   const ground = ctx.createLinearGradient(0, H * 0.62, 0, H);
-  ground.addColorStop(0, '#041c1a'); ground.addColorStop(0.3, '#031410'); ground.addColorStop(1, '#020c0a');
+  ground.addColorStop(0, '#10604e'); ground.addColorStop(0.3, '#0c4836'); ground.addColorStop(1, '#082e20');
   ctx.fillStyle = ground; ctx.fillRect(0, H * 0.62, W, H);
 
   // Terrain ridge / hill silhouettes
   ctx.save(); ctx.translate(0, -py * 0.16);
-  ctx.fillStyle = '#031816';
+  ctx.fillStyle = '#083830';
   ctx.beginPath();
   ctx.moveTo(0, H * 0.68); ctx.quadraticCurveTo(W * 0.1, H * 0.61, W * 0.2, H * 0.65);
   ctx.quadraticCurveTo(W * 0.32, H * 0.58, W * 0.45, H * 0.63);
@@ -2161,7 +2164,7 @@ function drawSceneAlien(ctx, W, H, t, py) {
 
   // Vignette
   const vig = ctx.createRadialGradient(W/2, H*0.5, H*0.12, W/2, H*0.5, H*0.92);
-  vig.addColorStop(0, 'transparent'); vig.addColorStop(1, 'rgba(1,4,6,0.75)');
+  vig.addColorStop(0, 'transparent'); vig.addColorStop(1, 'rgba(2,8,12,0.45)');
   ctx.fillStyle = vig; ctx.fillRect(0,0,W,H);
 }
 
@@ -2172,7 +2175,7 @@ function drawSceneAlien(ctx, W, H, t, py) {
 function drawSceneJazz(ctx, W, H, t, py) {
   // ── Deep jazz club interior ──
   const bg = ctx.createLinearGradient(0, 0, 0, H);
-  bg.addColorStop(0, '#040108'); bg.addColorStop(0.5, '#060210'); bg.addColorStop(1, '#030008');
+  bg.addColorStop(0, '#120428'); bg.addColorStop(0.5, '#180838'); bg.addColorStop(1, '#0c0220');
   ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
 
   // Back wall — dark brick
@@ -2182,7 +2185,7 @@ function drawSceneJazz(ctx, W, H, t, py) {
     const off = (row % 2) * 44;
     for (let col = -1; col < Math.ceil(W / 88) + 1; col++) {
       const shade = (row * 5 + col * 3) % 7;
-      ctx.fillStyle = `rgba(${22+shade*2},${6+shade},${14+shade},0.65)`;
+      ctx.fillStyle = `rgba(${55+shade*4},${18+shade*2},${38+shade*2},0.7)`;
       ctx.fillRect(col * 88 + off + 2, row * 22 + 2, 84, 18);
     }
   }
@@ -2224,7 +2227,7 @@ function drawSceneJazz(ctx, W, H, t, py) {
   ctx.save(); ctx.translate(0, -py * 0.15);
   const stageY = H * 0.72, stageH = H * 0.08;
   for (let p = 0; p < 20; p++) {
-    ctx.fillStyle = p % 2 === 0 ? 'rgba(28,12,8,0.9)' : 'rgba(22,9,5,0.9)';
+    ctx.fillStyle = p % 2 === 0 ? 'rgba(55,28,18,0.9)' : 'rgba(44,20,12,0.9)';
     ctx.fillRect(p * (W / 20), stageY, W / 20, stageH);
     ctx.strokeStyle = 'rgba(15,5,2,0.5)'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(p * (W / 20), stageY); ctx.lineTo(p * (W / 20), stageY + stageH); ctx.stroke();
@@ -2239,7 +2242,7 @@ function drawSceneJazz(ctx, W, H, t, py) {
   ctx.save(); ctx.translate(0, -py * 0.2);
   const floorY = H * 0.8;
   for (let p = 0; p < 18; p++) {
-    ctx.fillStyle = p % 2 === 0 ? 'rgba(12,5,10,0.85)' : 'rgba(9,3,8,0.85)';
+    ctx.fillStyle = p % 2 === 0 ? 'rgba(28,12,24,0.85)' : 'rgba(20,8,18,0.85)';
     ctx.fillRect(0, floorY + p * 14, W, 14);
   }
   ctx.restore();
@@ -2481,7 +2484,7 @@ function drawSceneJazz(ctx, W, H, t, py) {
 
   // Vignette — dark intimate feel
   const vig = ctx.createRadialGradient(W / 2, H * 0.55, H * 0.08, W / 2, H * 0.55, H * 0.95);
-  vig.addColorStop(0, 'transparent'); vig.addColorStop(1, 'rgba(3,0,6,0.82)');
+  vig.addColorStop(0, 'transparent'); vig.addColorStop(1, 'rgba(8,0,14,0.5)');
   ctx.fillStyle = vig; ctx.fillRect(0, 0, W, H);
 }
 
@@ -3607,9 +3610,9 @@ document.getElementById('pick-modal').addEventListener('click',function(e){if(e.
 function drawSceneN64(ctx, W, H, t, py){
   // Deep blue N64 sky with that signature foggy horizon
   const sky = ctx.createLinearGradient(0, 0, 0, H);
-  sky.addColorStop(0, '#040818');
-  sky.addColorStop(0.45, '#0a1840');
-  sky.addColorStop(0.65, '#1a3060');
+  sky.addColorStop(0, '#0a1840');
+  sky.addColorStop(0.45, '#183080');
+  sky.addColorStop(0.65, '#2a50a0');
   sky.addColorStop(1, '#0a1430');
   ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
 
@@ -3675,7 +3678,7 @@ function drawSceneN64(ctx, W, H, t, py){
   const groundTop = H * 0.7;
   // Ground fill
   const gnd = ctx.createLinearGradient(0, groundTop, 0, H);
-  gnd.addColorStop(0, '#0a2010'); gnd.addColorStop(0.4, '#0e2a14'); gnd.addColorStop(1, '#060e08');
+  gnd.addColorStop(0, '#285a40'); gnd.addColorStop(0.4, '#306050'); gnd.addColorStop(1, '#183828');
   ctx.fillStyle = gnd; ctx.fillRect(0, groundTop, W, H);
 
   // Perspective grid lines — converging to horizon vanishing point
@@ -3777,7 +3780,7 @@ function drawSceneN64(ctx, W, H, t, py){
   // N64 fog overlay — that signature distance fade
   const fogOverlay = ctx.createLinearGradient(0, H * 0.65, 0, H * 0.85);
   fogOverlay.addColorStop(0, 'transparent');
-  fogOverlay.addColorStop(1, 'rgba(4,10,24,0.4)');
+  fogOverlay.addColorStop(1, 'rgba(4,10,24,0.2)');
   ctx.fillStyle = fogOverlay; ctx.fillRect(0, H * 0.65, W, H * 0.2);
 
   // Scan line CRT feel
@@ -3791,13 +3794,13 @@ function drawSceneN64(ctx, W, H, t, py){
 // ── PLAYSTATION SCENE ──
 function drawScenePS1(ctx, W, H, t, py){
   // PS1 boot black
-  ctx.fillStyle = '#010208';
+  ctx.fillStyle = '#06082a';
   ctx.fillRect(0, 0, W, H);
 
   // Background — subtle deep blue gradient like PS1 XMB
   const bg = ctx.createRadialGradient(W*0.5, H*0.4, 0, W*0.5, H*0.4, H*0.9);
-  bg.addColorStop(0, 'rgba(8,12,40,0.9)');
-  bg.addColorStop(1, 'rgba(1,2,8,0)');
+  bg.addColorStop(0, 'rgba(30,40,120,0.95)');
+  bg.addColorStop(1, 'rgba(8,12,40,0)');
   ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
 
   // XMB-style horizontal light bands
@@ -3964,9 +3967,9 @@ function drawScenePS1(ctx, W, H, t, py){
 function drawSceneHollywood(ctx, W, H, t, py) {
   // Deep night sky — rich black with warm amber glow low on horizon
   const sky = ctx.createLinearGradient(0, 0, 0, H);
-  sky.addColorStop(0, '#050200');
-  sky.addColorStop(0.5, '#0a0500');
-  sky.addColorStop(0.75, '#1a0c02');
+  sky.addColorStop(0, '#180a00');
+  sky.addColorStop(0.5, '#281400');
+  sky.addColorStop(0.75, '#402008');
   sky.addColorStop(1, '#0e0600');
   ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
 
@@ -4016,7 +4019,7 @@ function drawSceneHollywood(ctx, W, H, t, py) {
 
   // Hollywood Hills silhouette
   ctx.save(); ctx.translate(0, -py * 0.1);
-  ctx.fillStyle = '#0a0500';
+  ctx.fillStyle = '#201008';
   ctx.beginPath();
   const hillPts = [[0,0.72],[0.06,0.62],[0.12,0.68],[0.18,0.56],[0.26,0.64],[0.32,0.52],[0.4,0.6],[0.48,0.5],[0.56,0.58],[0.64,0.48],[0.72,0.56],[0.8,0.5],[0.88,0.58],[0.94,0.54],[1.0,0.6],[1.0,1],[0,1]];
   hillPts.forEach(([hx, hy], i) => i === 0 ? ctx.moveTo(hx*W, hy*H) : ctx.lineTo(hx*W, hy*H));
@@ -4053,7 +4056,7 @@ function drawSceneHollywood(ctx, W, H, t, py) {
   const carpetVanish = { x: W * 0.5, y: H * 0.62 };
   const carpetBase = [W * 0.28, W * 0.72];
   const redCarpet = ctx.createLinearGradient(0, carpetVanish.y, 0, H);
-  redCarpet.addColorStop(0, '#2a0404'); redCarpet.addColorStop(1, '#1a0202');
+  redCarpet.addColorStop(0, '#5a0808'); redCarpet.addColorStop(1, '#3a0404');
   ctx.fillStyle = redCarpet;
   ctx.beginPath();
   ctx.moveTo(carpetVanish.x - 4, carpetVanish.y);
@@ -4143,7 +4146,7 @@ function drawSceneHollywood(ctx, W, H, t, py) {
 
   // Vignette
   const vig = ctx.createRadialGradient(W/2, H/2, H*0.15, W/2, H/2, H*0.85);
-  vig.addColorStop(0, 'transparent'); vig.addColorStop(1, 'rgba(5,2,0,0.7)');
+  vig.addColorStop(0, 'transparent'); vig.addColorStop(1, 'rgba(8,3,0,0.42)');
   ctx.fillStyle = vig; ctx.fillRect(0, 0, W, H);
 }
 
@@ -4151,7 +4154,7 @@ function drawSceneHollywood(ctx, W, H, t, py) {
 function drawSceneDiveBar(ctx, W, H, t, py) {
   // Dark brown background — wood paneling
   const bg = ctx.createLinearGradient(0, 0, 0, H);
-  bg.addColorStop(0, '#080401'); bg.addColorStop(1, '#050200');
+  bg.addColorStop(0, '#201008'); bg.addColorStop(1, '#140a04');
   ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
 
   // Wood panel texture — vertical planks
@@ -4159,7 +4162,7 @@ function drawSceneDiveBar(ctx, W, H, t, py) {
   for (let p = 0; p < Math.ceil(W / 52) + 1; p++) {
     const px2 = p * 52;
     const dark = p % 3 === 0 ? 0.06 : p % 3 === 1 ? 0.04 : 0.05;
-    ctx.fillStyle = `rgba(40,20,5,${dark})`;
+    ctx.fillStyle = `rgba(80,42,12,${dark*2.5})`;
     ctx.fillRect(px2, 0, 50, H);
     ctx.strokeStyle = 'rgba(20,10,2,0.3)'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(px2, 0); ctx.lineTo(px2, H); ctx.stroke();
@@ -4395,7 +4398,7 @@ function drawSceneDiveBar(ctx, W, H, t, py) {
 
   // Warm vignette — dark corners
   const vig = ctx.createRadialGradient(W/2, H*0.6, H*0.1, W/2, H*0.6, H*0.9);
-  vig.addColorStop(0, 'transparent'); vig.addColorStop(1, 'rgba(4,2,0,0.75)');
+  vig.addColorStop(0, 'transparent'); vig.addColorStop(1, 'rgba(6,3,0,0.42)');
   ctx.fillStyle = vig; ctx.fillRect(0, 0, W, H);
 }
 
@@ -4404,7 +4407,7 @@ function drawSceneDiveBar(ctx, W, H, t, py) {
 function drawSceneVinyl(ctx, W, H, t, py) {
   // Warm cream/amber interior
   const bg = ctx.createLinearGradient(0, 0, 0, H);
-  bg.addColorStop(0, '#2a1a08'); bg.addColorStop(0.4, '#1e1206'); bg.addColorStop(1, '#140c04');
+  bg.addColorStop(0, '#4a2e10'); bg.addColorStop(0.4, '#382010'); bg.addColorStop(1, '#281808');
   ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
 
   // Wood floor — perspective planks
@@ -4412,7 +4415,7 @@ function drawSceneVinyl(ctx, W, H, t, py) {
   const floorY = H * 0.68;
   for (let p = 0; p < 22; p++) {
     const fy = floorY + p * 18;
-    ctx.fillStyle = p % 2 === 0 ? 'rgba(60,35,10,0.7)' : 'rgba(50,28,8,0.7)';
+    ctx.fillStyle = p % 2 === 0 ? 'rgba(110,65,22,0.85)' : 'rgba(88,50,14,0.85)';
     ctx.fillRect(0, fy, W, 18);
   }
   // Plank lines converging to vanish
@@ -4424,7 +4427,7 @@ function drawSceneVinyl(ctx, W, H, t, py) {
   ctx.restore();
 
   // Back wall — warm amber
-  ctx.fillStyle = '#1a0e05';
+  ctx.fillStyle = '#3a1e0a';
   ctx.fillRect(0, 0, W, H * 0.68 - py * 0.08);
 
   // Record shelves — tall wooden units
@@ -4547,7 +4550,7 @@ function drawSceneVinyl(ctx, W, H, t, py) {
 
   // Warm vignette
   const vig = ctx.createRadialGradient(W/2, H*0.5, H*0.1, W/2, H*0.5, H*0.9);
-  vig.addColorStop(0, 'transparent'); vig.addColorStop(1, 'rgba(10,5,1,0.75)');
+  vig.addColorStop(0, 'transparent'); vig.addColorStop(1, 'rgba(12,6,2,0.42)');
   ctx.fillStyle = vig; ctx.fillRect(0, 0, W, H);
 }
 
@@ -4555,7 +4558,7 @@ function drawSceneVinyl(ctx, W, H, t, py) {
 function drawSceneMidnight(ctx, W, H, t, py) {
   // Deep midnight sky
   const sky = ctx.createLinearGradient(0, 0, 0, H);
-  sky.addColorStop(0, '#020410'); sky.addColorStop(0.5, '#04081e'); sky.addColorStop(1, '#060c28');
+  sky.addColorStop(0, '#060c30'); sky.addColorStop(0.5, '#0c1848'); sky.addColorStop(1, '#102060');
   ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
 
   // Stars
@@ -4592,7 +4595,7 @@ function drawSceneMidnight(ctx, W, H, t, py) {
   ];
   buildings.forEach(([bx,by,bw,bh]) => {
     // Building silhouette
-    ctx.fillStyle = '#04081a';
+    ctx.fillStyle = '#0e1848';
     ctx.fillRect(bx*W, by*H, bw*W, bh*H);
     // Lit windows
     for (let wy=0; wy<Math.floor(bh*H/10); wy++) {
@@ -4615,9 +4618,9 @@ function drawSceneMidnight(ctx, W, H, t, py) {
   // Rooftop surface
   ctx.save(); ctx.translate(0, -py*0.22);
   const roofY = H*0.72;
-  ctx.fillStyle = '#080c18'; ctx.fillRect(0, roofY, W, H);
+  ctx.fillStyle = '#121830'; ctx.fillRect(0, roofY, W, H);
   // Rooftop edge/parapet
-  ctx.fillStyle = '#0c1220'; ctx.fillRect(0, roofY-8, W, 12);
+  ctx.fillStyle = '#182840'; ctx.fillRect(0, roofY-8, W, 12);
   ctx.strokeStyle = 'rgba(201,168,76,0.1)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(0, roofY-8); ctx.lineTo(W, roofY-8); ctx.stroke();
   // Rooftop tiles / texture
@@ -4671,7 +4674,7 @@ function drawSceneMidnight(ctx, W, H, t, py) {
 
   // Vignette
   const vig = ctx.createRadialGradient(W/2, H*0.5, H*0.15, W/2, H*0.5, H*0.9);
-  vig.addColorStop(0, 'transparent'); vig.addColorStop(1, 'rgba(2,4,10,0.7)');
+  vig.addColorStop(0, 'transparent'); vig.addColorStop(1, 'rgba(4,6,16,0.42)');
   ctx.fillStyle = vig; ctx.fillRect(0,0,W,H);
 }
 
@@ -4679,11 +4682,11 @@ function drawSceneMidnight(ctx, W, H, t, py) {
 function drawSceneLofi(ctx, W, H, t, py) {
   // Dark room — nearly black
   const bg = ctx.createLinearGradient(0,0,0,H);
-  bg.addColorStop(0, '#080c0a'); bg.addColorStop(1, '#050806');
+  bg.addColorStop(0, '#141e16'); bg.addColorStop(1, '#0c1410');
   ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
 
   // Room corner lines (floor/wall)
-  ctx.strokeStyle = 'rgba(40,60,40,0.2)'; ctx.lineWidth = 1;
+  ctx.strokeStyle = 'rgba(60,100,60,0.35)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(0, H*0.65); ctx.lineTo(W, H*0.65); ctx.stroke();
 
   // Window — rain outside, blue-grey night
@@ -4738,7 +4741,7 @@ function drawSceneLofi(ctx, W, H, t, py) {
 
   // Bookshelf — left wall
   ctx.save(); ctx.translate(0, -py*0.1);
-  ctx.fillStyle = '#0c140e'; ctx.fillRect(W*0.05, H*0.2, W*0.16, H*0.44);
+  ctx.fillStyle = '#182418'; ctx.fillRect(W*0.05, H*0.2, W*0.16, H*0.44);
   ctx.strokeStyle = 'rgba(30,50,30,0.5)'; ctx.lineWidth = 1;
   for (let s = 0; s <= 3; s++) {
     ctx.beginPath(); ctx.moveTo(W*0.05, H*0.2+s*(H*0.44/3)); ctx.lineTo(W*0.21, H*0.2+s*(H*0.44/3)); ctx.stroke();
@@ -4761,7 +4764,7 @@ function drawSceneLofi(ctx, W, H, t, py) {
   // Desk — foreground center
   ctx.save(); ctx.translate(0, -py*0.2);
   const deskY = H*0.58;
-  ctx.fillStyle = '#0e1810'; ctx.fillRect(W*0.22, deskY, W*0.56, H*0.1);
+  ctx.fillStyle = '#1c2e1e'; ctx.fillRect(W*0.22, deskY, W*0.56, H*0.1);
   // Desk legs
   ctx.fillRect(W*0.24, deskY+H*0.1, W*0.02, H*0.08);
   ctx.fillRect(W*0.74, deskY+H*0.1, W*0.02, H*0.08);
@@ -4777,7 +4780,7 @@ function drawSceneLofi(ctx, W, H, t, py) {
   ctx.fillStyle = '#0c140e'; ctx.fillRect(-52, -40, 104, 76);
   ctx.strokeStyle = 'rgba(40,80,45,0.6)'; ctx.lineWidth = 2; ctx.strokeRect(-52,-40,104,76);
   // Screen
-  ctx.fillStyle = '#050e07'; ctx.fillRect(-46,-34, 92, 64);
+  ctx.fillStyle = '#0a1e0e'; ctx.fillRect(-46,-34, 92, 64);
   // Code on screen — glowing green text lines
   ctx.fillStyle = 'rgba(60,200,80,0.6)'; ctx.font = '7px "IBM Plex Mono",monospace';
   const lines = ['> wavelength --init', 'loading picks...', 'week 12: done ✓', 'streak: 12wks', '> _'];
@@ -4825,14 +4828,14 @@ function drawSceneLofi(ctx, W, H, t, py) {
 
   // Vignette
   const vig = ctx.createRadialGradient(W*0.5, H*0.5, H*0.1, W*0.5, H*0.5, H*0.9);
-  vig.addColorStop(0, 'transparent'); vig.addColorStop(1, 'rgba(2,6,3,0.8)');
+  vig.addColorStop(0, 'transparent'); vig.addColorStop(1, 'rgba(4,10,6,0.42)');
   ctx.fillStyle = vig; ctx.fillRect(0,0,W,H);
 }
 
 // ── CASSETTE: 1992 BEDROOM ──
 function drawSceneCassette(ctx, W, H, t, py) {
   const bg = ctx.createLinearGradient(0,0,0,H);
-  bg.addColorStop(0, '#100c08'); bg.addColorStop(1, '#080602');
+  bg.addColorStop(0, '#241a10'); bg.addColorStop(1, '#160e08');
   ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
 
   // Carpet floor
@@ -4958,7 +4961,7 @@ function drawSceneCassette(ctx, W, H, t, py) {
 
   // Vignette
   const vig = ctx.createRadialGradient(W/2,H*0.5,H*0.1,W/2,H*0.5,H*0.9);
-  vig.addColorStop(0,'transparent'); vig.addColorStop(1,'rgba(6,4,2,0.8)');
+  vig.addColorStop(0,'transparent'); vig.addColorStop(1,'rgba(10,6,3,0.42)');
   ctx.fillStyle = vig; ctx.fillRect(0,0,W,H);
 }
 
@@ -4966,8 +4969,8 @@ function drawSceneCassette(ctx, W, H, t, py) {
 function drawSceneDino(ctx, W, H, t, py) {
   // Dramatic night sky with volcanic glow
   const sky = ctx.createLinearGradient(0,0,0,H);
-  sky.addColorStop(0,'#060e02'); sky.addColorStop(0.4,'#0a1804');
-  sky.addColorStop(0.7,'#1a2a06'); sky.addColorStop(1,'#0e1a04');
+  sky.addColorStop(0,'#0d2a06'); sky.addColorStop(0.4,'#183d0a');
+  sky.addColorStop(0.7,'#2e5010'); sky.addColorStop(1,'#1a3808');
   ctx.fillStyle=sky; ctx.fillRect(0,0,W,H);
 
   // Stars
@@ -4986,7 +4989,7 @@ function drawSceneDino(ctx, W, H, t, py) {
   lavGrd.addColorStop(0,'rgba(255,80,10,0.2)'); lavGrd.addColorStop(0.3,'rgba(200,40,5,0.1)'); lavGrd.addColorStop(1,'transparent');
   ctx.fillStyle=lavGrd; ctx.fillRect(0,0,W,H);
   // Volcano silhouette
-  ctx.fillStyle='#050e02';
+  ctx.fillStyle='#0c2006';
   ctx.beginPath(); ctx.moveTo(vx-130,H); ctx.lineTo(vx,vy-60); ctx.lineTo(vx+110,H); ctx.closePath(); ctx.fill();
   // Lava ooze at peak
   const lavaFlicker=0.6+Math.sin(t*2)*0.3;
@@ -5028,7 +5031,7 @@ function drawSceneDino(ctx, W, H, t, py) {
 
   // Ground / jungle floor
   const gnd=ctx.createLinearGradient(0,H*0.78+py*0.15,0,H);
-  gnd.addColorStop(0,'#0e2008'); gnd.addColorStop(1,'#06100a');
+  gnd.addColorStop(0,'#1c4010'); gnd.addColorStop(1,'#102008');
   ctx.fillStyle=gnd; ctx.fillRect(0,H*0.78+py*0.15,W,H);
 
   // Ferns on ground
@@ -5163,14 +5166,14 @@ function drawSceneDino(ctx, W, H, t, py) {
 function drawSceneCowboy(ctx, W, H, t, py) {
   // Warm saloon interior
   const bg = ctx.createLinearGradient(0,0,0,H);
-  bg.addColorStop(0,'#150a02'); bg.addColorStop(1,'#0c0601');
+  bg.addColorStop(0,'#301608'); bg.addColorStop(1,'#1e0e04');
   ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
 
   // Wood plank walls
   ctx.save(); ctx.translate(0,-py*0.04);
   for (let p=0;p<Math.ceil(W/48)+1;p++) {
     const px=p*48;
-    ctx.fillStyle=`rgba(50,28,6,${0.04+(p%3)*0.015})`;
+    ctx.fillStyle=`rgba(90,52,14,${0.14+(p%3)*0.05})`;
     ctx.fillRect(px,0,46,H*0.72);
     ctx.strokeStyle='rgba(25,12,2,0.4)'; ctx.lineWidth=1;
     ctx.beginPath(); ctx.moveTo(px,0); ctx.lineTo(px,H*0.72); ctx.stroke();
@@ -5180,7 +5183,7 @@ function drawSceneCowboy(ctx, W, H, t, py) {
   // Floor — worn wood
   ctx.save(); ctx.translate(0,-py*0.08);
   for (let p=0;p<18;p++) {
-    ctx.fillStyle=p%2===0?'rgba(55,30,8,0.7)':'rgba(45,24,6,0.7)';
+    ctx.fillStyle=p%2===0?'rgba(90,52,18,0.8)':'rgba(72,40,12,0.8)';
     ctx.fillRect(0,H*0.72+p*15,W,15);
   }
   ctx.restore();
@@ -5190,7 +5193,7 @@ function drawSceneCowboy(ctx, W, H, t, py) {
   const doorW=W*0.28, doorH=H*0.42, doorX=(W-doorW)/2, doorY=H*0.3;
   // Desert outside glow
   const desertGrd=ctx.createLinearGradient(doorX,doorY,doorX,doorY+doorH);
-  desertGrd.addColorStop(0,'#c04010'); desertGrd.addColorStop(0.3,'#e06020'); desertGrd.addColorStop(1,'#3a1808');
+  desertGrd.addColorStop(0,'#e05818'); desertGrd.addColorStop(0.3,'#ff7830'); desertGrd.addColorStop(1,'#602010');
   ctx.fillStyle=desertGrd; ctx.fillRect(doorX,doorY,doorW,doorH);
   // Setting sun in doorway
   ctx.fillStyle='#ffb020';
@@ -5332,7 +5335,7 @@ function drawSceneCowboy(ctx, W, H, t, py) {
 
   // Warm vignette
   const vig=ctx.createRadialGradient(W/2,H*0.5,H*0.1,W/2,H*0.5,H*0.9);
-  vig.addColorStop(0,'transparent'); vig.addColorStop(1,'rgba(8,4,1,0.75)');
+  vig.addColorStop(0,'transparent'); vig.addColorStop(1,'rgba(12,6,2,0.42)');
   ctx.fillStyle=vig; ctx.fillRect(0,0,W,H);
 }
 
