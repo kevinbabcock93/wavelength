@@ -606,9 +606,17 @@
   .skin-picker-wrap { margin: 1.5rem 0; }
   .skin-picker-wrap label { display: block; font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text-muted); margin-bottom: 0.75rem; }
   /* Profile page inline skin picker */
-  .profile-skin-picker { max-width: 880px; margin: 0 auto; padding: 0.75rem 2rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 1rem; }
-  .profile-skin-picker span { font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); flex-shrink: 0; }
-  @media (max-width: 650px) { .profile-skin-picker { padding: 0.75rem 1rem; } }
+  .profile-skin-picker { max-width: 880px; margin: 0 auto; border-bottom: 1px solid var(--border); }
+  .profile-skin-picker-header { display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 2rem; cursor: pointer; user-select: none; }
+  .profile-skin-picker-header:hover { background: rgba(255,255,255,0.02); }
+  .profile-skin-picker-header span { font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); flex: 1; }
+  .profile-skin-picker-header .skin-current-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .profile-skin-picker-header .skin-current-name { font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); }
+  .profile-skin-picker-header .skin-toggle-arrow { font-size: 0.55rem; color: var(--text-dim); transition: transform 0.2s; flex-shrink: 0; }
+  .profile-skin-picker-header .skin-toggle-arrow.open { transform: rotate(180deg); }
+  .profile-skin-picker-swatches { padding: 0 2rem 0.75rem; overflow: hidden; max-height: 0; transition: max-height 0.28s ease, padding 0.28s ease; }
+  .profile-skin-picker-swatches.open { max-height: 200px; padding: 0.25rem 2rem 0.85rem; }
+  @media (max-width: 650px) { .profile-skin-picker-header { padding: 0.6rem 1rem; } .profile-skin-picker-swatches { padding: 0 1rem 0.75rem; } .profile-skin-picker-swatches.open { padding: 0.25rem 1rem 0.85rem; } }
 
   /* ── SCENE SKIN CANVAS ── */
   #skin-scene-canvas {
@@ -620,15 +628,15 @@
   #view-profile.has-scene .weeks-list { background: transparent !important; }
   #view-profile.has-scene { background: transparent !important; }
 
-  .skin-dino    { --skin-text:#c8f890; --skin-text-muted:#4a6830; --skin-text-dim:#2a3818; --skin-accent:rgba(100,200,50,0.6); --skin-accent-solid:#80c840; --skin-font-display:"Bebas Neue",sans-serif; --skin-card1:rgba(12,22,6,0.96); --skin-card2:rgba(18,32,9,0.96); --skin-border:rgba(80,160,40,0.25); }
-  .skin-weather { --skin-text:#a0b8ff; --skin-text-muted:#304060; --skin-text-dim:#1a2540; --skin-accent:rgba(60,120,220,0.6); --skin-accent-solid:#6090ff; --skin-font-display:"IBM Plex Mono",monospace; --skin-card1:rgba(5,10,28,0.96); --skin-card2:rgba(8,15,40,0.96); --skin-border:rgba(60,120,220,0.2); }
-  .skin-alien   { --skin-text:#80fff0; --skin-text-muted:#004838; --skin-text-dim:#002820; --skin-accent:rgba(0,200,180,0.6); --skin-accent-solid:#00dcc8; --skin-font-display:"IBM Plex Mono",monospace; --skin-card1:rgba(3,8,14,0.96); --skin-card2:rgba(5,12,20,0.96); --skin-border:rgba(0,200,180,0.2); }
-  .skin-cowboy  { --skin-text:#e8c070; --skin-text-muted:#604020; --skin-text-dim:#3a2010; --skin-accent:rgba(180,120,40,0.6); --skin-accent-solid:#e89840; --skin-font-display:"Bebas Neue",sans-serif; --skin-card1:rgba(17,9,4,0.96); --skin-card2:rgba(24,12,5,0.96); --skin-border:rgba(180,120,40,0.25); }
-  .skin-jazz    { --skin-text:#d8a8ff; --skin-text-muted:#402060; --skin-text-dim:#200e38; --skin-accent:rgba(160,100,220,0.6); --skin-accent-solid:#c080ff; --skin-font-display:"Playfair Display",Georgia,serif; --skin-card1:rgba(6,3,10,0.96); --skin-card2:rgba(10,5,16,0.96); --skin-border:rgba(160,100,220,0.2); }
-  .skin-n64     { --skin-text:#ffe880; --skin-text-muted:#4a6020; --skin-text-dim:#283410; --skin-accent:rgba(180,220,40,0.6); --skin-accent-solid:#c8e030; --skin-font-display:"Bebas Neue",sans-serif; --skin-card1:rgba(4,8,20,0.96); --skin-card2:rgba(6,12,28,0.96); --skin-border:rgba(100,180,255,0.2); }
-  .skin-ps1     { --skin-text:#c8d8ff; --skin-text-muted:#304870; --skin-text-dim:#182438; --skin-accent:rgba(60,100,220,0.6); --skin-accent-solid:#8090ff; --skin-font-display:"IBM Plex Mono",monospace; --skin-card1:rgba(2,4,12,0.96); --skin-card2:rgba(4,6,18,0.96); --skin-border:rgba(80,100,200,0.2); }
-  .skin-hollywood { --skin-text:#ffd060; --skin-text-muted:#806020; --skin-text-dim:#403010; --skin-accent:rgba(220,160,20,0.6); --skin-accent-solid:#ffd060; --skin-font-display:"Bebas Neue",sans-serif; --skin-card1:rgba(10,6,2,0.96); --skin-card2:rgba(16,10,3,0.96); --skin-border:rgba(200,140,20,0.2); }
-  .skin-divebar   { --skin-text:#e8c080; --skin-text-muted:#604828; --skin-text-dim:#302418; --skin-accent:rgba(180,100,20,0.6); --skin-accent-solid:#d4882a; --skin-font-display:"Bebas Neue",sans-serif; --skin-card1:rgba(8,5,2,0.96); --skin-card2:rgba(12,8,3,0.96); --skin-border:rgba(140,80,20,0.2); }
+  .skin-dino    { --skin-text:#d8ff98; --skin-text-muted:#7ab850; --skin-text-dim:#3a5020; --skin-accent:rgba(120,220,60,0.7); --skin-accent-solid:#90d848; --skin-font-display:"Bebas Neue",sans-serif; --skin-card1:rgba(10,18,4,0.72); --skin-card2:rgba(14,26,7,0.72); --skin-border:rgba(100,200,50,0.35); }
+  .skin-weather { --skin-text:#c0d0ff; --skin-text-muted:#5878a0; --skin-text-dim:#2a3858; --skin-accent:rgba(80,140,240,0.7); --skin-accent-solid:#80a8ff; --skin-font-display:"IBM Plex Mono",monospace; --skin-card1:rgba(4,8,22,0.72); --skin-card2:rgba(6,12,32,0.72); --skin-border:rgba(80,140,240,0.3); }
+  .skin-alien   { --skin-text:#a0fff4; --skin-text-muted:#10a090; --skin-text-dim:#086858; --skin-accent:rgba(0,220,200,0.7); --skin-accent-solid:#20ece0; --skin-font-display:"IBM Plex Mono",monospace; --skin-card1:rgba(2,6,12,0.72); --skin-card2:rgba(4,10,18,0.72); --skin-border:rgba(0,220,200,0.3); }
+  .skin-cowboy  { --skin-text:#f8d880; --skin-text-muted:#a07040; --skin-text-dim:#604028; --skin-accent:rgba(210,140,50,0.7); --skin-accent-solid:#f0a848; --skin-font-display:"Bebas Neue",sans-serif; --skin-card1:rgba(14,7,2,0.72); --skin-card2:rgba(20,10,3,0.72); --skin-border:rgba(200,130,40,0.35); }
+  .skin-jazz    { --skin-text:#e8b8ff; --skin-text-muted:#8050a0; --skin-text-dim:#402858; --skin-accent:rgba(190,120,240,0.7); --skin-accent-solid:#d090ff; --skin-font-display:"Playfair Display",Georgia,serif; --skin-card1:rgba(5,2,9,0.72); --skin-card2:rgba(8,4,14,0.72); --skin-border:rgba(190,120,240,0.3); }
+  .skin-n64     { --skin-text:#fff090; --skin-text-muted:#90b040; --skin-text-dim:#506020; --skin-accent:rgba(200,240,60,0.7); --skin-accent-solid:#d8f040; --skin-font-display:"Bebas Neue",sans-serif; --skin-card1:rgba(3,6,18,0.72); --skin-card2:rgba(5,10,26,0.72); --skin-border:rgba(140,210,255,0.3); }
+  .skin-ps1     { --skin-text:#d8e8ff; --skin-text-muted:#6080b8; --skin-text-dim:#304060; --skin-accent:rgba(100,130,240,0.7); --skin-accent-solid:#a0b0ff; --skin-font-display:"IBM Plex Mono",monospace; --skin-card1:rgba(2,3,10,0.72); --skin-card2:rgba(3,5,16,0.72); --skin-border:rgba(100,130,240,0.3); }
+  .skin-hollywood { --skin-text:#ffe878; --skin-text-muted:#c09040; --skin-text-dim:#706020; --skin-accent:rgba(255,200,40,0.7); --skin-accent-solid:#ffd840; --skin-font-display:"Bebas Neue",sans-serif; --skin-card1:rgba(8,5,1,0.72); --skin-card2:rgba(13,8,2,0.72); --skin-border:rgba(240,170,30,0.3); }
+  .skin-divebar   { --skin-text:#f0d090; --skin-text-muted:#a07840; --skin-text-dim:#604828; --skin-accent:rgba(210,120,30,0.7); --skin-accent-solid:#e09838; --skin-font-display:"Bebas Neue",sans-serif; --skin-card1:rgba(7,4,1,0.72); --skin-card2:rgba(10,6,2,0.72); --skin-border:rgba(200,110,30,0.3); }
 
   .skin-dino .profile-hero, .skin-weather .profile-hero, .skin-alien .profile-hero,
   .skin-cowboy .profile-hero, .skin-jazz .profile-hero,
@@ -653,7 +661,13 @@
   .skin-dino .wk-song strong, .skin-weather .wk-song strong, .skin-alien .wk-song strong,
   .skin-cowboy .wk-song strong, .skin-jazz .wk-song strong,
   .skin-n64 .wk-song strong, .skin-ps1 .wk-song strong,
-  .skin-hollywood .wk-song strong, .skin-divebar .wk-song strong { color: var(--skin-text); }
+  .skin-hollywood .wk-song strong, .skin-divebar .wk-song strong { color: var(--skin-text); font-weight: 700; text-shadow: 0 1px 12px rgba(0,0,0,0.8); }
+  /* Scene skin bold readable text */
+  #view-profile.has-scene .wk-label,
+  #view-profile.has-scene .wk-date { text-shadow: 0 1px 8px rgba(0,0,0,0.9); font-weight: 600; }
+  #view-profile.has-scene .p-meta h2 { text-shadow: 0 2px 16px rgba(0,0,0,0.9); }
+  #view-profile.has-scene .wk-song strong { text-shadow: 0 1px 12px rgba(0,0,0,0.9); }
+  #view-profile.has-scene .wk-song span { text-shadow: 0 1px 8px rgba(0,0,0,0.8); }
   .skin-dino .wk-song span, .skin-weather .wk-song span, .skin-alien .wk-song span,
   .skin-cowboy .wk-song span, .skin-jazz .wk-song span,
   .skin-n64 .wk-song span, .skin-ps1 .wk-song span,
@@ -699,18 +713,18 @@
   .skin-jazz .p-meta h2 { font-size: 2rem !important; font-weight: 700 !important; }
 
   /* Scene overrides for color skins now with scenes */
-  .skin-vinyl.has-scene .profile-hero    { background: rgba(232,224,200,0.96) !important; border-bottom-color: rgba(139,58,26,0.3) !important; backdrop-filter: blur(16px); }
-  .skin-vinyl.has-scene .week-row        { background: rgba(220,210,188,0.96) !important; border-color: rgba(139,58,26,0.2) !important; backdrop-filter: blur(10px); }
-  .skin-vinyl.has-scene .week-row:hover  { background: rgba(210,198,172,0.97) !important; }
-  .skin-midnight.has-scene .profile-hero { background: rgba(10,14,36,0.96) !important; border-bottom-color: rgba(201,168,76,0.25) !important; backdrop-filter: blur(16px); }
-  .skin-midnight.has-scene .week-row     { background: rgba(7,10,26,0.96) !important; border-color: rgba(201,168,76,0.15) !important; backdrop-filter: blur(10px); }
-  .skin-midnight.has-scene .week-row:hover { background: rgba(13,17,40,0.97) !important; }
-  .skin-lofi.has-scene .profile-hero     { background: rgba(13,20,15,0.96) !important; border-bottom-color: rgba(96,200,64,0.25) !important; backdrop-filter: blur(16px); }
-  .skin-lofi.has-scene .week-row         { background: rgba(10,16,12,0.96) !important; border-color: rgba(96,200,64,0.15) !important; backdrop-filter: blur(10px); }
-  .skin-lofi.has-scene .week-row:hover   { background: rgba(18,28,20,0.97) !important; }
-  .skin-cassette.has-scene .profile-hero { background: rgba(22,20,18,0.96) !important; border-bottom-color: rgba(232,104,32,0.25) !important; backdrop-filter: blur(16px); }
-  .skin-cassette.has-scene .week-row     { background: rgba(16,15,14,0.96) !important; border-color: rgba(232,104,32,0.15) !important; backdrop-filter: blur(10px); }
-  .skin-cassette.has-scene .week-row:hover { background: rgba(26,24,22,0.97) !important; }
+  .skin-vinyl.has-scene .profile-hero    { background: rgba(232,224,200,0.72) !important; border-bottom-color: rgba(139,58,26,0.3) !important; backdrop-filter: blur(16px); }
+  .skin-vinyl.has-scene .week-row        { background: rgba(220,210,188,0.72) !important; border-color: rgba(139,58,26,0.2) !important; backdrop-filter: blur(10px); }
+  .skin-vinyl.has-scene .week-row:hover  { background: rgba(210,198,172,0.78) !important; }
+  .skin-midnight.has-scene .profile-hero { background: rgba(10,14,36,0.72) !important; border-bottom-color: rgba(201,168,76,0.25) !important; backdrop-filter: blur(16px); }
+  .skin-midnight.has-scene .week-row     { background: rgba(7,10,26,0.72) !important; border-color: rgba(201,168,76,0.15) !important; backdrop-filter: blur(10px); }
+  .skin-midnight.has-scene .week-row:hover { background: rgba(13,17,40,0.78) !important; }
+  .skin-lofi.has-scene .profile-hero     { background: rgba(13,20,15,0.72) !important; border-bottom-color: rgba(96,200,64,0.25) !important; backdrop-filter: blur(16px); }
+  .skin-lofi.has-scene .week-row         { background: rgba(10,16,12,0.72) !important; border-color: rgba(96,200,64,0.15) !important; backdrop-filter: blur(10px); }
+  .skin-lofi.has-scene .week-row:hover   { background: rgba(18,28,20,0.78) !important; }
+  .skin-cassette.has-scene .profile-hero { background: rgba(22,20,18,0.72) !important; border-bottom-color: rgba(232,104,32,0.25) !important; backdrop-filter: blur(16px); }
+  .skin-cassette.has-scene .week-row     { background: rgba(16,15,14,0.72) !important; border-color: rgba(232,104,32,0.15) !important; backdrop-filter: blur(10px); }
+  .skin-cassette.has-scene .week-row:hover { background: rgba(26,24,22,0.78) !important; }
   .skin-picker-divider { width:1px; height:48px; background:#333; flex-shrink:0; margin:0 0.2rem; align-self:center; }
   .dev-badge { position: fixed; bottom: 1rem; left: 1rem; background: rgba(255,200,0,0.15); border: 1px solid rgba(255,200,0,0.4); color: rgba(255,200,0,0.8); font-family: 'IBM Plex Mono', monospace; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.1em; padding: 0.25rem 0.6rem; border-radius: 3px; z-index: 9998; pointer-events: none; }
   @media (max-width: 650px) { .dev-badge { bottom: 5.5rem; } }
@@ -1681,12 +1695,33 @@ function applySkin(skinId){
   }
 }
 
+function toggleSkinPicker(){
+  const wrap = document.getElementById('profile-skin-swatches-wrap');
+  const arrow = document.getElementById('skin-toggle-arrow');
+  if(!wrap) return;
+  const isOpen = wrap.classList.toggle('open');
+  if(arrow) arrow.classList.toggle('open', isOpen);
+}
+
 async function selectSkin(skinId){
   document.querySelectorAll('.skin-swatch').forEach(el => {
     const skin = SKINS.find(s => s.id === skinId);
     el.classList.toggle('active', skin && el.title === skin.name);
   });
   applySkin(skinId);
+  // Update header dot + name
+  const skin = SKINS.find(s=>s.id===skinId);
+  if(skin){
+    const dot = document.getElementById('skin-current-dot');
+    const name = document.getElementById('skin-current-name');
+    if(dot) dot.style.background = skin.dot;
+    if(name) name.textContent = skin.name;
+  }
+  // Auto-collapse after selecting
+  const wrap = document.getElementById('profile-skin-swatches-wrap');
+  const arrow = document.getElementById('skin-toggle-arrow');
+  if(wrap){ wrap.classList.remove('open'); }
+  if(arrow){ arrow.classList.remove('open'); }
   await sb.from('profiles').update({skin: skinId}).eq('id', currentUser.id);
   if(currentProfile) currentProfile.skin = skinId;
 }
@@ -2453,9 +2488,21 @@ async function renderProfile(userId){
 
   // Show skin picker bar only to the profile owner
   if(isMe){
+    const currentSkinId = profile.skin||'obsidian';
+    const currentSkinDef = SKINS.find(s=>s.id===currentSkinId)||SKINS[0];
     document.getElementById('profile-skin-bar').innerHTML =
-      '<div class="profile-skin-picker"><span>Your Skin</span><div class="skin-picker" id="profile-skin-swatches"></div></div>';
-    buildSkinPicker('profile-skin-swatches', profile.skin||'obsidian', 'selectSkin');
+      '<div class="profile-skin-picker" id="profile-skin-picker-wrap">' +
+        '<div class="profile-skin-picker-header" onclick="toggleSkinPicker()">' +
+          '<span>Skin</span>' +
+          '<div class="skin-current-dot" id="skin-current-dot" style="background:' + currentSkinDef.dot + '"></div>' +
+          '<span class="skin-current-name" id="skin-current-name">' + currentSkinDef.name + '</span>' +
+          '<span class="skin-toggle-arrow" id="skin-toggle-arrow">▼</span>' +
+        '</div>' +
+        '<div class="profile-skin-picker-swatches" id="profile-skin-swatches-wrap">' +
+          '<div class="skin-picker" id="profile-skin-swatches"></div>' +
+        '</div>' +
+      '</div>';
+    buildSkinPicker('profile-skin-swatches', currentSkinId, 'selectSkin');
   }
   const {data:picks}=await sb.from('picks').select('*').eq('user_id',userId).eq('year',year).order('week_number',{ascending:false});
   const pickMap=Object.fromEntries((picks||[]).map(p=>[p.week_number,p]));
