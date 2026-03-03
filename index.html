@@ -1684,6 +1684,18 @@ function applyEnrichment(pick, data){
 }
 
 // ── SIMILAR ARTISTS — Last.fm artist.getSimilar ──
+async function forceRefreshSimilarArtists(){
+  if(!currentPick) return;
+  // Clear session cache
+  const cacheKey = 'similar5_' + (currentPick.artist||'').toLowerCase().replace(/\s+/g,'_');
+  sessionStorage.removeItem(cacheKey);
+  // Clear DB so it re-saves fresh data
+  await sb.from('picks').update({related_artists: null}).eq('id', currentPick.id);
+  currentPick.related_artists = null;
+  showToast('Refreshing similar artists...');
+  fetchSimilarArtistsAI(currentPick);
+}
+
 async function fetchSimilarArtistsAI(pick){
   const cacheKey = 'similar5_' + (pick.artist||'').toLowerCase().replace(/\s+/g,'_');
   const cached = sessionStorage.getItem(cacheKey);
@@ -1727,7 +1739,10 @@ async function applySimilarArtists(pick, artists){
   el.style.display = '';
 
   // Render names immediately while images load
-  const renderGrid = (artistData) => {
+  const renderGrid = (artistData, showRefresh) => {
+    const refreshBtn = (showRefresh && devMode())
+      ? '<button onclick="forceRefreshSimilarArtists()" style="margin-top:0.75rem;font-family:\'IBM Plex Mono\',monospace;font-size:0.55rem;text-transform:uppercase;letter-spacing:0.1em;background:none;border:1px solid var(--red-dim);color:var(--red-dim);padding:0.3rem 0.7rem;border-radius:3px;cursor:pointer" onmouseover="this.style.borderColor=\'var(--red)\';this.style.color=\'var(--red)\'" onmouseout="this.style.borderColor=\'var(--red-dim)\';this.style.color=\'var(--red-dim)\'">⟳ Refresh Similar Artists</button>'
+      : '';
     el.innerHTML = '<h3>🎸 If You Like This, Try These</h3>'
       +'<div class="similar-artists-grid">'+artistData.map(a=>{
         const spotifyUrl = a.spotifyId
@@ -1740,11 +1755,12 @@ async function applySimilarArtists(pick, artists){
           +'<div class="sim-artist-img-wrap">'+imgHtml+'<div class="sim-artist-overlay"></div><span class="sim-artist-arrow">&#8599;</span></div>'
           +'<div class="sim-artist-info"><div class="sim-artist-name">'+esc(a.name)+'</div><div class="sim-artist-label">Similar Artist</div></div>'
           +'</a>';
-      }).join('')+'</div>';
+      }).join('')+'</div>'
+      +refreshBtn;
   };
 
   // Show names first with placeholders
-  renderGrid(artists.map(name=>({name, img:null})));
+  renderGrid(artists.map(name=>({name, img:null, spotifyId:null})), false);
 
   // Fetch artist images from Spotify in parallel
   try{
@@ -1763,7 +1779,7 @@ async function applySimilarArtists(pick, artists){
         return {name, img, spotifyId};
       } catch(e){ return {name, img:null, spotifyId:null}; }
     }));
-    renderGrid(enriched);
+    renderGrid(enriched, true);
   } catch(e){
     // Images failed but names are already showing — that's fine
   }
