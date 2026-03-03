@@ -668,6 +668,21 @@
   #view-profile.has-scene .p-meta h2 { text-shadow: 0 2px 16px rgba(0,0,0,0.9); }
   #view-profile.has-scene .wk-song strong { text-shadow: 0 1px 12px rgba(0,0,0,0.9); }
   #view-profile.has-scene .wk-song span { text-shadow: 0 1px 8px rgba(0,0,0,0.8); }
+  /* Scene skin — spaced cards with gaps showing background */
+  #view-profile.has-scene .weeks-list { padding-top: 0.75rem; }
+  #view-profile.has-scene .week-row {
+    border-bottom: none !important;
+    border-radius: 6px !important;
+    margin: 0 0 0.6rem 0 !important;
+    border: 1px solid var(--skin-border, rgba(255,255,255,0.1)) !important;
+  }
+  #view-profile.has-scene .week-row.is-current {
+    border-left: 3px solid var(--skin-accent-solid, #fff) !important;
+  }
+  #view-profile.has-scene .profile-hero {
+    border-radius: 0 0 6px 6px !important;
+    margin-bottom: 0.6rem !important;
+  }
   .skin-dino .wk-song span, .skin-weather .wk-song span, .skin-alien .wk-song span,
   .skin-cowboy .wk-song span, .skin-jazz .wk-song span,
   .skin-n64 .wk-song span, .skin-ps1 .wk-song span,
