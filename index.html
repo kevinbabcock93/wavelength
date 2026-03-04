@@ -61,7 +61,7 @@
   .instrument-btn:hover { border-color: var(--red-dim); transform: scale(1.08); }
   .instrument-btn.selected { border-color: var(--red); background: var(--red)22; transform: scale(1.08); }
   .feed-header { padding: 3rem 2rem 2rem; max-width: 980px; margin: 0 auto; position: relative; overflow: hidden; }
-  .feed-header-deco { position: absolute; top: -10px; right: 20px; font-size: 10rem; opacity: 0.04; pointer-events: none; line-height: 1; }
+  .feed-header-deco { position: absolute; top: -10px; right: 20px; font-size: 10rem; opacity: 0.10; pointer-events: none; line-height: 1; }
   .feed-header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 3.5rem; letter-spacing: 0.06em; line-height: 1; margin-bottom: 0.5rem; color: var(--white); }
   .feed-header h1 span { color: var(--red); }
   .feed-meta { color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; }
@@ -80,7 +80,7 @@
   .card-arrow { position: absolute; bottom: 1.2rem; right: 1.2rem; color: var(--text-dim); font-size: 0.9rem; transition: all 0.15s; }
   .friend-card:hover .card-arrow { color: var(--red); transform: translate(2px,-2px); }
   .page-header { padding: 3rem 2rem 2rem; max-width: 980px; margin: 0 auto; position: relative; overflow: hidden; }
-  .page-header-deco { position: absolute; top: 0; right: 20px; font-size: 9rem; opacity: 0.04; pointer-events: none; line-height: 1; }
+  .page-header-deco { position: absolute; top: 0; right: 20px; font-size: 9rem; opacity: 0.10; pointer-events: none; line-height: 1; }
   .page-header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 3rem; letter-spacing: 0.06em; margin-bottom: 0.5rem; }
   .page-header h1 span { color: var(--red); }
   .page-header p { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: var(--text-muted); }
@@ -110,7 +110,7 @@
   .back-btn { background: none; border: none; color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: color 0.15s; padding: 0; }
   .back-btn:hover { color: var(--red); }
   .profile-hero { max-width: 880px; margin: 0 auto; padding: 2rem 2rem 1.5rem; display: flex; align-items: flex-end; gap: 1.5rem; border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
-  .profile-hero-deco { position: absolute; right: 1.5rem; bottom: -15px; font-size: 7rem; opacity: 0.04; pointer-events: none; }
+  .profile-hero-deco { position: absolute; right: 1.5rem; bottom: -15px; font-size: 7rem; opacity: 0.10; pointer-events: none; }
   .p-avatar-lg { width: 76px; height: 76px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 1.9rem; flex-shrink: 0; border: 2px solid var(--red-dim); }
   .p-meta h2 { font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; letter-spacing: 0.06em; color: var(--white); }
   .p-meta p { color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; margin-top: 0.2rem; }
@@ -230,7 +230,10 @@
   .nav-dropdown-item.danger:hover { background: var(--red); color: white; }
   .about-wrap { max-width: 740px; margin: 0 auto; padding: 0 2rem 6rem; }
   .about-hero { padding: 4rem 0 3rem; border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
-  .about-hero-deco { position: absolute; right: 0; top: 1rem; width: 9rem; height: auto; opacity: 0.10; pointer-events: none; color: var(--text); }
+  .about-hero-deco { position: absolute; right: 0; top: 1rem; font-size: 9rem; opacity: 0.10; pointer-events: none; line-height: 1; }
+  .feed-header-deco canvas, .page-header-deco canvas, .about-hero-deco canvas, .profile-hero-deco canvas {
+    width: 100%; height: auto; display: block;
+  }
   .about-title { font-family: 'Bebas Neue', sans-serif; font-size: 4rem; letter-spacing: 0.04em; line-height: 1.05; margin: 0.75rem 0 1.5rem; color: var(--white); }
   .about-title span { color: var(--red); }
   .about-intro { font-size: 1.15rem; line-height: 1.8; color: var(--text-muted); font-style: italic; max-width: 580px; }
@@ -988,7 +991,7 @@
     <span onclick="showView('auth')" style="font-family:'IBM Plex Mono',monospace;font-size:0.68rem;color:var(--red);cursor:pointer;text-decoration:underline">Sign up to make your own picks and join the community →</span>
   </div>
   <div class="feed-header">
-    <div class="feed-header-deco">🎸</div>
+    <div class="feed-header-deco"><canvas class="deco-canvas" data-deco="guitar" width="320" height="600"></canvas></div>
     <div class="week-pill" id="feed-pill">Week 1</div>
     <h1 id="feed-title">This Week's <span>Picks</span></h1>
     <p class="feed-meta" id="feed-range"></p>
@@ -1006,7 +1009,7 @@
 <!-- MEMBERS -->
 <div class="view" id="view-members">
   <div class="page-header">
-    <div class="page-header-deco">🎷</div>
+    <div class="page-header-deco"><canvas class="deco-canvas" data-deco="sax" width="300" height="560"></canvas></div>
     <div class="week-pill">Community</div>
     <h1>All <span>Members</span></h1>
     <p>Browse everyone on Wavelength and visit their profiles</p>
@@ -1023,7 +1026,7 @@
   </div>
   <div id="profile-skin-bar"></div>
   <div class="profile-hero" id="profile-hero">
-    <div class="profile-hero-deco">🎸</div>
+    <div class="profile-hero-deco"><canvas class="deco-canvas" data-deco="guitar" width="280" height="520"></canvas></div>
   </div>
   <div class="weeks-list" id="weeks-list"></div>
 </div>
@@ -1144,7 +1147,7 @@
 <div class="view" id="view-about">
   <div class="about-wrap">
     <div class="about-hero">
-      <div class="about-hero-deco">🎵</div>
+      <div class="about-hero-deco"><canvas class="deco-canvas" data-deco="note" width="280" height="400"></canvas></div>
       <div class="week-pill">About</div>
       <h1 class="about-title">Some songs just<br><span>stay with you.</span></h1>
       <p class="about-intro">You know the feeling. It's Tuesday evening and a song comes on and suddenly everything makes sense. Or nothing does. Either way, you need someone to know.</p>
@@ -2632,7 +2635,7 @@ async function renderProfile(userId){
   const week=getCurrentWeek();
   const year=new Date().getFullYear();
   document.getElementById('profile-back').onclick=function(){showView('feed');};
-  document.getElementById('profile-hero').innerHTML='<div class="loading-center"><div class="spinner"></div></div><div class="profile-hero-deco">🎸</div>';
+  document.getElementById('profile-hero').innerHTML='<div class="loading-center"><div class="spinner"></div></div><div class="profile-hero-deco"><canvas class="deco-canvas" data-deco="guitar" width="280" height="520"></canvas></div>';
   document.getElementById('weeks-list').innerHTML='';
   document.getElementById('profile-skin-bar').innerHTML='';
   const {data:profile}=await sb.from('profiles').select('*').eq('id',userId).single();
@@ -2668,7 +2671,7 @@ async function renderProfile(userId){
     (reactions||[]).forEach(r=>{reactionCounts[r.pick_id]=(reactionCounts[r.pick_id]||0)+1;if(!isGuest&&r.user_id===currentUser.id)myReactions.add(r.pick_id);});
   }
   document.getElementById('profile-hero').innerHTML=
-    '<div class="profile-hero-deco">🎸</div>'
+    '<div class="profile-hero-deco"><canvas class="deco-canvas" data-deco="guitar" width="280" height="520"></canvas></div>'
     +'<div class="p-avatar-lg" style="background:'+profile.color+'22;color:'+profile.color+'">'+getAvatar(profile)+'</div>'
     +'<div class="p-meta"><h2>'+esc(profile.display_name)+'</h2><p>@'+esc(profile.username)+' \u00b7 '+((picks||[]).length)+' picks in '+year+'</p>'
     +buildProfileStats(picks||[])
@@ -6348,6 +6351,475 @@ function drawSceneCocktails(ctx, W, H, t, py) {
     ctx.globalAlpha=1;
   });
   ctx.fillStyle='rgba(2,8,6,0.28)'; ctx.fillRect(0,0,W,H);
+}
+
+
+function drawDecoGuitar(canvas) {
+  const c = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  c.clearRect(0, 0, W, H);
+
+  // ── Body lower bout ──
+  const bodyX = W * 0.5, bodyY = H * 0.68, bR = W * 0.36;
+
+  // Deep shadow under body
+  const bodyShadow = c.createRadialGradient(bodyX + 12, bodyY + 12, 0, bodyX, bodyY, bR * 1.2);
+  bodyShadow.addColorStop(0, 'rgba(0,0,0,0)');
+  bodyShadow.addColorStop(1, 'rgba(0,0,0,0.55)');
+  c.fillStyle = bodyShadow;
+  c.beginPath(); c.ellipse(bodyX, bodyY, bR * 1.1, bR * 0.85, -0.1, 0, Math.PI * 2); c.fill();
+
+  // Body wood gradient — rich amber/mahogany
+  const bodyGrd = c.createRadialGradient(bodyX - bR * 0.3, bodyY - bR * 0.3, 0, bodyX, bodyY, bR);
+  bodyGrd.addColorStop(0,   '#e8a030');
+  bodyGrd.addColorStop(0.3, '#c07820');
+  bodyGrd.addColorStop(0.6, '#8a4a0a');
+  bodyGrd.addColorStop(0.85,'#5a2e06');
+  bodyGrd.addColorStop(1,   '#2a1002');
+  c.fillStyle = bodyGrd;
+  c.beginPath(); c.ellipse(bodyX, bodyY, bR, bR * 0.82, -0.1, 0, Math.PI * 2); c.fill();
+
+  // Wood grain lines
+  c.save(); c.globalAlpha = 0.12;
+  for (let i = 0; i < 18; i++) {
+    const gx = bodyX - bR + i * (bR * 2 / 18);
+    c.strokeStyle = i % 3 === 0 ? '#200a00' : '#c07020';
+    c.lineWidth = i % 3 === 0 ? 2 : 0.8;
+    c.beginPath();
+    c.moveTo(gx, bodyY - bR * 0.82);
+    c.quadraticCurveTo(gx + Math.sin(i) * 8, bodyY, gx - Math.sin(i) * 4, bodyY + bR * 0.82);
+    c.stroke();
+  }
+  c.restore();
+
+  // Lacquer specular highlight — top-left sheen
+  const specGrd = c.createRadialGradient(bodyX - bR * 0.45, bodyY - bR * 0.4, 0, bodyX - bR * 0.2, bodyY - bR * 0.1, bR * 0.7);
+  specGrd.addColorStop(0,   'rgba(255,220,140,0.55)');
+  specGrd.addColorStop(0.35,'rgba(255,180,80,0.18)');
+  specGrd.addColorStop(1,   'rgba(255,140,40,0)');
+  c.fillStyle = specGrd;
+  c.beginPath(); c.ellipse(bodyX, bodyY, bR, bR * 0.82, -0.1, 0, Math.PI * 2); c.fill();
+
+  // Edge binding — cream binding ring
+  c.strokeStyle = 'rgba(240,220,160,0.45)';
+  c.lineWidth = 3.5;
+  c.beginPath(); c.ellipse(bodyX, bodyY, bR - 3, bR * 0.82 - 3, -0.1, 0, Math.PI * 2); c.stroke();
+
+  // ── Upper bout ──
+  const upX = W * 0.5, upY = H * 0.42, uR = W * 0.26;
+  const upGrd = c.createRadialGradient(upX - uR * 0.35, upY - uR * 0.3, 0, upX, upY, uR);
+  upGrd.addColorStop(0,   '#d08828');
+  upGrd.addColorStop(0.5, '#8a4a0a');
+  upGrd.addColorStop(1,   '#3a1804');
+  c.fillStyle = upGrd;
+  c.beginPath(); c.ellipse(upX, upY, uR, uR * 0.78, -0.08, 0, Math.PI * 2); c.fill();
+  // Upper bout specular
+  const upSpec = c.createRadialGradient(upX - uR * 0.4, upY - uR * 0.35, 0, upX, upY, uR * 0.7);
+  upSpec.addColorStop(0, 'rgba(255,210,120,0.4)');
+  upSpec.addColorStop(1, 'rgba(255,140,40,0)');
+  c.fillStyle = upSpec;
+  c.beginPath(); c.ellipse(upX, upY, uR, uR * 0.78, -0.08, 0, Math.PI * 2); c.fill();
+  c.strokeStyle = 'rgba(240,220,160,0.35)'; c.lineWidth = 2.5;
+  c.beginPath(); c.ellipse(upX, upY, uR - 2, uR * 0.78 - 2, -0.08, 0, Math.PI * 2); c.stroke();
+
+  // Waist connection
+  c.fillStyle = '#6a3410';
+  c.fillRect(W * 0.35, H * 0.49, W * 0.3, H * 0.07);
+
+  // ── Sound hole ──
+  const shX = bodyX - 5, shY = bodyY - bR * 0.1;
+  // Outer shadow ring
+  c.fillStyle = 'rgba(0,0,0,0.7)';
+  c.beginPath(); c.arc(shX + 2, shY + 2, bR * 0.26, 0, Math.PI * 2); c.fill();
+  // Dark hole
+  c.fillStyle = '#080400';
+  c.beginPath(); c.arc(shX, shY, bR * 0.25, 0, Math.PI * 2); c.fill();
+  // Rosette rings
+  for (let r = 0; r < 4; r++) {
+    const rr = bR * (0.25 + r * 0.028);
+    c.strokeStyle = r % 2 === 0 ? 'rgba(200,140,40,0.5)' : 'rgba(80,40,10,0.4)';
+    c.lineWidth = r % 2 === 0 ? 2.5 : 1.2;
+    c.beginPath(); c.arc(shX, shY, rr, 0, Math.PI * 2); c.stroke();
+  }
+  // Hole rim glint
+  c.strokeStyle = 'rgba(255,200,80,0.25)';
+  c.lineWidth = 1.5;
+  c.beginPath(); c.arc(shX - 4, shY - 4, bR * 0.25, Math.PI * 1.1, Math.PI * 1.7); c.stroke();
+
+  // ── Neck ──
+  const neckTop = H * 0.04, neckBot = H * 0.41;
+  const neckGrd = c.createLinearGradient(W * 0.38, 0, W * 0.62, 0);
+  neckGrd.addColorStop(0,   '#180a02');
+  neckGrd.addColorStop(0.15,'#4a2808');
+  neckGrd.addColorStop(0.45,'#7a4a18');
+  neckGrd.addColorStop(0.7, '#5a3410');
+  neckGrd.addColorStop(1,   '#1a0a02');
+  c.fillStyle = neckGrd;
+  // Neck shape — slightly tapered
+  c.beginPath();
+  c.moveTo(W * 0.39, neckBot);
+  c.lineTo(W * 0.42, neckTop);
+  c.lineTo(W * 0.58, neckTop);
+  c.lineTo(W * 0.61, neckBot);
+  c.closePath(); c.fill();
+  // Neck edge highlight
+  c.strokeStyle = 'rgba(180,120,40,0.3)';
+  c.lineWidth = 2;
+  c.beginPath(); c.moveTo(W * 0.42, neckTop); c.lineTo(W * 0.39, neckBot); c.stroke();
+
+  // Fretboard
+  const fbGrd = c.createLinearGradient(W * 0.41, 0, W * 0.59, 0);
+  fbGrd.addColorStop(0, '#0d0602');
+  fbGrd.addColorStop(0.5, '#1a0e04');
+  fbGrd.addColorStop(1, '#0a0400');
+  c.fillStyle = fbGrd;
+  c.beginPath();
+  c.moveTo(W * 0.41, neckBot - 10);
+  c.lineTo(W * 0.435, neckTop + 40);
+  c.lineTo(W * 0.565, neckTop + 40);
+  c.lineTo(W * 0.59, neckBot - 10);
+  c.closePath(); c.fill();
+
+  // Frets
+  const numFrets = 8;
+  for (let f = 1; f <= numFrets; f++) {
+    const fy = neckTop + 40 + (neckBot - neckTop - 50) * (f / numFrets);
+    const fw = W * 0.13 + f * 0.004 * W;
+    const fGrd = c.createLinearGradient(W * 0.5 - fw / 2, fy, W * 0.5 + fw / 2, fy);
+    fGrd.addColorStop(0, 'rgba(120,100,60,0.6)');
+    fGrd.addColorStop(0.5, 'rgba(220,200,140,0.9)');
+    fGrd.addColorStop(1, 'rgba(120,100,60,0.6)');
+    c.strokeStyle = fGrd; c.lineWidth = 2.5;
+    c.beginPath(); c.moveTo(W * 0.5 - fw / 2, fy); c.lineTo(W * 0.5 + fw / 2, fy); c.stroke();
+    // Fret dot markers
+    if ([3, 5, 7].includes(f)) {
+      c.fillStyle = 'rgba(200,180,120,0.35)';
+      c.beginPath(); c.arc(W * 0.5, fy - 14, 4, 0, Math.PI * 2); c.fill();
+    }
+  }
+
+  // Strings — 6 with metallic sheen
+  const strColors = ['rgba(200,190,160,0.7)', 'rgba(190,180,150,0.65)', 'rgba(170,160,130,0.65)',
+                     'rgba(160,140,100,0.7)', 'rgba(150,130,90,0.7)', 'rgba(140,120,80,0.7)'];
+  for (let s = 0; s < 6; s++) {
+    const sx = W * 0.435 + s * (W * 0.13 / 5);
+    c.strokeStyle = strColors[s]; c.lineWidth = 1.2 + s * 0.15;
+    c.beginPath(); c.moveTo(sx, neckTop + 36); c.lineTo(sx, neckBot + 20); c.stroke();
+    // String highlight
+    c.strokeStyle = 'rgba(255,255,220,0.3)'; c.lineWidth = 0.4;
+    c.beginPath(); c.moveTo(sx - 0.5, neckTop + 36); c.lineTo(sx - 0.5, neckBot + 20); c.stroke();
+  }
+
+  // ── Headstock ──
+  const hsGrd = c.createLinearGradient(W * 0.38, neckTop, W * 0.62, neckTop + 44);
+  hsGrd.addColorStop(0, '#5a3010');
+  hsGrd.addColorStop(0.5, '#3a1e08');
+  hsGrd.addColorStop(1, '#180a02');
+  c.fillStyle = hsGrd;
+  c.beginPath();
+  c.moveTo(W * 0.42, neckTop + 40);
+  c.lineTo(W * 0.40, neckTop + 4);
+  c.quadraticCurveTo(W * 0.40, neckTop, W * 0.44, neckTop);
+  c.lineTo(W * 0.56, neckTop);
+  c.quadraticCurveTo(W * 0.60, neckTop, W * 0.60, neckTop + 4);
+  c.lineTo(W * 0.58, neckTop + 40);
+  c.closePath(); c.fill();
+  // Headstock glint
+  const hsSpec = c.createLinearGradient(W * 0.40, neckTop, W * 0.50, neckTop + 20);
+  hsSpec.addColorStop(0, 'rgba(180,120,50,0.4)');
+  hsSpec.addColorStop(1, 'rgba(180,100,30,0)');
+  c.fillStyle = hsSpec;
+  c.beginPath();
+  c.moveTo(W * 0.42, neckTop + 40); c.lineTo(W * 0.40, neckTop + 4);
+  c.quadraticCurveTo(W * 0.40, neckTop, W * 0.44, neckTop);
+  c.lineTo(W * 0.58, neckTop + 40); c.closePath(); c.fill();
+
+  // Tuning pegs — metallic cylinders
+  const pegPos = [[W * 0.40, neckTop + 10], [W * 0.40, neckTop + 22], [W * 0.40, neckTop + 34],
+                  [W * 0.60, neckTop + 10], [W * 0.60, neckTop + 22], [W * 0.60, neckTop + 34]];
+  pegPos.forEach(([px, py]) => {
+    const pgGrd = c.createRadialGradient(px - 3, py - 2, 0, px, py, 8);
+    pgGrd.addColorStop(0, '#e0d0a0');
+    pgGrd.addColorStop(0.4, '#a09060');
+    pgGrd.addColorStop(1, '#403818');
+    c.fillStyle = pgGrd;
+    c.beginPath(); c.arc(px, py, 7, 0, Math.PI * 2); c.fill();
+    c.strokeStyle = 'rgba(60,50,20,0.8)'; c.lineWidth = 1;
+    c.beginPath(); c.arc(px, py, 7, 0, Math.PI * 2); c.stroke();
+    // Peg button
+    const btnGrd = c.createRadialGradient(px - 1, py - 1, 0, px, py, 4);
+    btnGrd.addColorStop(0, '#c0b080'); btnGrd.addColorStop(1, '#604828');
+    c.fillStyle = btnGrd;
+    c.beginPath(); c.arc(px, py, 3.5, 0, Math.PI * 2); c.fill();
+  });
+
+  // ── Bridge & strap pin ──
+  c.fillStyle = '#2a1404';
+  c.fillRect(W * 0.38, bodyY + bR * 0.22, W * 0.24, H * 0.025);
+  const brgGrd = c.createLinearGradient(W * 0.38, bodyY + bR * 0.22, W * 0.38, bodyY + bR * 0.22 + 10);
+  brgGrd.addColorStop(0, 'rgba(180,140,60,0.5)');
+  brgGrd.addColorStop(1, 'rgba(60,40,10,0.3)');
+  c.fillStyle = brgGrd;
+  c.fillRect(W * 0.38, bodyY + bR * 0.22, W * 0.24, 6);
+
+  // Overall depth — bottom vignette
+  const vigGrd = c.createRadialGradient(bodyX + 20, bodyY + 20, 0, bodyX, bodyY, bR * 1.3);
+  vigGrd.addColorStop(0.6, 'rgba(0,0,0,0)');
+  vigGrd.addColorStop(1, 'rgba(0,0,0,0.5)');
+  c.fillStyle = vigGrd;
+  c.beginPath(); c.ellipse(bodyX, bodyY, bR, bR * 0.82, -0.1, 0, Math.PI * 2); c.fill();
+}
+
+function drawDecoSax(canvas) {
+  const c = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  c.clearRect(0, 0, W, H);
+
+  // Main tube body path
+  const bodyPath = () => {
+    c.beginPath();
+    c.moveTo(W * 0.52, H * 0.06);
+    c.quadraticCurveTo(W * 0.62, H * 0.18, W * 0.65, H * 0.38);
+    c.quadraticCurveTo(W * 0.66, H * 0.58, W * 0.62, H * 0.72);
+    c.quadraticCurveTo(W * 0.55, H * 0.88, W * 0.42, H * 0.92);
+    c.quadraticCurveTo(W * 0.28, H * 0.96, W * 0.22, H * 0.88);
+  };
+
+  // Shadow
+  c.save(); c.translate(6, 8);
+  bodyPath();
+  c.strokeStyle = 'rgba(0,0,0,0.5)'; c.lineWidth = 36; c.lineCap = 'round'; c.stroke();
+  c.restore();
+
+  // Main brass body — warm gold gradient
+  const brassGrd = c.createLinearGradient(W * 0.22, 0, W * 0.7, 0);
+  brassGrd.addColorStop(0,    '#1a0c00');
+  brassGrd.addColorStop(0.12, '#8a5a10');
+  brassGrd.addColorStop(0.3,  '#d4a030');
+  brassGrd.addColorStop(0.48, '#f0c048');
+  brassGrd.addColorStop(0.62, '#e0a828');
+  brassGrd.addColorStop(0.78, '#b07818');
+  brassGrd.addColorStop(0.9,  '#604010');
+  brassGrd.addColorStop(1,    '#1a0c00');
+  bodyPath();
+  c.strokeStyle = brassGrd; c.lineWidth = 32; c.lineCap = 'round'; c.stroke();
+
+  // Edge highlight — bright specular streak
+  const specPath = () => {
+    c.beginPath();
+    c.moveTo(W * 0.49, H * 0.07);
+    c.quadraticCurveTo(W * 0.57, H * 0.18, W * 0.60, H * 0.38);
+    c.quadraticCurveTo(W * 0.61, H * 0.56, W * 0.57, H * 0.70);
+  };
+  specPath();
+  c.strokeStyle = 'rgba(255,235,160,0.55)'; c.lineWidth = 6; c.stroke();
+
+  // Secondary sheen
+  c.beginPath();
+  c.moveTo(W * 0.47, H * 0.09);
+  c.quadraticCurveTo(W * 0.55, H * 0.22, W * 0.57, H * 0.45);
+  c.strokeStyle = 'rgba(255,220,100,0.2)'; c.lineWidth = 10; c.stroke();
+
+  // ── Bell ──
+  const bellGrd = c.createRadialGradient(W * 0.26, H * 0.88, 0, W * 0.34, H * 0.91, W * 0.22);
+  bellGrd.addColorStop(0,   '#f0c040');
+  bellGrd.addColorStop(0.3, '#d09828');
+  bellGrd.addColorStop(0.6, '#906010');
+  bellGrd.addColorStop(1,   '#200c00');
+  c.fillStyle = bellGrd;
+  c.beginPath();
+  c.moveTo(W * 0.42, H * 0.92);
+  c.quadraticCurveTo(W * 0.28, H * 0.96, W * 0.18, H * 0.90);
+  c.quadraticCurveTo(W * 0.08, H * 0.84, W * 0.12, H * 0.76);
+  c.quadraticCurveTo(W * 0.18, H * 0.70, W * 0.30, H * 0.72);
+  c.quadraticCurveTo(W * 0.42, H * 0.76, W * 0.46, H * 0.84);
+  c.closePath(); c.fill();
+  // Bell rim glint
+  c.strokeStyle = 'rgba(255,230,120,0.45)'; c.lineWidth = 3;
+  c.beginPath();
+  c.moveTo(W * 0.42, H * 0.92);
+  c.quadraticCurveTo(W * 0.28, H * 0.97, W * 0.18, H * 0.90);
+  c.stroke();
+  // Bell opening shadow
+  c.fillStyle = 'rgba(0,0,0,0.5)';
+  c.beginPath();
+  c.ellipse(W * 0.22, H * 0.87, W * 0.12, W * 0.07, 0.3, 0, Math.PI * 2); c.fill();
+  // Bell opening gleam
+  c.fillStyle = 'rgba(200,160,40,0.15)';
+  c.beginPath();
+  c.ellipse(W * 0.22, H * 0.87, W * 0.12, W * 0.07, 0.3, 0, Math.PI * 2); c.fill();
+
+  // ── Keys / Pads ──
+  const keyPositions = [
+    [W * 0.62, H * 0.20], [W * 0.64, H * 0.28], [W * 0.65, H * 0.36],
+    [W * 0.64, H * 0.44], [W * 0.63, H * 0.52], [W * 0.60, H * 0.60],
+    [W * 0.56, H * 0.68], [W * 0.50, H * 0.75],
+  ];
+  keyPositions.forEach(([kx, ky], i) => {
+    const kr = 7 + i * 0.4;
+    // Key cup shadow
+    c.fillStyle = 'rgba(0,0,0,0.5)';
+    c.beginPath(); c.arc(kx + 2, ky + 2, kr + 2, 0, Math.PI * 2); c.fill();
+    // Key cup body
+    const kGrd = c.createRadialGradient(kx - kr * 0.3, ky - kr * 0.3, 0, kx, ky, kr + 2);
+    kGrd.addColorStop(0,   '#e0c060');
+    kGrd.addColorStop(0.4, '#b08830');
+    kGrd.addColorStop(0.8, '#6a4c18');
+    kGrd.addColorStop(1,   '#2a1c08');
+    c.fillStyle = kGrd;
+    c.beginPath(); c.arc(kx, ky, kr, 0, Math.PI * 2); c.fill();
+    // Pad felt
+    c.fillStyle = 'rgba(180,80,30,0.6)';
+    c.beginPath(); c.arc(kx, ky, kr * 0.65, 0, Math.PI * 2); c.fill();
+    // Key glint
+    c.fillStyle = 'rgba(255,240,160,0.5)';
+    c.beginPath(); c.arc(kx - kr * 0.25, ky - kr * 0.25, kr * 0.25, 0, Math.PI * 2); c.fill();
+  });
+
+  // Key rods — thin brass rods connecting keys
+  c.strokeStyle = 'rgba(180,130,30,0.5)'; c.lineWidth = 2;
+  c.beginPath();
+  c.moveTo(W * 0.62, H * 0.18); c.lineTo(W * 0.60, H * 0.62);
+  c.stroke();
+
+  // ── Mouthpiece ──
+  const mpGrd = c.createLinearGradient(W * 0.46, H * 0.02, W * 0.58, H * 0.10);
+  mpGrd.addColorStop(0, '#606060');
+  mpGrd.addColorStop(0.3, '#c0c0b0');
+  mpGrd.addColorStop(0.6, '#909080');
+  mpGrd.addColorStop(1, '#303030');
+  c.fillStyle = mpGrd;
+  c.beginPath();
+  c.moveTo(W * 0.46, H * 0.04);
+  c.lineTo(W * 0.50, H * 0.02);
+  c.lineTo(W * 0.58, H * 0.08);
+  c.lineTo(W * 0.54, H * 0.10);
+  c.closePath(); c.fill();
+  // Reed
+  c.fillStyle = 'rgba(200,170,100,0.6)';
+  c.beginPath();
+  c.moveTo(W * 0.48, H * 0.045);
+  c.lineTo(W * 0.50, H * 0.025);
+  c.lineTo(W * 0.555, H * 0.082);
+  c.lineTo(W * 0.535, H * 0.096);
+  c.closePath(); c.fill();
+
+  // Overall ambient occlusion
+  const aoGrd = c.createLinearGradient(0, 0, W, H);
+  aoGrd.addColorStop(0, 'rgba(0,0,0,0.1)');
+  aoGrd.addColorStop(0.5, 'rgba(0,0,0,0)');
+  aoGrd.addColorStop(1, 'rgba(0,0,0,0.2)');
+  c.fillStyle = aoGrd; c.fillRect(0, 0, W, H);
+}
+
+function drawDecoNote(canvas) {
+  const c = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  c.clearRect(0, 0, W, H);
+
+  // ── Stem ──
+  const stemX = W * 0.62, stemTop = H * 0.06, stemBot = H * 0.72;
+  const stemGrd = c.createLinearGradient(stemX - 8, 0, stemX + 8, 0);
+  stemGrd.addColorStop(0, '#101010');
+  stemGrd.addColorStop(0.3, '#505050');
+  stemGrd.addColorStop(0.55, '#d0d0c0');
+  stemGrd.addColorStop(0.8, '#404040');
+  stemGrd.addColorStop(1, '#080808');
+  c.strokeStyle = stemGrd; c.lineWidth = 13; c.lineCap = 'round';
+  c.beginPath(); c.moveTo(stemX, stemTop); c.lineTo(stemX, stemBot); c.stroke();
+  // Stem edge glint
+  c.strokeStyle = 'rgba(255,255,240,0.35)'; c.lineWidth = 2.5;
+  c.beginPath(); c.moveTo(stemX - 2, stemTop + 4); c.lineTo(stemX - 2, stemBot - 4); c.stroke();
+
+  // ── Flag / beam ──
+  const flagPoints = [
+    [stemX, stemTop],
+    [stemX + W * 0.28, stemTop + H * 0.14],
+    [stemX + W * 0.22, stemTop + H * 0.26],
+    [stemX, stemTop + H * 0.20],
+  ];
+  const flagGrd = c.createLinearGradient(stemX, stemTop, stemX + W * 0.28, stemTop + H * 0.26);
+  flagGrd.addColorStop(0,   '#505050');
+  flagGrd.addColorStop(0.25,'#c0c0b0');
+  flagGrd.addColorStop(0.5, '#e0e0d0');
+  flagGrd.addColorStop(0.75,'#808070');
+  flagGrd.addColorStop(1,   '#181818');
+  c.fillStyle = flagGrd;
+  c.beginPath();
+  flagPoints.forEach(([x, y], i) => i === 0 ? c.moveTo(x, y) : c.lineTo(x, y));
+  c.closePath(); c.fill();
+  // Flag highlight stroke
+  c.strokeStyle = 'rgba(255,255,220,0.3)'; c.lineWidth = 1.5;
+  c.beginPath();
+  c.moveTo(stemX, stemTop);
+  c.quadraticCurveTo(stemX + W * 0.2, stemTop + H * 0.06, stemX + W * 0.28, stemTop + H * 0.14);
+  c.stroke();
+
+  // Second flag
+  const f2offset = H * 0.12;
+  const flagGrd2 = c.createLinearGradient(stemX, stemTop + f2offset, stemX + W * 0.22, stemTop + f2offset + H * 0.22);
+  flagGrd2.addColorStop(0, '#404040');
+  flagGrd2.addColorStop(0.4, '#b0b0a0');
+  flagGrd2.addColorStop(1, '#141414');
+  c.fillStyle = flagGrd2;
+  c.beginPath();
+  c.moveTo(stemX, stemTop + f2offset);
+  c.lineTo(stemX + W * 0.24, stemTop + f2offset + H * 0.12);
+  c.lineTo(stemX + W * 0.18, stemTop + f2offset + H * 0.22);
+  c.lineTo(stemX, stemTop + f2offset + H * 0.16);
+  c.closePath(); c.fill();
+
+  // ── Note head ──
+  const nhX = W * 0.36, nhY = H * 0.76;
+  // Shadow
+  const nhShadow = c.createRadialGradient(nhX + 8, nhY + 8, 0, nhX + 6, nhY + 6, W * 0.26);
+  nhShadow.addColorStop(0, 'rgba(0,0,0,0.5)');
+  nhShadow.addColorStop(1, 'rgba(0,0,0,0)');
+  c.fillStyle = nhShadow;
+  c.save(); c.translate(nhX + 6, nhY + 8);
+  c.rotate(-0.28); c.beginPath(); c.ellipse(0, 0, W * 0.28, H * 0.12, 0, 0, Math.PI * 2);
+  c.restore(); c.fill();
+
+  // Head body
+  const nhGrd = c.createRadialGradient(nhX - W * 0.08, nhY - H * 0.04, 0, nhX, nhY, W * 0.26);
+  nhGrd.addColorStop(0,   '#808080');
+  nhGrd.addColorStop(0.25,'#404040');
+  nhGrd.addColorStop(0.55,'#181818');
+  nhGrd.addColorStop(0.8, '#080808');
+  nhGrd.addColorStop(1,   '#020202');
+  c.fillStyle = nhGrd;
+  c.save(); c.translate(nhX, nhY); c.rotate(-0.28);
+  c.beginPath(); c.ellipse(0, 0, W * 0.27, H * 0.115, 0, 0, Math.PI * 2);
+  c.fill();
+
+  // Head specular — top-left glint
+  const nhSpec = c.createRadialGradient(-W * 0.1, -H * 0.05, 0, 0, 0, W * 0.22);
+  nhSpec.addColorStop(0, 'rgba(200,200,190,0.65)');
+  nhSpec.addColorStop(0.3,'rgba(120,120,110,0.25)');
+  nhSpec.addColorStop(1, 'rgba(40,40,40,0)');
+  c.fillStyle = nhSpec;
+  c.beginPath(); c.ellipse(0, 0, W * 0.27, H * 0.115, 0, 0, Math.PI * 2); c.fill();
+
+  // Edge rim
+  c.strokeStyle = 'rgba(80,80,70,0.5)'; c.lineWidth = 2;
+  c.beginPath(); c.ellipse(0, 0, W * 0.27, H * 0.115, 0, 0, Math.PI * 2); c.stroke();
+  c.restore();
+}
+
+function initDecoCanvases() {
+  document.querySelectorAll('canvas.deco-canvas[data-deco]').forEach(canvas => {
+    const type = canvas.dataset.deco;
+    if (type === 'guitar') drawDecoGuitar(canvas);
+    else if (type === 'sax') drawDecoSax(canvas);
+    else if (type === 'note') drawDecoNote(canvas);
+  });
+}
+
+// Run after DOM ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initDecoCanvases);
+} else {
+  initDecoCanvases();
 }
 
 </script>
