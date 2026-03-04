@@ -61,7 +61,7 @@
   .instrument-btn:hover { border-color: var(--red-dim); transform: scale(1.08); }
   .instrument-btn.selected { border-color: var(--red); background: var(--red)22; transform: scale(1.08); }
   .feed-header { padding: 3rem 2rem 2rem; max-width: 980px; margin: 0 auto; position: relative; overflow: hidden; }
-  .feed-header-deco { position: absolute; top: -10px; right: 20px; width: 10rem; height: auto; opacity: 0.10; pointer-events: none; color: var(--text); }
+  .feed-header-deco { position: absolute; top: -10px; right: 20px; font-size: 10rem; opacity: 0.04; pointer-events: none; line-height: 1; }
   .feed-header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 3.5rem; letter-spacing: 0.06em; line-height: 1; margin-bottom: 0.5rem; color: var(--white); }
   .feed-header h1 span { color: var(--red); }
   .feed-meta { color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; }
@@ -80,7 +80,7 @@
   .card-arrow { position: absolute; bottom: 1.2rem; right: 1.2rem; color: var(--text-dim); font-size: 0.9rem; transition: all 0.15s; }
   .friend-card:hover .card-arrow { color: var(--red); transform: translate(2px,-2px); }
   .page-header { padding: 3rem 2rem 2rem; max-width: 980px; margin: 0 auto; position: relative; overflow: hidden; }
-  .page-header-deco { position: absolute; top: 0; right: 20px; width: 9rem; height: auto; opacity: 0.10; pointer-events: none; color: var(--text); }
+  .page-header-deco { position: absolute; top: 0; right: 20px; font-size: 9rem; opacity: 0.04; pointer-events: none; line-height: 1; }
   .page-header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 3rem; letter-spacing: 0.06em; margin-bottom: 0.5rem; }
   .page-header h1 span { color: var(--red); }
   .page-header p { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: var(--text-muted); }
@@ -110,7 +110,7 @@
   .back-btn { background: none; border: none; color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: color 0.15s; padding: 0; }
   .back-btn:hover { color: var(--red); }
   .profile-hero { max-width: 880px; margin: 0 auto; padding: 2rem 2rem 1.5rem; display: flex; align-items: flex-end; gap: 1.5rem; border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
-  .profile-hero-deco { position: absolute; right: 1.5rem; bottom: -15px; width: 7rem; height: auto; opacity: 0.10; pointer-events: none; color: var(--text); }
+  .profile-hero-deco { position: absolute; right: 1.5rem; bottom: -15px; font-size: 7rem; opacity: 0.04; pointer-events: none; }
   .p-avatar-lg { width: 76px; height: 76px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 1.9rem; flex-shrink: 0; border: 2px solid var(--red-dim); }
   .p-meta h2 { font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; letter-spacing: 0.06em; color: var(--white); }
   .p-meta p { color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; margin-top: 0.2rem; }
@@ -231,7 +231,6 @@
   .about-wrap { max-width: 740px; margin: 0 auto; padding: 0 2rem 6rem; }
   .about-hero { padding: 4rem 0 3rem; border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
   .about-hero-deco { position: absolute; right: 0; top: 1rem; width: 9rem; height: auto; opacity: 0.10; pointer-events: none; color: var(--text); }
-  .feed-header-deco svg, .page-header-deco svg, .profile-hero-deco svg, .about-hero-deco svg { width: 100%; height: auto; display: block; stroke: currentColor; }
   .about-title { font-family: 'Bebas Neue', sans-serif; font-size: 4rem; letter-spacing: 0.04em; line-height: 1.05; margin: 0.75rem 0 1.5rem; color: var(--white); }
   .about-title span { color: var(--red); }
   .about-intro { font-size: 1.15rem; line-height: 1.8; color: var(--text-muted); font-style: italic; max-width: 580px; }
@@ -989,39 +988,7 @@
     <span onclick="showView('auth')" style="font-family:'IBM Plex Mono',monospace;font-size:0.68rem;color:var(--red);cursor:pointer;text-decoration:underline">Sign up to make your own picks and join the community →</span>
   </div>
   <div class="feed-header">
-    <div class="feed-header-deco"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 400" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-  <!-- Neck -->
-  <line x1="100" y1="10" x2="100" y2="200" stroke-width="14"/>
-  <!-- Headstock -->
-  <rect x="70" y="10" width="60" height="36" rx="8" stroke-width="8"/>
-  <!-- Tuning pegs -->
-  <circle cx="78" cy="18" r="6" stroke-width="5"/><circle cx="78" cy="32" r="6" stroke-width="5"/>
-  <circle cx="122" cy="18" r="6" stroke-width="5"/><circle cx="122" cy="32" r="6" stroke-width="5"/>
-  <!-- Nut -->
-  <line x1="84" y1="46" x2="116" y2="46" stroke-width="6"/>
-  <!-- Frets -->
-  <line x1="88" y1="80" x2="112" y2="80" stroke-width="4"/>
-  <line x1="88" y1="110" x2="112" y2="110" stroke-width="4"/>
-  <line x1="88" y1="138" x2="112" y2="138" stroke-width="4"/>
-  <line x1="88" y1="164" x2="112" y2="164" stroke-width="4"/>
-  <!-- Body upper bout -->
-  <path d="M100 200 C60 200 30 220 30 255 C30 275 45 290 65 295" stroke-width="10"/>
-  <path d="M100 200 C140 200 170 220 170 255 C170 275 155 290 135 295" stroke-width="10"/>
-  <!-- Waist -->
-  <path d="M65 295 C50 302 48 318 58 328" stroke-width="10"/>
-  <path d="M135 295 C150 302 152 318 142 328" stroke-width="10"/>
-  <!-- Body lower bout -->
-  <path d="M58 328 C40 338 30 360 30 375 C30 395 60 410 100 410" stroke-width="10"/>
-  <path d="M142 328 C160 338 170 360 170 375 C170 395 140 410 100 410" stroke-width="10"/>
-  <!-- Sound hole -->
-  <circle cx="100" cy="310" r="28" stroke-width="7"/>
-  <!-- Bridge -->
-  <rect x="80" y="352" width="40" height="10" rx="3" stroke-width="6"/>
-  <!-- Strings -->
-  <line x1="94" y1="46" x2="94" y2="352" stroke-width="1.5" stroke-opacity="0.6"/>
-  <line x1="100" y1="46" x2="100" y2="352" stroke-width="1.5" stroke-opacity="0.6"/>
-  <line x1="106" y1="46" x2="106" y2="352" stroke-width="1.5" stroke-opacity="0.6"/>
-</svg></div>
+    <div class="feed-header-deco">🎸</div>
     <div class="week-pill" id="feed-pill">Week 1</div>
     <h1 id="feed-title">This Week's <span>Picks</span></h1>
     <p class="feed-meta" id="feed-range"></p>
@@ -1039,32 +1006,7 @@
 <!-- MEMBERS -->
 <div class="view" id="view-members">
   <div class="page-header">
-    <div class="page-header-deco"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 420" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-  <!-- Mouthpiece -->
-  <path d="M90 10 L110 10 L115 35 L85 35 Z" stroke-width="7"/>
-  <!-- Neck -->
-  <path d="M100 35 C100 35 105 70 115 90" stroke-width="12"/>
-  <!-- Body main tube -->
-  <path d="M115 90 C130 110 138 180 135 260 C132 320 120 360 100 380" stroke-width="16"/>
-  <!-- Bell -->
-  <path d="M100 380 C80 390 50 395 35 385 C20 375 22 355 38 348" stroke-width="14"/>
-  <path d="M38 348 C50 342 72 345 100 380" stroke-width="10"/>
-  <!-- Bell opening -->
-  <ellipse cx="60" cy="388" rx="28" ry="10" stroke-width="7"/>
-  <!-- Key pads - scattered along body -->
-  <circle cx="128" cy="130" r="9" stroke-width="5"/>
-  <circle cx="132" cy="160" r="9" stroke-width="5"/>
-  <circle cx="134" cy="190" r="9" stroke-width="5"/>
-  <circle cx="133" cy="220" r="8" stroke-width="5"/>
-  <circle cx="130" cy="248" r="8" stroke-width="5"/>
-  <circle cx="124" cy="274" r="7" stroke-width="5"/>
-  <!-- Key rods -->
-  <line x1="125" y1="120" x2="125" y2="290" stroke-width="3" stroke-dasharray="4 6"/>
-  <!-- Thumb rest -->
-  <path d="M108 200 C118 200 122 208 118 215" stroke-width="6"/>
-  <!-- Octave key -->
-  <path d="M110 80 C120 72 128 75 126 85" stroke-width="5"/>
-</svg></div>
+    <div class="page-header-deco">🎷</div>
     <div class="week-pill">Community</div>
     <h1>All <span>Members</span></h1>
     <p>Browse everyone on Wavelength and visit their profiles</p>
@@ -1081,39 +1023,7 @@
   </div>
   <div id="profile-skin-bar"></div>
   <div class="profile-hero" id="profile-hero">
-    <div class="profile-hero-deco"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 400" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-  <!-- Neck -->
-  <line x1="100" y1="10" x2="100" y2="200" stroke-width="14"/>
-  <!-- Headstock -->
-  <rect x="70" y="10" width="60" height="36" rx="8" stroke-width="8"/>
-  <!-- Tuning pegs -->
-  <circle cx="78" cy="18" r="6" stroke-width="5"/><circle cx="78" cy="32" r="6" stroke-width="5"/>
-  <circle cx="122" cy="18" r="6" stroke-width="5"/><circle cx="122" cy="32" r="6" stroke-width="5"/>
-  <!-- Nut -->
-  <line x1="84" y1="46" x2="116" y2="46" stroke-width="6"/>
-  <!-- Frets -->
-  <line x1="88" y1="80" x2="112" y2="80" stroke-width="4"/>
-  <line x1="88" y1="110" x2="112" y2="110" stroke-width="4"/>
-  <line x1="88" y1="138" x2="112" y2="138" stroke-width="4"/>
-  <line x1="88" y1="164" x2="112" y2="164" stroke-width="4"/>
-  <!-- Body upper bout -->
-  <path d="M100 200 C60 200 30 220 30 255 C30 275 45 290 65 295" stroke-width="10"/>
-  <path d="M100 200 C140 200 170 220 170 255 C170 275 155 290 135 295" stroke-width="10"/>
-  <!-- Waist -->
-  <path d="M65 295 C50 302 48 318 58 328" stroke-width="10"/>
-  <path d="M135 295 C150 302 152 318 142 328" stroke-width="10"/>
-  <!-- Body lower bout -->
-  <path d="M58 328 C40 338 30 360 30 375 C30 395 60 410 100 410" stroke-width="10"/>
-  <path d="M142 328 C160 338 170 360 170 375 C170 395 140 410 100 410" stroke-width="10"/>
-  <!-- Sound hole -->
-  <circle cx="100" cy="310" r="28" stroke-width="7"/>
-  <!-- Bridge -->
-  <rect x="80" y="352" width="40" height="10" rx="3" stroke-width="6"/>
-  <!-- Strings -->
-  <line x1="94" y1="46" x2="94" y2="352" stroke-width="1.5" stroke-opacity="0.6"/>
-  <line x1="100" y1="46" x2="100" y2="352" stroke-width="1.5" stroke-opacity="0.6"/>
-  <line x1="106" y1="46" x2="106" y2="352" stroke-width="1.5" stroke-opacity="0.6"/>
-</svg></div>
+    <div class="profile-hero-deco">🎸</div>
   </div>
   <div class="weeks-list" id="weeks-list"></div>
 </div>
@@ -1234,16 +1144,7 @@
 <div class="view" id="view-about">
   <div class="about-wrap">
     <div class="about-hero">
-      <div class="about-hero-deco"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-  <!-- Stem -->
-  <line x1="130" y1="30" x2="130" y2="210" stroke-width="10"/>
-  <!-- Note head -->
-  <ellipse cx="100" cy="215" rx="36" ry="26" stroke-width="9" transform="rotate(-15 100 215)"/>
-  <!-- Flag -->
-  <path d="M130 30 C160 55 168 90 148 115" stroke-width="9"/>
-  <!-- Second flag -->
-  <path d="M130 65 C158 88 164 118 146 140" stroke-width="9"/>
-</svg></div>
+      <div class="about-hero-deco">🎵</div>
       <div class="week-pill">About</div>
       <h1 class="about-title">Some songs just<br><span>stay with you.</span></h1>
       <p class="about-intro">You know the feeling. It's Tuesday evening and a song comes on and suddenly everything makes sense. Or nothing does. Either way, you need someone to know.</p>
