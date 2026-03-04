@@ -61,7 +61,7 @@
   .instrument-btn:hover { border-color: var(--red-dim); transform: scale(1.08); }
   .instrument-btn.selected { border-color: var(--red); background: var(--red)22; transform: scale(1.08); }
   .feed-header { padding: 3rem 2rem 2rem; max-width: 980px; margin: 0 auto; position: relative; overflow: hidden; }
-  .feed-header-deco { position: absolute; top: -10px; right: 20px; font-size: 10rem; opacity: 0.10; pointer-events: none; line-height: 1; }
+  .feed-header-deco { position: absolute; top: -10px; right: 20px; font-size: 5.5rem; opacity: 0.10; pointer-events: none; line-height: 1; filter: grayscale(0.6) contrast(0.8); }
   .feed-header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 3.5rem; letter-spacing: 0.06em; line-height: 1; margin-bottom: 0.5rem; color: var(--white); }
   .feed-header h1 span { color: var(--red); }
   .feed-meta { color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; }
@@ -80,7 +80,7 @@
   .card-arrow { position: absolute; bottom: 1.2rem; right: 1.2rem; color: var(--text-dim); font-size: 0.9rem; transition: all 0.15s; }
   .friend-card:hover .card-arrow { color: var(--red); transform: translate(2px,-2px); }
   .page-header { padding: 3rem 2rem 2rem; max-width: 980px; margin: 0 auto; position: relative; overflow: hidden; }
-  .page-header-deco { position: absolute; top: 0; right: 20px; font-size: 9rem; opacity: 0.10; pointer-events: none; line-height: 1; }
+  .page-header-deco { position: absolute; top: 0; right: 20px; font-size: 5rem; opacity: 0.10; pointer-events: none; line-height: 1; filter: grayscale(0.6) contrast(0.8); }
   .page-header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 3rem; letter-spacing: 0.06em; margin-bottom: 0.5rem; }
   .page-header h1 span { color: var(--red); }
   .page-header p { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: var(--text-muted); }
@@ -110,7 +110,7 @@
   .back-btn { background: none; border: none; color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: color 0.15s; padding: 0; }
   .back-btn:hover { color: var(--red); }
   .profile-hero { max-width: 880px; margin: 0 auto; padding: 2rem 2rem 1.5rem; display: flex; align-items: flex-end; gap: 1.5rem; border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
-  .profile-hero-deco { position: absolute; right: 1.5rem; bottom: -15px; font-size: 7rem; opacity: 0.10; pointer-events: none; }
+  .profile-hero-deco { position: absolute; right: 1.5rem; bottom: -15px; font-size: 4rem; opacity: 0.10; pointer-events: none; filter: grayscale(0.6) contrast(0.8); }
   .p-avatar-lg { width: 76px; height: 76px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 1.9rem; flex-shrink: 0; border: 2px solid var(--red-dim); }
   .p-meta h2 { font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; letter-spacing: 0.06em; color: var(--white); }
   .p-meta p { color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; margin-top: 0.2rem; }
@@ -230,7 +230,7 @@
   .nav-dropdown-item.danger:hover { background: var(--red); color: white; }
   .about-wrap { max-width: 740px; margin: 0 auto; padding: 0 2rem 6rem; }
   .about-hero { padding: 4rem 0 3rem; border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
-  .about-hero-deco { position: absolute; right: 0; top: 1rem; font-size: 9rem; opacity: 0.10; pointer-events: none; line-height: 1; }
+  .about-hero-deco { position: absolute; right: 0; top: 1rem; font-size: 5rem; opacity: 0.10; pointer-events: none; line-height: 1; filter: grayscale(0.6) contrast(0.8); }
   .about-title { font-family: 'Bebas Neue', sans-serif; font-size: 4rem; letter-spacing: 0.04em; line-height: 1.05; margin: 0.75rem 0 1.5rem; color: var(--white); }
   .about-title span { color: var(--red); }
   .about-intro { font-size: 1.15rem; line-height: 1.8; color: var(--text-muted); font-style: italic; max-width: 580px; }
@@ -945,48 +945,7 @@
 </div>
 
 <!-- ABOUT -->
-<div class="view" id="view-about">
-  <div class="about-wrap">
-    <div class="about-hero">
-      <div class="about-hero-deco">🎵</div>
-      <div class="week-pill">About</div>
-      <h1 class="about-title">Some songs just<br><span>stay with you.</span></h1>
-      <p class="about-intro">You know the feeling. It's Tuesday evening and a song comes on and suddenly everything makes sense. Or nothing does. Either way, you need someone to know.</p>
-    </div>
-    <div class="about-body">
-      <div class="about-section">
-        <div class="about-section-label">Why we built this</div>
-        <p>Wavelength started as a simple idea between friends — the kind of people who are always sending each other songs at odd hours with no explanation except <em>"you need to hear this."</em></p>
-        <p>We wanted a place that wasn't about follower counts or algorithms or whatever everyone else is listening to. Just the people we actually care about, and one song a week that says something true about where they are right now.</p>
-        <p>So we built it.</p>
-      </div>
-      <div class="about-section">
-        <div class="about-section-label">How it works</div>
-        <p>Every week, you pick one song. That's it. Not a playlist. Not a mood board. One song — the one that's been living in your head, the one that felt right for this particular stretch of days.</p>
-        <p>Your friends do the same. And every week you get a small window into where everyone is, told entirely through music.</p>
-      </div>
-      <div class="about-section">
-        <div class="about-section-label">What it becomes</div>
-        <p>Over time, your profile becomes something unexpected — a real archive of your life told in songs. Scroll back through your picks six months from now and you'll remember exactly what you were going through when you chose each one.</p>
-        <p>Music has always been how we mark time. Wavelength just makes that a little more intentional.</p>
-      </div>
-      <div class="about-section">
-        <div class="about-section-label">Who it's for</div>
-        <p>People who take music personally. People who want to stay close to the friends who matter, even when life pulls everyone in different directions. People who believe that what someone's listening to on a random Wednesday tells you more about them than anything they'd ever post.</p>
-      </div>
-    </div>
-    <div class="about-closing">
-      <div class="about-david-wrap">
-        <img src="https://www.rollingstone.com/wp-content/uploads/2023/09/SMS_005.jpg?w=1600&h=900&crop=1" alt="David Byrne" class="about-david-img" />
-        <div class="about-david-question">What do you have<br>to share?</div>
-      </div>
-      <div class="about-cta">
-        <button class="btn btn-primary" style="font-size:0.8rem;padding:0.9rem 2rem" onclick="showView('auth')">Join Wavelength</button>
-        <button class="btn btn-ghost" style="font-size:0.75rem;padding:0.9rem 1.5rem" onclick="browseAsGuest()">Browse first</button>
-      </div>
-    </div>
-  </div>
-</div>
+
 
 <!-- NAV -->
 <nav id="mainNav" style="display:none">
@@ -1182,6 +1141,49 @@
 <div class="toast" id="toast"></div>
 
 <!-- MOBILE BOTTOM NAV -->
+<div class="view" id="view-about">
+  <div class="about-wrap">
+    <div class="about-hero">
+      <div class="about-hero-deco">🎵</div>
+      <div class="week-pill">About</div>
+      <h1 class="about-title">Some songs just<br><span>stay with you.</span></h1>
+      <p class="about-intro">You know the feeling. It's Tuesday evening and a song comes on and suddenly everything makes sense. Or nothing does. Either way, you need someone to know.</p>
+    </div>
+    <div class="about-body">
+      <div class="about-section">
+        <div class="about-section-label">Why we built this</div>
+        <p>Wavelength started as a simple idea between friends — the kind of people who are always sending each other songs at odd hours with no explanation except <em>"you need to hear this."</em></p>
+        <p>We wanted a place that wasn't about follower counts or algorithms or whatever everyone else is listening to. Just the people we actually care about, and one song a week that says something true about where they are right now.</p>
+        <p>So we built it.</p>
+      </div>
+      <div class="about-section">
+        <div class="about-section-label">How it works</div>
+        <p>Every week, you pick one song. That's it. Not a playlist. Not a mood board. One song — the one that's been living in your head, the one that felt right for this particular stretch of days.</p>
+        <p>Your friends do the same. And every week you get a small window into where everyone is, told entirely through music.</p>
+      </div>
+      <div class="about-section">
+        <div class="about-section-label">What it becomes</div>
+        <p>Over time, your profile becomes something unexpected — a real archive of your life told in songs. Scroll back through your picks six months from now and you'll remember exactly what you were going through when you chose each one.</p>
+        <p>Music has always been how we mark time. Wavelength just makes that a little more intentional.</p>
+      </div>
+      <div class="about-section">
+        <div class="about-section-label">Who it's for</div>
+        <p>People who take music personally. People who want to stay close to the friends who matter, even when life pulls everyone in different directions. People who believe that what someone's listening to on a random Wednesday tells you more about them than anything they'd ever post.</p>
+      </div>
+    </div>
+    <div class="about-closing">
+      <div class="about-david-wrap">
+        <img src="https://www.rollingstone.com/wp-content/uploads/2023/09/SMS_005.jpg?w=1600&h=900&crop=1" alt="David Byrne" class="about-david-img" />
+        <div class="about-david-question">What do you have<br>to share?</div>
+      </div>
+      <div class="about-cta">
+        <button class="btn btn-primary" style="font-size:0.8rem;padding:0.9rem 2rem" onclick="showView('auth')">Join Wavelength</button>
+        <button class="btn btn-ghost" style="font-size:0.75rem;padding:0.9rem 1.5rem" onclick="browseAsGuest()">Browse first</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="mobile-nav" id="mobileNav" style="display:none">
   <div class="mobile-nav-inner">
     <button class="mobile-nav-btn" id="mnav-feed" onclick="showView('feed')">
