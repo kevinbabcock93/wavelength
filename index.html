@@ -1741,7 +1741,12 @@ function animateMemberCards() {
       const W = canvas.width, H = canvas.height;
       if (W === 0 || H === 0) { resize(); }
       ctx.clearRect(0, 0, W, H);
-      drawFn(ctx, W, H, t, 0);
+      // Scale down so scene shows more content (zoom out effect)
+      const scale = 0.45;
+      ctx.save();
+      ctx.scale(scale, scale);
+      drawFn(ctx, W / scale, H / scale, t, 0);
+      ctx.restore();
       _memberCardAnimations.set(canvas, requestAnimationFrame(loop));
     };
     _memberCardAnimations.set(canvas, requestAnimationFrame(loop));
