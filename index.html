@@ -85,8 +85,17 @@
   .page-header h1 span { color: var(--red); }
   .page-header p { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: var(--text-muted); }
   .members-grid { max-width: 980px; margin: 0 auto; padding: 0 2rem 4rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); }
-  .member-card { background: var(--surface); padding: 1.5rem; cursor: pointer; transition: background 0.15s; text-align: center; }
+  .member-card { background: var(--surface); padding: 1.5rem; cursor: pointer; transition: background 0.15s; text-align: center; position: relative; overflow: hidden; }
   .member-card:hover { background: var(--surface2); }
+  .member-card-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; opacity: 0.55; }
+  .member-card > *:not(.member-card-canvas) { position: relative; z-index: 1; }
+  .member-card.has-skin { background: transparent !important; }
+  .member-card.has-skin .member-name { color: var(--mc-text, inherit); font-weight: 700; text-shadow: 0 1px 8px rgba(0,0,0,0.8); }
+  .member-card.has-skin .member-username { color: var(--mc-muted, var(--text-muted)); text-shadow: 0 1px 6px rgba(0,0,0,0.7); }
+  .member-card.has-skin .member-picks { color: var(--mc-accent, var(--red)); text-shadow: 0 1px 6px rgba(0,0,0,0.7); }
+  .member-card.has-skin .member-avatar { border-color: var(--mc-accent, var(--red-dim)); color: var(--mc-text, inherit); background: rgba(0,0,0,0.35) !important; text-shadow: 0 1px 6px rgba(0,0,0,0.8); }
+  .member-card.has-skin .member-follow-btn { border-color: var(--mc-accent, var(--red-dim)); color: var(--mc-accent, var(--red)); background: rgba(0,0,0,0.3); }
+  .member-card.has-skin .member-follow-btn:hover { background: var(--mc-accent, var(--red)); color: #000; }
   .member-avatar { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; margin: 0 auto 0.9rem; border: 2px solid var(--red-dim); }
   .member-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.15rem; letter-spacing: 0.06em; margin-bottom: 0.15rem; }
   .member-username { font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; color: var(--text-muted); margin-bottom: 0.6rem; }
@@ -1455,6 +1464,7 @@ function showView(name,opts){
   if(mnavProfile)mnavProfile.classList.toggle('active',name==='profile');
   if(name==='feed')renderFeed();
   if(name==='members')renderMembers();
+  else { _memberCardAnimations.forEach(id=>cancelAnimationFrame(id)); _memberCardAnimations.clear(); }
   if(name==='profile')renderProfile(opts.userId||(currentUser&&currentUser.id));
   if(name==='songdetail')renderSongDetail(opts);
   if(name==='settings')renderSettings();
@@ -1652,13 +1662,21 @@ async function renderMembers(){
     let followBtn='';
     if(!isGuest&&!me){followBtn=following?'<button class="member-follow-btn following" onclick="event.stopPropagation();toggleMemberFollow(\''+p.id+'\',true,this)">✓ Following</button>':'<button class="member-follow-btn" onclick="event.stopPropagation();toggleMemberFollow(\''+p.id+'\',false,this)">+ Follow</button>';}
     if(isGuest){followBtn='<button class="member-follow-btn guest-follow" onclick="event.stopPropagation();showView(\'auth\')">+ Follow</button>';}
-    return '<div class="member-card" onclick="showView(\'profile\',{userId:\''+p.id+'\'})">'
+    const skinId=p.skin||'obsidian';
+    const skinDef=SKINS.find(s=>s.id===skinId)||SKINS[0];
+    const hasSkin=skinId!=='obsidian';
+    const cardClass='member-card'+(hasSkin?' has-skin':'');
+    const mcStyle=hasSkin?' style="--mc-text:'+skinDef.dot+';--mc-muted:'+skinDef.dot+'88;--mc-accent:'+skinDef.dot+'"':'';
+    const canvasEl=hasSkin?'<canvas class="member-card-canvas" data-skin="'+skinId+'"></canvas>':'';
+    return '<div class="'+cardClass+'"'+mcStyle+' onclick="showView(\'profile\',{userId:\''+p.id+'\'})">'
+      +canvasEl
       +'<div class="member-avatar" style="background:'+p.color+'22;color:'+p.color+'">'+getAvatar(p)+'</div>'
       +'<div class="member-name">'+esc(p.display_name)+(me?' ⭐':'')+'</div>'
       +'<div class="member-username">@'+esc(p.username)+'</div>'
       +'<div class="member-picks">'+n+' pick'+(n!==1?'s':'')+'</div>'
       +followBtn+'</div>';
   }).join('');
+  animateMemberCards();
 }
 
 async function toggleMemberFollow(userId,isFollowing,btn){
@@ -1676,6 +1694,52 @@ async function toggleMemberFollow(userId,isFollowing,btn){
   btn.disabled=false;
 }
 
+
+// ── MEMBER CARD SKIN ANIMATION ──
+const _memberCardAnimations = new Map(); // cardCanvas -> rafId
+
+function animateMemberCards() {
+  // Cancel any running card animations
+  _memberCardAnimations.forEach(id => cancelAnimationFrame(id));
+  _memberCardAnimations.clear();
+
+  document.querySelectorAll('.member-card-canvas[data-skin]').forEach(canvas => {
+    const skinId = canvas.dataset.skin;
+    const drawFn = { 
+      vinyl: drawSceneVinyl, midnight: drawSceneMidnight, lofi: drawSceneLofi,
+      cassette: drawSceneCassette, dino: drawSceneDino, weather: drawSceneWeather,
+      alien: drawSceneAlien, cowboy: drawSceneCowboy, jazz: drawSceneJazz,
+      n64: drawSceneN64, ps1: drawScenePS1, hollywood: drawSceneHollywood,
+      divebar: drawSceneDiveBar, records: drawSceneRecords, sports: drawSceneSports,
+      instruments: drawSceneInstruments, movieprops: drawSceneMovieProps,
+      war: drawSceneWar, hotwheels: drawSceneHotWheels, petsgrid: drawScenePetsGrid,
+      cafe: drawSceneCafe, cocktails: drawSceneCocktails,
+    }[skinId];
+    if (!drawFn) return;
+
+    const card = canvas.parentElement;
+    const resize = () => {
+      canvas.width = card.offsetWidth;
+      canvas.height = card.offsetHeight;
+    };
+    resize();
+
+    const start = performance.now();
+    const ctx = canvas.getContext('2d');
+
+    const loop = () => {
+      const t = (performance.now() - start) / 1000;
+      const W = canvas.width, H = canvas.height;
+      if (W === 0 || H === 0) { resize(); }
+      ctx.clearRect(0, 0, W, H);
+      drawFn(ctx, W, H, t, 0);
+      _memberCardAnimations.set(canvas, requestAnimationFrame(loop));
+    };
+    _memberCardAnimations.set(canvas, requestAnimationFrame(loop));
+  });
+}
+
+// Stop member card animations when leaving members view
 // ── SKIN SYSTEM ──
 const SKINS = [
   // ── Color skins ──
