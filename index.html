@@ -129,7 +129,8 @@
   .song-wrap { max-width: 740px; margin: 0 auto; padding: 0 2rem 4rem; }
   .song-topbar { display: flex; align-items: center; justify-content: space-between; padding-top: 1.5rem; margin-bottom: 0.5rem; gap: 1rem; }
   .song-edit-desktop-only { display: inline-flex !important; }
-    .song-edit-shortcut-btn { font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); background: none; border: 1px solid var(--border); border-radius: 3px; padding: 0.3rem 0.65rem; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+    .song-owner-label { font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; letter-spacing: 0.08em; color: var(--white); white-space: nowrap; }
+  .song-edit-shortcut-btn { font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); background: none; border: 1px solid var(--border); border-radius: 3px; padding: 0.3rem 0.65rem; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
   .song-edit-shortcut-btn:hover { color: var(--white); border-color: var(--red-dim); }
   .song-hero-buttons { display: none; }
   .song-hero { padding: 2.5rem 0 2rem; border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 180px 1fr; gap: 2rem; align-items: start; }
@@ -2860,13 +2861,13 @@ async function renderSongDetail(opts){
 
   document.getElementById('song-content').innerHTML=
     '<div class="song-hero">'+artHtml
-    +'<div><div class="song-badge">Week '+week+' \u00b7 '+getWeekRange(week,year)+' \u00b7 '+esc(profile.display_name)+'\'s Pick</div>'
+    +'<div><div class="song-badge">Week '+week+' \u00b7 '+getWeekRange(week,year)+'</div>'
     +'<div class="song-title">'+esc(pick.song)+'</div>'
     +'<div class="song-artist">'+esc(pick.artist)+(pick.release_year?' \u00b7 '+pick.release_year:'')+'</div>'
     +mobileButtonsHtml
     +'</div></div>'
     +(pick.note?'<p style="margin-top:1.25rem;font-size:0.95rem;line-height:1.75;color:var(--text-muted);border-left:2px solid var(--red-dim);padding-left:1rem;font-style:italic">"'+esc(pick.note)+'"</p>':'')
-    +(!isGuest&&userId===currentUser.id?'<button class="btn btn-ghost" style="margin-top:1.25rem;font-size:0.62rem;display:none" class="song-edit-desktop-btn" onclick="openPickModal('+week+','+year+')">✏ Edit This Pick</button>':'')
+    +(!isGuest&&userId===currentUser.id?'<button class="btn btn-ghost song-edit-desktop-only" style="margin-top:1.25rem;font-size:0.62rem" onclick="openPickModal('+week+','+year+')">✏ Edit This Pick</button>':'')
     +(!isGuest&&userId!==currentUser.id
       ?'<div style="margin-top:1.25rem"><button class="reaction-btn'+(myReaction?' reacted':'')+'" id="detail-reaction-btn" onclick="toggleReaction(\''+pick.id+'\',\''+userId+'\',this)">👍 <span class="reaction-count">'+reactionCount+'</span> '+(myReaction?'Liked':'Like this pick')+'</button></div>'
       :reactionCount?'<div style="margin-top:1rem;font-family:\'IBM Plex Mono\',monospace;font-size:0.65rem;color:var(--text-muted)">'+reactionCount+' 👍</div>':'')
@@ -2894,14 +2895,15 @@ async function renderSongDetail(opts){
   loadComments(pick.id);
   renderAboutSong(pick);
 
-  // Populate mobile edit shortcut in topbar
+  // Populate topbar right slot: edit button for own pick, owner name for others
   const editShortEl = document.getElementById('song-edit-shortcut');
   if(editShortEl){
     if(!isGuest && userId === currentUser.id){
       editShortEl.style.display = 'block';
       editShortEl.innerHTML = '<button class="song-edit-shortcut-btn" onclick="openPickModal('+week+','+year+')">✏ Edit Pick</button>';
     } else {
-      editShortEl.style.display = 'none';
+      editShortEl.style.display = 'block';
+      editShortEl.innerHTML = '<span class="song-owner-label">'+esc(profile.display_name)+'\'s Pick</span>';
     }
   }
 
@@ -2920,6 +2922,11 @@ function renderAboutSong(pick) {
   if (!section) return;
   const isKevin = currentProfile && currentProfile.username === 'kevinbab7';
   const canEdit = devMode() && isKevin;
+  // Sync currentPick in case it was updated
+  if (currentPick && currentPick.id === pick.id) {
+    pick = currentPick;
+  }
+  console.log('[AboutSong] pick.id=', pick.id, 'about_song=', pick.about_song);
 
   if (pick.about_song) {
     section.innerHTML =
