@@ -127,6 +127,11 @@
   .wk-arrow { color: var(--text-dim); font-size: 0.85rem; }
   .week-row:hover .wk-arrow { color: var(--red); }
   .song-wrap { max-width: 740px; margin: 0 auto; padding: 0 2rem 4rem; }
+  .song-topbar { display: flex; align-items: center; justify-content: space-between; padding-top: 1.5rem; margin-bottom: 0.5rem; gap: 1rem; }
+  .song-edit-desktop-only { display: inline-flex !important; }
+    .song-edit-shortcut-btn { font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); background: none; border: 1px solid var(--border); border-radius: 3px; padding: 0.3rem 0.65rem; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+  .song-edit-shortcut-btn:hover { color: var(--white); border-color: var(--red-dim); }
+  .song-hero-buttons { display: none; }
   .song-hero { padding: 2.5rem 0 2rem; border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 180px 1fr; gap: 2rem; align-items: start; }
   .song-hero-art { width: 180px; height: 180px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border); }
   .song-hero-art-ph { width: 180px; height: 180px; border-radius: 4px; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 4rem; opacity: 0.12; }
@@ -196,9 +201,16 @@
   .mobile-pick-btn:hover { background: var(--red-bright); transform: scale(1.08); }
   @media (max-width: 650px) { .mobile-nav { display: block; } body { padding-bottom: 80px; } nav .btn-primary { display: none; } }
   @media (max-width: 650px) {
-    .song-hero { grid-template-columns: 1fr; }
-    .song-hero-art, .song-hero-art-ph { width: 100%; height: 220px; }
-    .song-title { font-size: 2rem; }
+    .song-hero { grid-template-columns: 1fr 1fr; gap: 1rem; align-items: start; }
+    .song-hero-art, .song-hero-art-ph { width: 100%; height: auto; aspect-ratio: 1; }
+    .song-title { font-size: 1.7rem; }
+    .song-hero-buttons { display: flex !important; flex-direction: column; gap: 0.6rem; margin-top: 0.75rem; }
+    .song-hero-btn { display: flex; align-items: center; justify-content: center; gap: 0.4rem; border: none; border-radius: 6px; font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 0.65rem 0.4rem; cursor: pointer; transition: all 0.15s; width: 100%; text-decoration: none; text-align: center; box-sizing: border-box; }
+    .song-hero-btn-preview { background: #1db954; color: white; }
+    .song-hero-btn-spotify { background: rgba(29,185,84,0.12); color: #1db954; border: 1px solid rgba(29,185,84,0.5); }
+    .song-hero-btn-youtube { background: #ff0000; color: white; }
+    .song-detail-listen-desktop { display: none !important; }
+    .song-edit-desktop-only { display: none !important; }
     .similar-grid, .form-row { grid-template-columns: 1fr; }
     .week-row { grid-template-columns: 44px 1fr auto; gap: 0.7rem; }
     .week-row > div:nth-child(2) { display: none; }
@@ -1041,8 +1053,9 @@
 <!-- SONG DETAIL -->
 <div class="view" id="view-songdetail">
   <div class="song-wrap">
-    <div style="padding-top:1.5rem;margin-bottom:0.5rem">
+    <div class="song-topbar">
       <button class="back-btn" id="song-back">← Back to Profile</button>
+      <span id="song-edit-shortcut" style="display:none"></span>
     </div>
     <div id="song-content"></div>
   </div>
@@ -2820,18 +2833,44 @@ async function renderSongDetail(opts){
   }
 
   // Render page — About and Vibes start hidden, autoEnrich always fills them in
+  // Build mobile inline buttons (hidden on desktop via CSS)
+  let mobileButtonsHtml = '';
+  if(pick.spotify_url){
+    const trackId2 = pick.spotify_url.split('/track/').pop().split('?')[0];
+    const isMob = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const spotHref = isMob ? 'spotify:track:'+trackId2 : 'https://open.spotify.com/track/'+trackId2;
+    mobileButtonsHtml = '<div class="song-hero-buttons">'
+      +'<button class="song-hero-btn song-hero-btn-preview" onclick="toggleSpotifyPreview(\''+trackId2+'\',this)"><span style="font-size:0.9rem">▶</span> Play Preview</button>'
+      +'<a class="song-hero-btn song-hero-btn-spotify" href="'+spotHref+'" target="_blank" rel="noopener"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg> Full Song ↗</a>'
+      +'</div>';
+  } else if(pick.youtube_url){
+    let ytId2=''; const m2=pick.youtube_url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/); if(m2)ytId2=m2[1];
+    if(ytId2) mobileButtonsHtml = '<div class="song-hero-buttons">'
+      +'<a class="song-hero-btn song-hero-btn-youtube" href="'+pick.youtube_url+'" target="_blank" rel="noopener">▶ Full Song on YouTube</a>'
+      +'</div>';
+  }
+
+  // Wrap playerHtml with desktop-only class so it hides on mobile
+  const playerHtmlDesktop = playerHtml ? playerHtml.replace('<div class="detail-sec">', '<div class="detail-sec song-detail-listen-desktop">') : '';
+
+  // Edit shortcut for mobile topbar (populated after render)
+  const editShortcutHtml = (!isGuest&&userId===currentUser.id)
+    ? '<button class="song-edit-shortcut-btn" onclick="openPickModal('+week+','+year+')">✏ Edit Pick</button>'
+    : '';
+
   document.getElementById('song-content').innerHTML=
     '<div class="song-hero">'+artHtml
     +'<div><div class="song-badge">Week '+week+' \u00b7 '+getWeekRange(week,year)+' \u00b7 '+esc(profile.display_name)+'\'s Pick</div>'
     +'<div class="song-title">'+esc(pick.song)+'</div>'
     +'<div class="song-artist">'+esc(pick.artist)+(pick.release_year?' \u00b7 '+pick.release_year:'')+'</div>'
-    +(pick.note?'<p style="margin-top:1rem;font-size:0.95rem;line-height:1.75;color:var(--text-muted);border-left:2px solid var(--red-dim);padding-left:1rem;font-style:italic">"'+esc(pick.note)+'"</p>':'')
-    +(!isGuest&&userId===currentUser.id?'<button class="btn btn-ghost" style="margin-top:1.25rem;font-size:0.62rem" onclick="openPickModal('+week+','+year+')">✏ Edit This Pick</button>':'')
+    +mobileButtonsHtml
+    +'</div></div>'
+    +(pick.note?'<p style="margin-top:1.25rem;font-size:0.95rem;line-height:1.75;color:var(--text-muted);border-left:2px solid var(--red-dim);padding-left:1rem;font-style:italic">"'+esc(pick.note)+'"</p>':'')
+    +(!isGuest&&userId===currentUser.id?'<button class="btn btn-ghost" style="margin-top:1.25rem;font-size:0.62rem;display:none" class="song-edit-desktop-btn" onclick="openPickModal('+week+','+year+')">✏ Edit This Pick</button>':'')
     +(!isGuest&&userId!==currentUser.id
       ?'<div style="margin-top:1.25rem"><button class="reaction-btn'+(myReaction?' reacted':'')+'" id="detail-reaction-btn" onclick="toggleReaction(\''+pick.id+'\',\''+userId+'\',this)">👍 <span class="reaction-count">'+reactionCount+'</span> '+(myReaction?'Liked':'Like this pick')+'</button></div>'
       :reactionCount?'<div style="margin-top:1rem;font-family:\'IBM Plex Mono\',monospace;font-size:0.65rem;color:var(--text-muted)">'+reactionCount+' 👍</div>':'')
-    +'</div></div>'
-    +playerHtml
+    +playerHtmlDesktop
     +'<div id="about-song-section"></div>'
     +'<div class="comments-section" id="comments-section"><h3>💬 Comments</h3>'
     +(!isGuest?'<div class="comment-input-row"><textarea id="new-comment-text" placeholder="Say something about this pick..." rows="2"></textarea><button class="btn btn-primary" onclick="postComment(\''+pick.id+'\')">Post</button></div>':'<p style="font-family:\'IBM Plex Mono\',monospace;font-size:0.68rem;color:var(--text-muted);margin-bottom:1rem"><a onclick="showView(\'auth\')" style="color:var(--red);cursor:pointer;text-decoration:underline">Sign in</a> to leave a comment.</p>')
@@ -2854,6 +2893,25 @@ async function renderSongDetail(opts){
   fetchSimilarArtistsAI(pick);
   loadComments(pick.id);
   renderAboutSong(pick);
+
+  // Populate mobile edit shortcut in topbar
+  const editShortEl = document.getElementById('song-edit-shortcut');
+  if(editShortEl){
+    if(!isGuest && userId === currentUser.id){
+      editShortEl.style.display = 'block';
+      editShortEl.innerHTML = '<button class="song-edit-shortcut-btn" onclick="openPickModal('+week+','+year+')">✏ Edit Pick</button>';
+    } else {
+      editShortEl.style.display = 'none';
+    }
+  }
+
+  // Show desktop edit button (override the inline display:none we set)
+  const desktopEditBtn = document.querySelector('.song-edit-desktop-btn');
+  if(desktopEditBtn){
+    // Only show on desktop - CSS media query handles this via a class
+    desktopEditBtn.style.removeProperty('display');
+    desktopEditBtn.classList.add('song-edit-desktop-only');
+  }
 }
 
 // ── ABOUT THIS SONG ──
