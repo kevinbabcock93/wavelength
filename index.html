@@ -133,6 +133,7 @@
   .song-edit-shortcut-btn { font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); background: none; border: 1px solid var(--border); border-radius: 3px; padding: 0.3rem 0.65rem; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
   .song-edit-shortcut-btn:hover { color: var(--white); border-color: var(--red-dim); }
   .song-hero-buttons { display: none; }
+  .desktop-hero-btns { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; margin-top: 1rem; }
   .song-hero { padding: 2.5rem 0 2rem; border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 180px 1fr; gap: 2rem; align-items: start; }
   .song-hero-art { width: 180px; height: 180px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border); }
   .song-hero-art-ph { width: 180px; height: 180px; border-radius: 4px; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 4rem; opacity: 0.12; }
@@ -212,6 +213,7 @@
     .song-hero-btn-youtube { background: #ff0000; color: white; }
     .song-detail-listen-desktop { display: none !important; }
     .song-edit-desktop-only { display: none !important; }
+    .desktop-hero-btns { display: none !important; }
     .similar-grid, .form-row { grid-template-columns: 1fr; }
     .week-row { grid-template-columns: 44px 1fr auto; gap: 0.7rem; }
     .week-row > div:nth-child(2) { display: none; }
@@ -2820,18 +2822,20 @@ async function renderSongDetail(opts){
     ?'<img class="song-hero-art" src="'+esc(pick.art_url)+'" alt="Album art" onerror="this.outerHTML=\'<div class=\\\'song-hero-art-ph\\\'>🎵</div>\'">'
     :'<div class="song-hero-art-ph">🎵</div>';
 
-  let playerHtml='';
+  // Desktop inline buttons (inside hero, side by side)
+  let desktopHeroBtns = '';
+  // preview-player container always needed for Spotify preview embed
+  let previewPlayerHtml = pick.spotify_url ? '<div id="preview-player" style="margin-top:0.85rem"></div>' : '';
   if(pick.spotify_url){
     const trackId=pick.spotify_url.split('/track/').pop().split('?')[0];
     const isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     const spotifyHref=isMobile?'spotify:track:'+trackId:'https://open.spotify.com/track/'+trackId;
-    const previewBtn='<button onclick="toggleSpotifyPreview(\''+trackId+'\',this)" style="display:inline-flex;align-items:center;gap:0.6rem;background:#1db954;border:none;border-radius:6px;color:white;font-family:\'IBM Plex Mono\',monospace;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:0.65rem 1.2rem;cursor:pointer;transition:all 0.15s;box-shadow:0 2px 12px rgba(29,185,84,0.35)" onmouseover="this.style.background=\'#1ed760\';this.style.transform=\'translateY(-1px)\'" onmouseout="this.style.background=\'#1db954\';this.style.transform=\'none\'"><span style="font-size:1rem;line-height:1">▶</span> Play Preview <span style="font-size:0.58rem;opacity:0.8;font-weight:400;text-transform:none;letter-spacing:0">(plays here)</span></button>';
-    const spotifyBtn='<a class="play-on-spotify-btn" href="'+spotifyHref+'" target="_blank" rel="noopener" style="opacity:0.75"><svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>Full Song ↗</a>';
-    playerHtml='<div class="detail-sec"><h3>🎵 Listen</h3><div style="display:flex;flex-wrap:wrap;gap:0.75rem;align-items:center;margin-top:0.6rem">'+previewBtn+spotifyBtn+'</div><div id="preview-player" style="margin-top:0.85rem"></div></div>';
+    desktopHeroBtns='<div class="desktop-hero-btns">'      +'<button onclick="toggleSpotifyPreview(\''+trackId+'\',this)" style="display:inline-flex;align-items:center;gap:0.6rem;background:#1db954;border:none;border-radius:6px;color:white;font-family:\'IBM Plex Mono\',monospace;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:0.65rem 1.2rem;cursor:pointer;transition:all 0.15s;box-shadow:0 2px 12px rgba(29,185,84,0.35)" onmouseover="this.style.background=\'#1ed760\';this.style.transform=\'translateY(-1px)\'" onmouseout="this.style.background=\'#1db954\';this.style.transform=\'none\'"><span style="font-size:1rem;line-height:1">▶</span> Play Preview <span style="font-size:0.58rem;opacity:0.8;font-weight:400;text-transform:none;letter-spacing:0">(plays here)</span></button>'      +'<a class="play-on-spotify-btn" href="'+spotifyHref+'" target="_blank" rel="noopener" style="opacity:0.75"><svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>Full Song ↗</a>'      +'</div>';
   } else if(pick.youtube_url){
     let ytId='';const m=pick.youtube_url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);if(m)ytId=m[1];
-    if(ytId)playerHtml='<div class="detail-sec"><h3>🎵 Listen</h3><div style="display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center;margin-top:0.5rem"><a class="play-on-youtube-btn" href="'+pick.youtube_url+'" target="_blank" rel="noopener">▶ Full Song on YouTube</a></div></div>';
+    if(ytId) desktopHeroBtns='<div class="desktop-hero-btns"><a class="play-on-youtube-btn" href="'+pick.youtube_url+'" target="_blank" rel="noopener">▶ Full Song on YouTube</a></div>';
   }
+  let playerHtml = ''; // kept for mobile compat but no longer used on desktop
 
   // Render page — About and Vibes start hidden, autoEnrich always fills them in
   // Build mobile inline buttons (hidden on desktop via CSS)
@@ -2864,14 +2868,14 @@ async function renderSongDetail(opts){
     +'<div><div class="song-badge">Week '+week+' \u00b7 '+getWeekRange(week,year)+'</div>'
     +'<div class="song-title">'+esc(pick.song)+'</div>'
     +'<div class="song-artist">'+esc(pick.artist)+(pick.release_year?' \u00b7 '+pick.release_year:'')+'</div>'
+    +desktopHeroBtns
     +mobileButtonsHtml
     +'</div></div>'
+    +previewPlayerHtml
     +(pick.note?'<p style="margin-top:1.25rem;font-size:0.95rem;line-height:1.75;color:var(--text-muted);border-left:2px solid var(--red-dim);padding-left:1rem;font-style:italic">"'+esc(pick.note)+'"</p>':'')
-    +(!isGuest&&userId===currentUser.id?'<button class="btn btn-ghost song-edit-desktop-only" style="margin-top:1.25rem;font-size:0.62rem" onclick="openPickModal('+week+','+year+')">✏ Edit This Pick</button>':'')
     +(!isGuest&&userId!==currentUser.id
       ?'<div style="margin-top:1.25rem"><button class="reaction-btn'+(myReaction?' reacted':'')+'" id="detail-reaction-btn" onclick="toggleReaction(\''+pick.id+'\',\''+userId+'\',this)">👍 <span class="reaction-count">'+reactionCount+'</span> '+(myReaction?'Liked':'Like this pick')+'</button></div>'
       :reactionCount?'<div style="margin-top:1rem;font-family:\'IBM Plex Mono\',monospace;font-size:0.65rem;color:var(--text-muted)">'+reactionCount+' 👍</div>':'')
-    +playerHtmlDesktop
     +'<div id="about-song-section"></div>'
     +'<div class="comments-section" id="comments-section"><h3>💬 Comments</h3>'
     +(!isGuest?'<div class="comment-input-row"><textarea id="new-comment-text" placeholder="Say something about this pick..." rows="2"></textarea><button class="btn btn-primary" onclick="postComment(\''+pick.id+'\')">Post</button></div>':'<p style="font-family:\'IBM Plex Mono\',monospace;font-size:0.68rem;color:var(--text-muted);margin-bottom:1rem"><a onclick="showView(\'auth\')" style="color:var(--red);cursor:pointer;text-decoration:underline">Sign in</a> to leave a comment.</p>')
@@ -2969,8 +2973,25 @@ async function saveAboutSong() {
   const btn = document.querySelector('.about-song-editor .btn-primary');
   if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
 
-  const { error } = await sb.from('picks').update({ about_song: text || null }).eq('id', currentPick.id);
-  if (error) { showToast('Error saving'); if (btn) { btn.disabled = false; btn.textContent = 'Save'; } return; }
+  const { data, error, count } = await sb.from('picks')
+    .update({ about_song: text || null }, { count: 'exact' })
+    .eq('id', currentPick.id)
+    .select('about_song');
+
+  console.log('[saveAboutSong] data:', data, 'error:', error, 'count:', count);
+
+  if (error) {
+    showToast('Error: ' + error.message);
+    if (btn) { btn.disabled = false; btn.textContent = 'Save'; }
+    return;
+  }
+
+  // If RLS blocked it, data will be empty even with no error
+  if (!data || data.length === 0) {
+    showToast('Save blocked — check Supabase RLS policy for picks table');
+    if (btn) { btn.disabled = false; btn.textContent = 'Save'; }
+    return;
+  }
 
   currentPick.about_song = text || null;
   renderAboutSong(currentPick);
