@@ -136,7 +136,17 @@
   .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
   .tag { font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.08em; padding: 0.35rem 0.8rem; border-radius: 20px; background: rgba(204,17,17,0.12); border: 1px solid var(--red-dim); color: var(--red); transition: all 0.15s; }
   .tag:hover { background: rgba(204,17,17,0.22); border-color: var(--red); }
-  .detail-sec { padding: 1.75rem 0; border-bottom: 1px solid var(--border); }
+  /* ── ABOUT THIS SONG ── */
+  .about-song-section { margin: 1.5rem 0; padding: 1.25rem 1.5rem; background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--red-dim); border-radius: 4px; }
+  .about-song-section h3 { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--red); margin-bottom: 0.85rem; }
+  .about-song-content { font-size: 0.95rem; line-height: 1.8; color: var(--text-muted); white-space: pre-wrap; }
+  .about-song-edit-btn { margin-top: 0.85rem; font-size: 0.58rem; }
+  .about-song-editor { margin: 1.5rem 0; padding: 1.25rem 1.5rem; background: var(--surface); border: 1px solid rgba(255,200,0,0.3); border-radius: 4px; }
+  .about-song-editor label { display: block; font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(255,200,0,0.7); margin-bottom: 0.6rem; }
+  .about-song-editor textarea { width: 100%; background: var(--surface2); border: 1px solid rgba(255,200,0,0.2); border-radius: 3px; color: var(--text); font-family: 'Crimson Pro', serif; font-size: 0.95rem; line-height: 1.7; padding: 0.75rem; resize: vertical; min-height: 120px; }
+  .about-song-editor textarea:focus { outline: none; border-color: rgba(255,200,0,0.5); }
+  .about-song-editor-actions { display: flex; gap: 0.6rem; margin-top: 0.75rem; }
+    .detail-sec { padding: 1.75rem 0; border-bottom: 1px solid var(--border); }
   .detail-sec:last-child { border-bottom: none; }
   .detail-sec h3 { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.16em; color: var(--red-dim); margin-bottom: 1.1rem; }
   .detail-sec p { font-size: 1rem; line-height: 1.75; color: var(--text-muted); }
@@ -2822,6 +2832,7 @@ async function renderSongDetail(opts){
       :reactionCount?'<div style="margin-top:1rem;font-family:\'IBM Plex Mono\',monospace;font-size:0.65rem;color:var(--text-muted)">'+reactionCount+' 👍</div>':'')
     +'</div></div>'
     +playerHtml
+    +'<div id="about-song-section"></div>'
     +'<div class="comments-section" id="comments-section"><h3>💬 Comments</h3>'
     +(!isGuest?'<div class="comment-input-row"><textarea id="new-comment-text" placeholder="Say something about this pick..." rows="2"></textarea><button class="btn btn-primary" onclick="postComment(\''+pick.id+'\')">Post</button></div>':'<p style="font-family:\'IBM Plex Mono\',monospace;font-size:0.68rem;color:var(--text-muted);margin-bottom:1rem"><a onclick="showView(\'auth\')" style="color:var(--red);cursor:pointer;text-decoration:underline">Sign in</a> to leave a comment.</p>')
     +'<div id="comments-list"><div class="comments-empty">Loading...</div></div></div>'
@@ -2842,7 +2853,74 @@ async function renderSongDetail(opts){
   autoEnrichSongDetail(pick);
   fetchSimilarArtistsAI(pick);
   loadComments(pick.id);
+  renderAboutSong(pick);
 }
+
+// ── ABOUT THIS SONG ──
+function renderAboutSong(pick) {
+  const section = document.getElementById('about-song-section');
+  if (!section) return;
+  const isKevin = currentProfile && currentProfile.username === 'kevinbab7';
+  const canEdit = devMode() && isKevin;
+
+  if (pick.about_song) {
+    section.innerHTML =
+      '<div class="about-song-section">'
+      + '<h3>📖 About This Song</h3>'
+      + '<div class="about-song-content" id="about-song-content">' + esc(pick.about_song) + '</div>'
+      + (canEdit ? '<button class="btn btn-ghost about-song-edit-btn" onclick="openAboutSongEditor()">✏ Edit</button>' : '')
+      + '</div>';
+  } else if (canEdit) {
+    section.innerHTML =
+      '<button class="btn btn-ghost" onclick="openAboutSongEditor()" '
+      + 'style="font-size:0.58rem;margin:0.5rem 0 1rem;opacity:0.7;color:rgba(255,200,0,0.8);border-color:rgba(255,200,0,0.3)">'
+      + '＋ Add About This Song</button>';
+  }
+}
+
+function openAboutSongEditor() {
+  if (!currentPick) return;
+  const existing = currentPick.about_song || '';
+  const section = document.getElementById('about-song-section');
+  if (!section) return;
+
+  section.innerHTML =
+    '<div class="about-song-editor">'
+    + '<label>📖 About This Song <span style="opacity:0.5">(only you can edit · visible to everyone when saved)</span></label>'
+    + '<textarea id="about-song-textarea" placeholder="Paste the About This Song content from Spotify here...">' + esc(existing) + '</textarea>'
+    + '<div class="about-song-editor-actions">'
+    + '<button class="btn btn-primary" style="font-size:0.65rem" onclick="saveAboutSong()">Save</button>'
+    + '<button class="btn btn-ghost" style="font-size:0.65rem" onclick="renderAboutSong(currentPick)">Cancel</button>'
+    + (existing ? '<button class="btn btn-ghost" style="font-size:0.65rem;color:var(--text-dim)" onclick="clearAboutSong()">Clear</button>' : '')
+    + '</div>'
+    + '</div>';
+
+  document.getElementById('about-song-textarea').focus();
+}
+
+async function saveAboutSong() {
+  if (!currentPick) return;
+  const text = document.getElementById('about-song-textarea').value.trim();
+  const btn = document.querySelector('.about-song-editor .btn-primary');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
+
+  const { error } = await sb.from('picks').update({ about_song: text || null }).eq('id', currentPick.id);
+  if (error) { showToast('Error saving'); if (btn) { btn.disabled = false; btn.textContent = 'Save'; } return; }
+
+  currentPick.about_song = text || null;
+  renderAboutSong(currentPick);
+  showToast(text ? 'About This Song saved ✓' : 'Removed About This Song');
+}
+
+async function clearAboutSong() {
+  if (!currentPick) return;
+  if (!confirm('Remove About This Song content?')) return;
+  currentPick.about_song = null;
+  await sb.from('picks').update({ about_song: null }).eq('id', currentPick.id);
+  renderAboutSong(currentPick);
+  showToast('Cleared');
+}
+
 
 // ── ENRICHMENT — tries every source until something is found ──
 async function autoEnrichSongDetail(pick){
