@@ -2825,7 +2825,7 @@ async function renderSongDetail(opts){
   // Desktop inline buttons (inside hero, side by side)
   let desktopHeroBtns = '';
   // preview-player container always needed for Spotify preview embed
-  let previewPlayerHtml = pick.spotify_url ? '<div id="preview-player" style="margin-top:0.85rem"></div>' : '';
+  let previewPlayerHtml = pick.spotify_url ? '<div class="desktop-hero-btns" style="margin-top:0"><div id="preview-player" style="width:100%"></div></div>' : '';
   if(pick.spotify_url){
     const trackId=pick.spotify_url.split('/track/').pop().split('?')[0];
     const isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -3010,7 +3010,7 @@ async function clearAboutSong() {
 
 // ── ENRICHMENT — tries every source until something is found ──
 async function autoEnrichSongDetail(pick){
-  const cacheKey = 'enrich6_' + (pick.artist||'').toLowerCase().replace(/\s+/g,'_');
+  const cacheKey = 'enrich7_' + (pick.artist||'').toLowerCase().replace(/\s+/g,'_');
   const cached = sessionStorage.getItem(cacheKey);
   if(cached){
     try{ applyEnrichment(pick, JSON.parse(cached)); return; } catch(e){}
@@ -3275,7 +3275,7 @@ async function forceRefreshSimilarArtists(){
   if(!currentPick) return;
   // Clear all possible session cache variants
   const artistKey = (currentPick.artist||'').toLowerCase().replace(/\s+/g,'_');
-  ['similar3_','similar4_','similar5_'].forEach(prefix => sessionStorage.removeItem(prefix+artistKey));
+  ['similar3_','similar4_','similar6_'].forEach(prefix => sessionStorage.removeItem(prefix+artistKey));
   // Clear DB so fresh data gets saved
   await sb.from('picks').update({related_artists: null}).eq('id', currentPick.id);
   currentPick.related_artists = null;
@@ -3284,7 +3284,7 @@ async function forceRefreshSimilarArtists(){
 }
 
 async function fetchSimilarArtistsAI(pick){
-  const cacheKey = 'similar5_' + (pick.artist||'').toLowerCase().replace(/\s+/g,'_');
+  const cacheKey = 'similar6_' + (pick.artist||'').toLowerCase().replace(/\s+/g,'_');
   const cached = sessionStorage.getItem(cacheKey);
   if(cached){
     try{ applySimilarArtists(pick, JSON.parse(cached)); return; } catch(e){}
@@ -3350,11 +3350,12 @@ async function applySimilarArtists(pick, artists){
   // Show names first with placeholders
   renderGrid(artists.map(name=>({name, img:null, spotifyId:null})), false);
 
-  // Fetch artist images from Spotify in parallel
+  // Fetch artist images from Spotify sequentially to avoid rate limits
   try{
     const token = await getSpotifyToken();
     if(!token) return;
-    const enriched = await Promise.all(artists.map(async name => {
+    const enriched = [];
+    for(const name of artists){
       try{
         const data = await spotifyFetch(
           'https://api.spotify.com/v1/search?q='+encodeURIComponent(name)+'&type=artist&limit=1', token
@@ -3364,9 +3365,14 @@ async function applySimilarArtists(pick, artists){
           || artist && artist.images && artist.images[0] && artist.images[0].url
           || null;
         const spotifyId = artist && artist.id || null;
-        return {name, img, spotifyId};
-      } catch(e){ return {name, img:null, spotifyId:null}; }
-    }));
+        enriched.push({name, img, spotifyId});
+      } catch(e){
+        enriched.push({name, img:null, spotifyId:null});
+        if(e.message && e.message.includes('rate limit')) break; // stop on rate limit
+      }
+      // Small delay between requests to avoid hammering
+      await new Promise(r=>setTimeout(r,120));
+    }
     renderGrid(enriched, true);
   } catch(e){
     // Images failed but names are already showing — that's fine
@@ -3796,15 +3802,25 @@ async function getSpotifyToken(){
   const cached=localStorage.getItem('sp_token');
   const expiry=parseInt(localStorage.getItem('sp_token_expiry')||'0');
   if(cached&&Date.now()<expiry)return cached;
+  // If rate-limited recently, don't hammer the endpoint
+  const rateLimitUntil=parseInt(localStorage.getItem('sp_rate_limit_until')||'0');
+  if(Date.now()<rateLimitUntil)throw new Error('Spotify rate limited — try again soon');
   if(getSpotifyToken._pending)return getSpotifyToken._pending;
   getSpotifyToken._pending=fetch('https://accounts.spotify.com/api/token',{
     method:'POST',
     headers:{'Content-Type':'application/x-www-form-urlencoded'},
     body:'grant_type=client_credentials&client_id='+SPOTIFY_CLIENT_ID+'&client_secret='+SPOTIFY_CLIENT_SECRET
   }).then(async r=>{
+    if(r.status===429){
+      const retryAfter=(parseInt(r.headers.get('Retry-After')||'60'))*1000;
+      localStorage.setItem('sp_rate_limit_until',Date.now()+retryAfter);
+      getSpotifyToken._pending=null;
+      throw new Error('Spotify rate limited');
+    }
     const text=await r.text();
-    let data;try{data=JSON.parse(text);}catch(e){throw new Error('Spotify rate limited');}
+    let data;try{data=JSON.parse(text);}catch(e){throw new Error('Spotify parse error');}
     if(!data.access_token)throw new Error('Spotify error: '+(data.error_description||data.error||JSON.stringify(data)));
+    localStorage.removeItem('sp_rate_limit_until');
     localStorage.setItem('sp_token',data.access_token);
     localStorage.setItem('sp_token_expiry',Date.now()+(data.expires_in-120)*1000);
     getSpotifyToken._pending=null;
@@ -3815,8 +3831,21 @@ async function getSpotifyToken(){
 
 async function spotifyFetch(url,token){
   const r=await fetch(url,{headers:{'Authorization':'Bearer '+token}});
+  if(r.status===429){
+    const retryAfter=(parseInt(r.headers.get('Retry-After')||'60'))*1000;
+    localStorage.setItem('sp_rate_limit_until',Date.now()+retryAfter);
+    // Invalidate cached token so next attempt gets a fresh one
+    localStorage.removeItem('sp_token');
+    throw new Error('Spotify rate limited');
+  }
+  if(r.status===401){
+    // Token expired mid-session — clear it so next call re-fetches
+    localStorage.removeItem('sp_token');
+    localStorage.removeItem('sp_token_expiry');
+    throw new Error('Spotify token expired');
+  }
   const text=await r.text();
-  try{return JSON.parse(text);}catch(e){throw new Error('Spotify rate limited');}
+  try{return JSON.parse(text);}catch(e){throw new Error('Spotify parse error');}
 }
 
 function debounceSpotifySearch(){
