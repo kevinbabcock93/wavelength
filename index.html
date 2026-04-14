@@ -2825,7 +2825,7 @@ async function renderSongDetail(opts){
   // Desktop inline buttons (inside hero, side by side)
   let desktopHeroBtns = '';
   // preview-player container always needed for Spotify preview embed
-  let previewPlayerHtml = pick.spotify_url ? '<div class="desktop-hero-btns" style="margin-top:0"><div id="preview-player" style="width:100%"></div></div>' : '';
+  let previewPlayerHtml = pick.spotify_url ? '<div id="preview-player" style="margin-top:0.85rem"></div>' : '';
   if(pick.spotify_url){
     const trackId=pick.spotify_url.split('/track/').pop().split('?')[0];
     const isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
