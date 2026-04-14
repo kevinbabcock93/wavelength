@@ -1430,6 +1430,24 @@ async function signOut(){
   showView('auth');
 }
 
+async function autoFollowEveryone() {
+  if (!currentUser) return;
+  try {
+    // Get all profile IDs except own
+    const { data: profiles } = await sb.from('profiles').select('id').neq('id', currentUser.id);
+    if (!profiles || !profiles.length) return;
+    // Get existing follows so we only insert missing ones
+    const { data: existing } = await sb.from('follows').select('following_id').eq('follower_id', currentUser.id);
+    const alreadyFollowing = new Set((existing || []).map(f => f.following_id));
+    const toInsert = profiles
+      .filter(p => !alreadyFollowing.has(p.id))
+      .map(p => ({ follower_id: currentUser.id, following_id: p.id }));
+    if (toInsert.length) {
+      await sb.from('follows').insert(toInsert);
+    }
+  } catch(e) { /* silent — non-critical */ }
+}
+
 async function loadProfileAndContinue(){
   isGuest=false;
   document.getElementById('nav-myprofile').style.display='';
@@ -1449,6 +1467,7 @@ async function loadProfileAndContinue(){
     document.getElementById('notif-bell-wrap').style.display='block';
     maybeShowDevButton();
     loadNotifications();
+    autoFollowEveryone();
     showView('feed');
   } else {
     buildColorPicker('ob-colors',null);
@@ -1470,6 +1489,7 @@ async function createProfile(){
   btn.disabled=false;btn.textContent='Enter Wavelength';
   if(error){err.textContent=error.message.includes('unique')?'That username is taken. Try another.':error.message;return;}
   currentProfile=data;
+  autoFollowEveryone();
   document.getElementById('nav-user').textContent='@'+data.username;
   document.getElementById('mainNav').style.display='flex';
   document.getElementById('mobileNav').style.display='block';
