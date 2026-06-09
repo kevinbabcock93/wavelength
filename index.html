@@ -835,6 +835,53 @@
   .skin-picker-divider { width:1px; height:48px; background:#333; flex-shrink:0; margin:0 0.2rem; align-self:center; }
   .dev-badge { position: fixed; bottom: 1rem; left: 1rem; background: rgba(255,200,0,0.15); border: 1px solid rgba(255,200,0,0.4); color: rgba(255,200,0,0.8); font-family: 'IBM Plex Mono', monospace; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.1em; padding: 0.25rem 0.6rem; border-radius: 3px; z-index: 9998; pointer-events: none; }
   @media (max-width: 650px) { .dev-badge { bottom: 5.5rem; } }
+  /* ── WEEKLY RECAP OVERLAY ── */
+.recap-overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.88); backdrop-filter: blur(14px); display: flex; align-items: center; justify-content: center; padding: 1rem; opacity: 0; transition: opacity 0.35s ease; pointer-events: none; }
+.recap-overlay.open { opacity: 1; pointer-events: all; }
+.recap-modal { background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--red); border-radius: 6px; width: 100%; max-width: 540px; max-height: 92vh; overflow-y: auto; position: relative; animation: recapSlideUp 0.4s cubic-bezier(0.22,1,0.36,1) both; }
+@keyframes recapSlideUp { from { transform: translateY(28px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.recap-close { position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: var(--text-muted); font-size: 1.1rem; cursor: pointer; line-height: 1; transition: color 0.15s; z-index: 2; }
+.recap-close:hover { color: var(--red); }
+.recap-header { padding: 2rem 2rem 1.25rem; border-bottom: 1px solid var(--border); }
+.recap-eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--red); margin-bottom: 0.5rem; }
+.recap-title { font-family: 'Bebas Neue', sans-serif; font-size: 2.4rem; letter-spacing: 0.05em; line-height: 1; color: var(--white); margin-bottom: 0.3rem; }
+.recap-week-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--text-muted); }
+.recap-pick-hero { display: flex; align-items: center; gap: 1rem; padding: 1.25rem 2rem; border-bottom: 1px solid var(--border); background: var(--surface2); }
+.recap-pick-art { width: 64px; height: 64px; border-radius: 4px; object-fit: cover; border: 1px solid var(--border); flex-shrink: 0; }
+.recap-pick-art-ph { width: 64px; height: 64px; border-radius: 4px; background: var(--bg); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; opacity: 0.2; flex-shrink: 0; }
+.recap-pick-song { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; letter-spacing: 0.04em; line-height: 1.1; color: var(--white); }
+.recap-pick-artist { font-size: 0.88rem; color: var(--text-muted); font-style: italic; margin-top: 0.15rem; }
+.recap-no-pick { padding: 1.25rem 2rem; border-bottom: 1px solid var(--border); background: var(--surface2); font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: var(--text-dim); line-height: 1.6; }
+.recap-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border-bottom: 1px solid var(--border); }
+.recap-stat { background: var(--surface); padding: 1.25rem 1rem; text-align: center; }
+.recap-stat-number { font-family: 'Bebas Neue', sans-serif; font-size: 2.4rem; letter-spacing: 0.04em; line-height: 1; color: var(--white); margin-bottom: 0.25rem; }
+.recap-stat-number.has-activity { color: var(--red); }
+.recap-stat-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-dim); }
+.recap-reactors { padding: 1rem 2rem; border-bottom: 1px solid var(--border); }
+.recap-reactors-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text-muted); margin-bottom: 0.6rem; }
+.recap-reactor-list { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.recap-reactor-chip { display: flex; align-items: center; gap: 0.4rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 0.25rem 0.7rem 0.25rem 0.4rem; font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; color: var(--text-muted); }
+.recap-reactor-avatar { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; flex-shrink: 0; }
+.recap-prompt-notice { margin: 1rem 2rem; padding: 0.9rem 1.1rem; background: rgba(255,200,0,0.06); border: 1px solid rgba(255,200,0,0.25); border-left: 3px solid rgba(255,200,0,0.6); border-radius: 4px; }
+.recap-prompt-notice-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.14em; color: rgba(255,200,0,0.7); margin-bottom: 0.4rem; }
+.recap-prompt-notice-text { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; }
+.recap-prompt-notice-text strong { color: var(--white); }
+.recap-cta { padding: 1.5rem 2rem 2rem; }
+.recap-cta-phrase { font-family: 'Crimson Pro', serif; font-size: 1.05rem; color: var(--text-muted); font-style: italic; line-height: 1.6; margin-bottom: 1rem; }
+.recap-cta-phrase strong { color: var(--white); font-style: normal; }
+.recap-cta-actions { display: flex; gap: 0.75rem; align-items: center; }
+.recap-cta-later { background: none; border: none; font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); cursor: pointer; transition: color 0.15s; }
+.recap-cta-later:hover { color: var(--text-muted); }
+@media (max-width: 650px) {
+  .recap-modal { border-radius: 12px 12px 0 0; position: fixed; bottom: 0; left: 0; right: 0; max-width: 100%; max-height: 90vh; }
+  .recap-overlay { align-items: flex-end; padding: 0; }
+  .recap-header { padding: 1.5rem 1.25rem 1rem; }
+  .recap-title { font-size: 1.9rem; }
+  .recap-pick-hero { padding: 1rem 1.25rem; }
+  .recap-reactors { padding: 1rem 1.25rem; }
+  .recap-cta { padding: 1.25rem 1.25rem 1.75rem; }
+  .recap-stat-number { font-size: 1.9rem; }
+}
 </style>
 </head>
 <body>
@@ -1162,6 +1209,15 @@
     <div id="pick-error" class="form-error" style="margin-top:0.5rem"></div>
   </div>
 </div>
+  <!-- WEEKLY RECAP OVERLAY -->
+<div class="recap-overlay" id="recap-overlay">
+  <div class="recap-modal" id="recap-modal">
+    <button class="recap-close" onclick="closeRecapOverlay()" title="Close">&#x2715;</button>
+    <div id="recap-content">
+      <div class="loading-center"><div class="spinner"></div></div>
+    </div>
+  </div>
+</div>
 
 <div class="dev-badge" id="dev-badge" style="display:none">⚙ Dev Mode</div>
 <div class="toast" id="toast"></div>
@@ -1382,6 +1438,7 @@ function browseAsGuest(){
   const mnavProfile=document.getElementById('mnav-myprofile');
   if(mnavProfile)mnavProfile.style.display='none';
   showView('feed');
+maybeShowRecapOverlay();
 }
 
 function switchTab(tab){
@@ -6595,7 +6652,211 @@ function drawSceneCocktails(ctx, W, H, t, py) {
   ctx.fillStyle='rgba(2,8,6,0.28)'; ctx.fillRect(0,0,W,H);
 }
 
+// ── WEEKLY RECAP OVERLAY ──
 
+const RECAP_CTA_PHRASES = [
+  "Everyone's curious what you've been listening to. <strong>Don't keep them waiting.</strong>",
+  "A new week, a new song. <strong>What's been living in your head?</strong>",
+  "Your friends are already making their picks. <strong>Time to show them what you've got.</strong>",
+  "Music is how you mark time. <strong>What's this week's mark?</strong>",
+  "The feed is waiting on you. <strong>Make it worth the wait.</strong>",
+  "Last week is done. <strong>What song defines this one?</strong>",
+  "You've got until Sunday to change your mind \u2014 <strong>but why wait?</strong>",
+  "Someone out there needs to hear whatever you're about to pick. <strong>Go find it.</strong>",
+  "Another week, another chance to blow someone's mind. <strong>What's your pick?</strong>",
+  "The best picks are the ones nobody saw coming. <strong>Surprise us.</strong>",
+  "Your streak is watching. <strong>Keep it alive.</strong>",
+  "This is your weekly moment of honesty. <strong>What song are you actually feeling right now?</strong>",
+  "One song. That's all. <strong>You know what it is.</strong>",
+  "Your friends trust your taste. <strong>Don't let them down this week.</strong>",
+  "Whatever you've been playing on repeat \u2014 <strong>that's the one. Submit it.</strong>",
+  "New week, clean slate. <strong>What song gets the honor?</strong>",
+  "The best discoveries on this app come from people like you. <strong>Make your pick count.</strong>",
+  "It's your turn to set the tone. <strong>What are you bringing this week?</strong>",
+];
+
+function getRecapCTAPhrase(userId, weekNumber) {
+  let hash = 0;
+  const str = String(userId) + String(weekNumber);
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return RECAP_CTA_PHRASES[Math.abs(hash) % RECAP_CTA_PHRASES.length];
+}
+
+function getRecapStorageKey(userId, weekNumber, year) {
+  return 'recap_seen_' + userId + '_' + year + '_w' + weekNumber;
+}
+
+function isRecapEligibleToday() {
+  // Shows on Sundays only. To test any day, temporarily change to: return true;
+  return new Date().getDay() === 0;
+}
+
+async function maybeShowRecapOverlay() {
+  if (isGuest || !currentUser || !currentProfile) return;
+
+  const curWeek = getCurrentWeek();
+  const curYear = new Date().getFullYear();
+  const prevWeek = curWeek > 1 ? curWeek - 1 : 52;
+  const prevYear = curWeek > 1 ? curYear : curYear - 1;
+
+  if (!isRecapEligibleToday()) return;
+
+  const seenKey = getRecapStorageKey(currentUser.id, prevWeek, prevYear);
+  if (localStorage.getItem(seenKey) === '1') return;
+
+  // If user already has a pick this week, mark seen and skip
+  const { data: existingPick } = await sb.from('picks')
+    .select('id')
+    .eq('user_id', currentUser.id)
+    .eq('week_number', curWeek)
+    .eq('year', curYear)
+    .maybeSingle();
+
+  if (existingPick) {
+    localStorage.setItem(seenKey, '1');
+    return;
+  }
+
+  await loadAndShowRecap(prevWeek, prevYear, curWeek, curYear, seenKey);
+}
+
+async function loadAndShowRecap(prevWeek, prevYear, curWeek, curYear, seenKey) {
+  document.getElementById('recap-overlay').classList.add('open');
+
+  const { data: pick } = await sb.from('picks')
+    .select('*')
+    .eq('user_id', currentUser.id)
+    .eq('week_number', prevWeek)
+    .eq('year', prevYear)
+    .maybeSingle();
+
+  let listenCount = 0, reactionCount = 0, commentCount = 0, reactors = [];
+
+  if (pick) {
+    const { count: lc } = await sb.from('listens')
+      .select('*', { count: 'exact', head: true })
+      .eq('pick_id', pick.id);
+    listenCount = lc || 0;
+
+    const { data: reactions } = await sb.from('reactions')
+      .select('user_id')
+      .eq('pick_id', pick.id);
+    reactionCount = (reactions || []).length;
+
+    if (reactionCount > 0) {
+      const reactorIds = reactions.map(r => r.user_id);
+      const { data: reactorProfiles } = await sb.from('profiles')
+        .select('id, display_name, color, instrument')
+        .in('id', reactorIds);
+      reactors = reactorProfiles || [];
+    }
+
+    const { count: cc } = await sb.from('comments')
+      .select('*', { count: 'exact', head: true })
+      .eq('pick_id', pick.id);
+    commentCount = cc || 0;
+  }
+
+  // Prompt support (Item 8) — safe no-op until prompts table exists
+  let upcomingPrompt = null, thisWeekPrompt = null;
+  try {
+    const { data: up } = await sb.from('prompts').select('*').eq('week_number', curWeek + 1).eq('year', curYear).maybeSingle();
+    upcomingPrompt = up;
+    const { data: tw } = await sb.from('prompts').select('*').eq('week_number', curWeek).eq('year', curYear).maybeSingle();
+    thisWeekPrompt = tw;
+  } catch(e) { /* prompts table not yet created */ }
+
+  renderRecapContent({ pick, prevWeek, prevYear, curWeek, curYear, listenCount, reactionCount, commentCount, reactors, upcomingPrompt, thisWeekPrompt, seenKey });
+}
+
+function renderRecapContent(data) {
+  const { pick, prevWeek, prevYear, curWeek, curYear, listenCount, reactionCount, commentCount, reactors, upcomingPrompt, thisWeekPrompt, seenKey } = data;
+
+  const ctaPhrase = getRecapCTAPhrase(currentUser.id, curWeek);
+  const weekLabel = 'Week ' + prevWeek + ' \u00b7 ' + getWeekRange(prevWeek, prevYear);
+
+  let pickHeroHtml = '';
+  if (pick) {
+    const artHtml = pick.art_url
+      ? '<img class="recap-pick-art" src="' + esc(pick.art_url) + '" alt="" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">'
+        + '<div class="recap-pick-art-ph" style="display:none">\uD83C\uDFB5</div>'
+      : '<div class="recap-pick-art-ph">\uD83C\uDFB5</div>';
+    pickHeroHtml = '<div class="recap-pick-hero">' + artHtml
+      + '<div><div class="recap-pick-song">' + esc(pick.song) + '</div>'
+      + '<div class="recap-pick-artist">' + esc(pick.artist) + '</div></div></div>';
+  } else {
+    pickHeroHtml = '<div class="recap-no-pick">You didn\'t submit a pick for Week ' + prevWeek + '. No worries \u2014 this week is a fresh start.</div>';
+  }
+
+  const statsHtml = pick
+    ? '<div class="recap-stats">'
+      + '<div class="recap-stat"><div class="recap-stat-number' + (listenCount > 0 ? ' has-activity' : '') + '">' + listenCount + '</div><div class="recap-stat-label">Listened</div></div>'
+      + '<div class="recap-stat"><div class="recap-stat-number' + (reactionCount > 0 ? ' has-activity' : '') + '">' + reactionCount + '</div><div class="recap-stat-label">Liked It</div></div>'
+      + '<div class="recap-stat"><div class="recap-stat-number' + (commentCount > 0 ? ' has-activity' : '') + '">' + commentCount + '</div><div class="recap-stat-label">Comments</div></div>'
+      + '</div>'
+    : '';
+
+  let reactorsHtml = '';
+  if (reactors.length > 0) {
+    const chips = reactors.map(r =>
+      '<div class="recap-reactor-chip">'
+      + '<div class="recap-reactor-avatar" style="background:' + r.color + '22;color:' + r.color + '">' + (r.instrument || r.display_name[0]) + '</div>'
+      + esc(r.display_name) + '</div>'
+    ).join('');
+    reactorsHtml = '<div class="recap-reactors"><div class="recap-reactors-label">\uD83D\uDC4D Liked by</div><div class="recap-reactor-list">' + chips + '</div></div>';
+  }
+
+  let promptHtml = '';
+  if (thisWeekPrompt) {
+    promptHtml = '<div class="recap-prompt-notice"><div class="recap-prompt-notice-label">\uD83C\uDFAF This week\'s prompt</div>'
+      + '<div class="recap-prompt-notice-text">This week everyone is picking a song based on: <strong>' + esc(thisWeekPrompt.prompt_text) + '</strong>. Tag your pick with this theme when you submit.</div></div>';
+  } else if (upcomingPrompt) {
+    promptHtml = '<div class="recap-prompt-notice"><div class="recap-prompt-notice-label">\uD83D\uDCC5 Heads up \u2014 next week</div>'
+      + '<div class="recap-prompt-notice-text">Week ' + (curWeek + 1) + ' is a <strong>prompt week</strong>. Everyone will be picking based on: <strong>' + esc(upcomingPrompt.prompt_text) + '</strong>. Start thinking about it.</div></div>';
+  }
+
+  const ctaPickLabel = thisWeekPrompt
+    ? 'Pick for the prompt: "' + esc(thisWeekPrompt.prompt_text) + '"'
+    : '+ Make This Week\'s Pick';
+
+  const ctaHtml = '<div class="recap-cta">'
+    + '<div class="recap-cta-phrase">' + ctaPhrase + '</div>'
+    + '<div class="recap-cta-actions">'
+    + '<button class="btn btn-primary" style="font-size:0.75rem;padding:0.75rem 1.5rem" onclick="closeRecapOverlay(true)">' + ctaPickLabel + '</button>'
+    + '<button class="recap-cta-later" onclick="closeRecapOverlay(false)">Remind me later</button>'
+    + '</div></div>';
+
+  document.getElementById('recap-content').innerHTML =
+    '<div class="recap-header">'
+    + '<div class="recap-eyebrow">Weekly Recap</div>'
+    + '<div class="recap-title">Week ' + prevWeek + ' in Review</div>'
+    + '<div class="recap-week-label">' + weekLabel + '</div>'
+    + '</div>'
+    + pickHeroHtml
+    + statsHtml
+    + reactorsHtml
+    + promptHtml
+    + ctaHtml;
+
+  document.getElementById('recap-modal').dataset.seenKey = seenKey;
+  document.getElementById('recap-modal').dataset.curWeek = curWeek;
+  document.getElementById('recap-modal').dataset.curYear = curYear;
+}
+
+function closeRecapOverlay(shouldOpenPickModal) {
+  const modal = document.getElementById('recap-modal');
+  const seenKey = modal.dataset.seenKey;
+  const curWeek = parseInt(modal.dataset.curWeek);
+  const curYear = parseInt(modal.dataset.curYear);
+  if (seenKey) localStorage.setItem(seenKey, '1');
+  document.getElementById('recap-overlay').classList.remove('open');
+  if (shouldOpenPickModal) {
+    setTimeout(() => openPickModal(curWeek, curYear), 200);
+  }
+}
 
 
 </script>
