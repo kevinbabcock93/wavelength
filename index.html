@@ -1525,7 +1525,7 @@ async function loadProfileAndContinue(){
     maybeShowDevButton();
     loadNotifications();
     autoFollowEveryone();
-    showView('feed');
+    showView('feed'); maybeShowRecapOverlay();
   } else {
     buildColorPicker('ob-colors',null);
     buildInstrumentPicker('ob-instruments',null);
