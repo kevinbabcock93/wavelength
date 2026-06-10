@@ -882,6 +882,48 @@
   .recap-cta { padding: 1.25rem 1.25rem 1.75rem; }
   .recap-stat-number { font-size: 1.9rem; }
 }
+  /* ── PICK HELPER OVERLAY ── */
+.pick-helper-overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.88); backdrop-filter: blur(14px); display: flex; align-items: center; justify-content: center; padding: 1rem; opacity: 0; transition: opacity 0.35s ease; pointer-events: none; }
+.pick-helper-overlay.open { opacity: 1; pointer-events: all; }
+.pick-helper-modal { background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--red); border-radius: 6px; width: 100%; max-width: 540px; max-height: 92vh; overflow: hidden; display: flex; flex-direction: column; position: relative; animation: recapSlideUp 0.4s cubic-bezier(0.22,1,0.36,1) both; }
+.pick-helper-close { position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: var(--text-muted); font-size: 1.1rem; cursor: pointer; line-height: 1; transition: color 0.15s; z-index: 2; }
+.pick-helper-close:hover { color: var(--red); }
+.pick-helper-header { padding: 1.75rem 2rem 1.25rem; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.pick-helper-eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--red); margin-bottom: 0.4rem; }
+.pick-helper-title { font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; letter-spacing: 0.05em; line-height: 1; color: var(--white); margin-bottom: 0.4rem; }
+.pick-helper-sub { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--text-muted); line-height: 1.6; }
+.pick-helper-list { overflow-y: auto; flex: 1; }
+.pick-helper-row { display: flex; align-items: flex-start; gap: 1rem; padding: 1rem 2rem; border-bottom: 1px solid var(--border); transition: background 0.15s; }
+.pick-helper-row:last-child { border-bottom: none; }
+.pick-helper-row:hover { background: var(--surface2); }
+.pick-helper-art { width: 52px; height: 52px; border-radius: 4px; object-fit: cover; border: 1px solid var(--border); flex-shrink: 0; background: var(--bg); }
+.pick-helper-art-ph { width: 52px; height: 52px; border-radius: 4px; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; opacity: 0.25; flex-shrink: 0; }
+.pick-helper-info { flex: 1; min-width: 0; }
+.pick-helper-song { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 0.04em; color: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pick-helper-artist { font-size: 0.78rem; color: var(--text-muted); font-style: italic; margin-top: 0.1rem; }
+.pick-helper-via { font-family: 'IBM Plex Mono', monospace; font-size: 0.56rem; color: var(--text-dim); margin-top: 0.2rem; text-transform: uppercase; letter-spacing: 0.08em; }
+.pick-helper-preview-bar { margin-top: 0.6rem; background: rgba(29,185,84,0.08); border: 1px solid rgba(29,185,84,0.25); border-radius: 4px; padding: 0.5rem 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
+.pick-helper-preview-dot { width: 26px; height: 26px; border-radius: 50%; background: #1db954; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; color: white; flex-shrink: 0; }
+.pick-helper-preview-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; color: #1db954; text-transform: uppercase; letter-spacing: 0.08em; }
+.pick-helper-preview-hint { font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; color: var(--text-muted); margin-top: 0.1rem; }
+.pick-helper-actions { display: flex; flex-direction: column; gap: 0.4rem; flex-shrink: 0; }
+.pick-helper-btn-preview { background: rgba(29,185,84,0.15); color: #1db954; border: 1px solid rgba(29,185,84,0.4); border-radius: 3px; font-family: 'IBM Plex Mono', monospace; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.08em; padding: 0.3rem 0.6rem; cursor: pointer; white-space: nowrap; transition: all 0.15s; }
+.pick-helper-btn-preview:hover { background: rgba(29,185,84,0.25); }
+.pick-helper-btn-full { display: block; text-align: center; background: rgba(29,185,84,0.08); color: #1db954; border: 1px solid rgba(29,185,84,0.2); border-radius: 3px; font-family: 'IBM Plex Mono', monospace; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.08em; padding: 0.3rem 0.6rem; text-decoration: none; white-space: nowrap; transition: all 0.15s; }
+.pick-helper-btn-full:hover { background: rgba(29,185,84,0.18); }
+.pick-helper-btn-pick { background: rgba(204,17,17,0.12); color: var(--red); border: 1px solid var(--red-dim); border-radius: 3px; font-family: 'IBM Plex Mono', monospace; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.08em; padding: 0.3rem 0.6rem; cursor: pointer; white-space: nowrap; transition: all 0.15s; }
+.pick-helper-btn-pick:hover { background: var(--red); color: white; }
+.pick-helper-footer { padding: 1.1rem 2rem 1.4rem; border-top: 1px solid var(--border); display: flex; justify-content: center; flex-shrink: 0; }
+.pick-helper-skip { background: none; border: none; font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); cursor: pointer; transition: color 0.15s; }
+.pick-helper-skip:hover { color: var(--text-muted); }
+@media (max-width: 650px) {
+  .pick-helper-modal { border-radius: 12px 12px 0 0; position: fixed; bottom: 0; left: 0; right: 0; max-width: 100%; max-height: 90vh; }
+  .pick-helper-overlay { align-items: flex-end; padding: 0; }
+  .pick-helper-header { padding: 1.4rem 1.25rem 1rem; }
+  .pick-helper-title { font-size: 1.8rem; }
+  .pick-helper-row { padding: 1rem 1.25rem; }
+  .pick-helper-footer { padding: 1rem 1.25rem 1.5rem; }
+}
 </style>
 </head>
 <body>
@@ -1169,7 +1211,10 @@
 <div class="modal-overlay" id="pick-modal">
   <div class="modal">
     <button class="modal-close" onclick="closePickModal()">✕</button>
-    <h3>🎵 This Week's Pick</h3>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:0.3rem">
+      <h3 style="margin-bottom:0">🎵 This Week's Pick</h3>
+      <button id="pick-helper-modal-btn" onclick="openPickHelper('modal')" style="display:none;align-items:center;gap:0.4rem;background:transparent;border:1px solid var(--border);border-radius:3px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:0.6rem;text-transform:uppercase;letter-spacing:0.1em;padding:0.3rem 0.7rem;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all 0.15s" onmouseover="this.style.borderColor='var(--red-dim)';this.style.color='var(--white)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">💡 Inspiration?</button>
+    </div>
     <p class="modal-sub" id="pick-week-label"></p>
     <div class="form-group" style="position:relative">
       <label>Search for a song</label>
@@ -1218,7 +1263,23 @@
     </div>
   </div>
 </div>
-
+<!-- PICK HELPER OVERLAY -->
+<div class="pick-helper-overlay" id="pick-helper-overlay">
+  <div class="pick-helper-modal" id="pick-helper-modal">
+    <button class="pick-helper-close" onclick="closePickHelper()" title="Close">&#x2715;</button>
+    <div class="pick-helper-header">
+      <div class="pick-helper-eyebrow">Pick Helper</div>
+      <div class="pick-helper-title">Need inspiration?</div>
+      <div class="pick-helper-sub">Based on artists connected to your past picks — one song from each. Preview, listen, or make it your pick.</div>
+    </div>
+    <div class="pick-helper-list" id="pick-helper-list">
+      <div class="loading-center"><div class="spinner"></div></div>
+    </div>
+    <div class="pick-helper-footer">
+      <button class="pick-helper-skip" onclick="closePickHelper()">I'll find my own song →</button>
+    </div>
+  </div>
+</div>
 <div class="dev-badge" id="dev-badge" style="display:none">⚙ Dev Mode</div>
 <div class="toast" id="toast"></div>
 
@@ -3704,6 +3765,8 @@ async function openPickModal(targetWeek,targetYear){
     document.getElementById('p-clear-btn').style.display='none';
     document.getElementById('pick-selected-preview').style.display='none';
   }
+  const phBtn = document.getElementById('pick-helper-modal-btn');
+  if (phBtn && currentUser && currentProfile) phBtn.style.display = 'inline-flex';
   document.getElementById('pick-modal').classList.add('open');
 }
 
@@ -6826,6 +6889,7 @@ function renderRecapContent(data) {
     + '<div class="recap-cta-phrase">' + ctaPhrase + '</div>'
     + '<div class="recap-cta-actions">'
     + '<button class="btn btn-primary" style="font-size:0.75rem;padding:0.75rem 1.5rem" onclick="closeRecapOverlay(true)">' + ctaPickLabel + '</button>'
+    + '<button class="btn btn-ghost" style="font-size:0.75rem;padding:0.75rem 1.1rem" onclick="openPickHelper(\'recap\')">💡 Inspiration?</button>'
     + '<button class="recap-cta-later" onclick="closeRecapOverlay(false)">Remind me later</button>'
     + '</div></div>';
 
@@ -6857,7 +6921,204 @@ function closeRecapOverlay(shouldOpenPickModal) {
     setTimeout(() => openPickModal(curWeek, curYear), 200);
   }
 }
+// ── PICK HELPER ──
 
+let _pickHelperSource = null; // 'recap' | 'modal'
+let _pickHelperPreviewTrackId = null;
+
+async function openPickHelper(source) {
+  _pickHelperSource = source || 'modal';
+  document.getElementById('pick-helper-overlay').classList.add('open');
+  document.getElementById('pick-helper-list').innerHTML = '<div class="loading-center"><div class="spinner"></div></div>';
+  // Show the inspiration button in the pick modal
+  const modalBtn = document.getElementById('pick-helper-modal-btn');
+  if (modalBtn) modalBtn.style.display = 'inline-flex';
+  await loadPickHelperRecs();
+}
+
+function closePickHelper() {
+  document.getElementById('pick-helper-overlay').classList.remove('open');
+  if (_pickHelperPreviewTrackId) {
+    const bar = document.getElementById('php-preview-' + _pickHelperPreviewTrackId);
+    const embedEl = document.getElementById('php-embed-' + _pickHelperPreviewTrackId);
+    const btn = document.getElementById('php-btn-' + _pickHelperPreviewTrackId);
+    if (bar) bar.style.display = 'none';
+    if (embedEl) embedEl.innerHTML = '';
+    if (btn) btn.textContent = '▶ Preview';
+    _pickHelperPreviewTrackId = null;
+  }
+}
+
+async function loadPickHelperRecs() {
+  const list = document.getElementById('pick-helper-list');
+  try {
+    const { data: picks } = await sb.from('picks')
+      .select('related_artists, artist')
+      .eq('user_id', currentUser.id);
+
+    if (!picks || !picks.length) {
+      list.innerHTML = '<div class="empty-state"><div class="icon">🎵</div><p>Make a few picks first — we\'ll use your listening history to find recommendations.</p></div>';
+      return;
+    }
+
+    // Build deduplicated related artist list, excluding artists already picked
+    const seen = new Set();
+    const artistSources = [];
+    const alreadyPicked = new Set((picks || []).map(p => (p.artist || '').toLowerCase().trim()));
+
+    picks.forEach(pick => {
+      if (pick.related_artists) {
+        pick.related_artists.split(',').map(a => a.trim()).filter(Boolean).forEach(a => {
+          const key = a.toLowerCase();
+          if (!seen.has(key) && !alreadyPicked.has(key)) {
+            seen.add(key);
+            artistSources.push({ artist: a, via: pick.artist });
+          }
+        });
+      }
+    });
+
+    if (!artistSources.length) {
+      list.innerHTML = '<div class="empty-state"><div class="icon">🎵</div><p>No related artists found yet. Your recommendations will appear here as you make more picks.</p></div>';
+      return;
+    }
+
+    // Fetch top track from Spotify for each artist (up to 10)
+    const token = await getSpotifyToken();
+    const recs = [];
+    for (const { artist, via } of artistSources.slice(0, 10)) {
+      try {
+        const data = await spotifyFetch(
+          'https://api.spotify.com/v1/search?q=' + encodeURIComponent(artist) + '&type=track&limit=3', token
+        );
+        const tracks = data && data.tracks && data.tracks.items;
+        if (!tracks || !tracks.length) continue;
+        // Prefer a track that actually matches the target artist
+        const track = tracks.find(t =>
+          t.artists.some(a =>
+            a.name.toLowerCase().includes(artist.toLowerCase()) ||
+            artist.toLowerCase().includes(a.name.toLowerCase())
+          )
+        ) || tracks[0];
+        const art = track.album.images[1] || track.album.images[0];
+        const trackId = track.external_urls.spotify.split('/track/').pop().split('?')[0];
+        recs.push({
+          song: track.name,
+          artist: track.artists.map(a => a.name).join(', '),
+          artUrl: art ? art.url : '',
+          spotifyUrl: track.external_urls.spotify,
+          spotifyTrackId: trackId,
+          year: track.album.release_date ? track.album.release_date.split('-')[0] : '',
+          albumName: track.album.name,
+          via: via,
+        });
+      } catch(e) { /* skip on error */ }
+      await new Promise(r => setTimeout(r, 100));
+    }
+
+    if (!recs.length) {
+      list.innerHTML = '<div class="empty-state"><div class="icon">🎵</div><p>Couldn\'t load recommendations right now. Try again in a moment.</p></div>';
+      return;
+    }
+
+    list.innerHTML = recs.map((rec, i) => {
+      const artHtml = rec.artUrl
+        ? '<img class="pick-helper-art" src="' + esc(rec.artUrl) + '" alt="" onerror="this.outerHTML=\'<div class=\\\'pick-helper-art-ph\\\'>🎵</div>\'">'
+        : '<div class="pick-helper-art-ph">🎵</div>';
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      const spotifyHref = isMobile ? 'spotify:track:' + rec.spotifyTrackId : rec.spotifyUrl;
+      const recJson = JSON.stringify(rec).replace(/</g,'\\u003c').replace(/>/g,'\\u003e').replace(/"/g,'&quot;');
+      return '<div class="pick-helper-row" id="phrow-' + i + '">'
+        + artHtml
+        + '<div class="pick-helper-info">'
+        + '<div class="pick-helper-song">' + esc(rec.song) + '</div>'
+        + '<div class="pick-helper-artist">' + esc(rec.artist) + (rec.year ? ' \u00b7 ' + rec.year : '') + '</div>'
+        + '<div class="pick-helper-via">via ' + esc(rec.via) + ' picks</div>'
+        + '<div class="pick-helper-preview-bar" id="php-preview-' + rec.spotifyTrackId + '" style="display:none">'
+        + '<div class="pick-helper-preview-dot">▶</div>'
+        + '<div><div class="pick-helper-preview-label">Now Previewing \u00b7 30s</div>'
+        + '<div class="pick-helper-preview-hint">Like it? Make it your pick.</div></div>'
+        + '</div>'
+        + '<div id="php-embed-' + rec.spotifyTrackId + '"></div>'
+        + '</div>'
+        + '<div class="pick-helper-actions">'
+        + '<button class="pick-helper-btn-preview" id="php-btn-' + rec.spotifyTrackId + '" onclick="togglePickHelperPreview(\'' + rec.spotifyTrackId + '\',this)">▶ Preview</button>'
+        + '<a class="pick-helper-btn-full" href="' + esc(spotifyHref) + '" target="_blank" rel="noopener">Full Song ↗</a>'
+        + '<button class="pick-helper-btn-pick" onclick=\'pickHelperSelect(' + recJson + ')\'>Make My Pick</button>'
+        + '</div>'
+        + '</div>';
+    }).join('');
+
+  } catch(e) {
+    list.innerHTML = '<div class="empty-state"><div class="icon">🎵</div><p>Something went wrong loading recommendations.</p></div>';
+  }
+}
+
+function togglePickHelperPreview(trackId, btn) {
+  // Stop currently playing preview if it's a different track
+  if (_pickHelperPreviewTrackId && _pickHelperPreviewTrackId !== trackId) {
+    const oldBar = document.getElementById('php-preview-' + _pickHelperPreviewTrackId);
+    const oldEmbed = document.getElementById('php-embed-' + _pickHelperPreviewTrackId);
+    const oldBtn = document.getElementById('php-btn-' + _pickHelperPreviewTrackId);
+    if (oldBar) oldBar.style.display = 'none';
+    if (oldEmbed) oldEmbed.innerHTML = '';
+    if (oldBtn) oldBtn.textContent = '▶ Preview';
+    _pickHelperPreviewTrackId = null;
+  }
+
+  const bar = document.getElementById('php-preview-' + trackId);
+  const embedEl = document.getElementById('php-embed-' + trackId);
+
+  if (_pickHelperPreviewTrackId === trackId) {
+    // Stop
+    bar.style.display = 'none';
+    embedEl.innerHTML = '';
+    btn.textContent = '▶ Preview';
+    _pickHelperPreviewTrackId = null;
+  } else {
+    // Play
+    bar.style.display = 'flex';
+    embedEl.innerHTML = '<iframe style="border-radius:6px;border:none;width:100%;margin-top:0.5rem" src="https://open.spotify.com/embed/track/' + trackId + '?utm_source=generator&theme=0" height="80" allowfullscreen allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>';
+    btn.textContent = '■ Stop';
+    _pickHelperPreviewTrackId = trackId;
+  }
+}
+
+async function pickHelperSelect(rec) {
+  closePickHelper();
+  await new Promise(r => setTimeout(r, 180));
+
+  if (_pickHelperSource === 'recap') {
+    // Also close the recap overlay
+    const seenKey = document.getElementById('recap-modal').dataset.seenKey;
+    if (seenKey) localStorage.setItem(seenKey, '1');
+    document.getElementById('recap-overlay').classList.remove('open');
+    await new Promise(r => setTimeout(r, 180));
+  }
+
+  // Open pick modal
+  const curWeek = parseInt(document.getElementById('recap-modal').dataset.curWeek) || getCurrentWeek();
+  const curYear = parseInt(document.getElementById('recap-modal').dataset.curYear) || new Date().getFullYear();
+  await openPickModal(_pickHelperSource === 'recap' ? curWeek : null, _pickHelperSource === 'recap' ? curYear : null);
+
+  // Pre-fill all fields
+  document.getElementById('p-song').value = rec.song;
+  document.getElementById('p-artist').value = rec.artist;
+  document.getElementById('p-art').value = rec.artUrl || '';
+  document.getElementById('p-spotify').value = rec.spotifyUrl || '';
+  document.getElementById('p-year').value = rec.year || '';
+  document.getElementById('p-search').value = rec.song + ' \u2014 ' + rec.artist;
+  document.getElementById('p-clear-btn').style.display = 'inline-flex';
+  document.getElementById('pick-preview-art').src = rec.artUrl || '';
+  document.getElementById('pick-preview-song').textContent = rec.song;
+  document.getElementById('pick-preview-artist').textContent = rec.artist;
+  document.getElementById('pick-preview-year').textContent = rec.year ? rec.year + ' \u00b7 ' + (rec.albumName || '') : (rec.albumName || '');
+  document.getElementById('pick-selected-preview').style.display = 'block';
+
+  // Show the inspiration button now that modal is open
+  const modalBtn = document.getElementById('pick-helper-modal-btn');
+  if (modalBtn) modalBtn.style.display = 'inline-flex';
+}
 
 </script>
 </body>
